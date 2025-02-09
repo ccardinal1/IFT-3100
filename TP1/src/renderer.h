@@ -3,13 +3,14 @@
 #pragma once
 
 #include "ofMain.h"
+#include <vector>
 
 class Renderer
 {
 public:
 
 	ofNode node;
-	ofImage importedImage;
+	std::vector<ofImage> importedImages;
 
 	void setup();
 	void update();

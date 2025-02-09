@@ -1,6 +1,7 @@
 // Classe responsable du rendu de l'application.
 
 #include "renderer.h"
+#include <algorithm>
 
 void Renderer::setup()
 {
@@ -12,11 +13,20 @@ void Renderer::update()
 
 void Renderer::draw()
 {
-    if (importedImage.isAllocated())
+    if (importedImages.size() > 0)
     {
-        int x = (ofGetWidth() - importedImage.getWidth()) / 2;
-        int y = (ofGetHeight() - importedImage.getHeight()) / 2;
+        for (int i = 0; i < importedImages.size(); i++)
+        {
+            int spacing = 20;
+            int columns = std::max<int>(1, ofGetWidth() / (importedImages[0].getWidth() + spacing));
 
-        importedImage.draw(x, y);
+            for (size_t i = 0; i < importedImages.size(); i++)
+            {
+                int x = (i % columns) * (importedImages[i].getWidth() + spacing);
+                int y = (i / columns) * (importedImages[i].getHeight() + spacing);
+
+                importedImages[i].draw(x, y);
+            }
+        }
     }
 }

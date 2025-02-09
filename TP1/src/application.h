@@ -28,4 +28,7 @@ class Application : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+		void resetButtonPressed();
+
+		ofxButton resetButton;
 };

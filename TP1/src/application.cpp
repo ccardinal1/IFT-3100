@@ -5,6 +5,11 @@ void Application::setup()
 {
 	renderer.setup();
 	gui.setup();
+
+	resetButton.addListener(this, &Application::resetButtonPressed);
+
+	gui.add(resetButton.setup("Reinitialiser"));
+
 }
 
 //--------------------------------------------------------------
@@ -79,8 +84,18 @@ void Application::gotMessage(ofMessage msg)
 
 }
 
+void Application::resetButtonPressed()
+{
+	renderer.importedImages.clear();
+}
+
 //--------------------------------------------------------------
 void Application::dragEvent(ofDragInfo dragInfo)
 {
-	renderer.importedImage.load(dragInfo.files[0]);
+
+	for (int i = 0; i < dragInfo.files.size(); i++)
+	{
+		renderer.importedImages.push_back(ofImage());
+		renderer.importedImages.back().load(dragInfo.files[i]);
+	}
 }
