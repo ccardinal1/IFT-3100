@@ -4,6 +4,7 @@
 void Application::setup()
 {
 	renderer.setup();
+	gui.setup();
 }
 
 //--------------------------------------------------------------
@@ -16,6 +17,7 @@ void Application::update()
 void Application::draw()
 {
 	renderer.draw();
+	gui.draw();
 }
 
 //--------------------------------------------------------------
@@ -80,5 +82,5 @@ void Application::gotMessage(ofMessage msg)
 //--------------------------------------------------------------
 void Application::dragEvent(ofDragInfo dragInfo)
 {
-
+	renderer.importedImage.load(dragInfo.files[0]);
 }

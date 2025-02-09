@@ -2,11 +2,15 @@
 
 #include "ofMain.h"
 #include "renderer.h"
+#include "ofxGui.h"
 
 class Application : public ofBaseApp{
 
 	public:
 		Renderer renderer;
+
+		ofxPanel gui;
+
 
 		void setup();
 		void update();

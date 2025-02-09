@@ -9,6 +9,7 @@ class Renderer
 public:
 
 	ofNode node;
+	ofImage importedImage;
 
 	void setup();
 	void update();
