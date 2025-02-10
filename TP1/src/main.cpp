@@ -1,5 +1,6 @@
 #include "ofMain.h"
 #include "application.h"
+#include "histogramApplication.h"
 
 //========================================================================
 int main( ){
@@ -10,8 +11,10 @@ int main( ){
 	settings.windowMode = OF_WINDOW; //can also be OF_FULLSCREEN
 
 	auto window = ofCreateWindow(settings);
+	auto mainApp = make_shared<Application>();
 
-	ofRunApp(window, make_shared<Application>());
+	ofRunApp(window, mainApp);
+
 	ofRunMainLoop();
 
 }

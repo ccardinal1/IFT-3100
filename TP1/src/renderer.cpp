@@ -5,6 +5,7 @@
 
 void Renderer::setup()
 {
+    importedImages.clear();
 }
 
 void Renderer::update()

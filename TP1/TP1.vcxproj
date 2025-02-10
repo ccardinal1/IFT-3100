@@ -104,6 +104,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\histogramApplication.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\renderer.cpp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\histogramApplication.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\renderer.h" />

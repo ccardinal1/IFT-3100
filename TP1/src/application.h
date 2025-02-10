@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "renderer.h"
 #include "ofxGui.h"
+#include "histogramApplication.h"
 
 class Application : public ofBaseApp{
 
@@ -10,7 +11,11 @@ class Application : public ofBaseApp{
 		Renderer renderer;
 
 		ofxPanel gui;
+		ofxButton resetButton;
+		ofxButton histogramButton;
 
+		HistogramApplication* histogramWindowApplication;
+		std::shared_ptr<ofAppBaseWindow> histogramWindow;
 
 		void setup();
 		void update();
@@ -29,6 +34,6 @@ class Application : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		void resetButtonPressed();
+		void histogramButtonPressed();
 
-		ofxButton resetButton;
 };

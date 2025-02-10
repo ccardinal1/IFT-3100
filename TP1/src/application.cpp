@@ -7,8 +7,10 @@ void Application::setup()
 	gui.setup();
 
 	resetButton.addListener(this, &Application::resetButtonPressed);
+	histogramButton.addListener(this, &Application::histogramButtonPressed);
 
 	gui.add(resetButton.setup("Reinitialiser"));
+	gui.add(histogramButton.setup("Histogramme"));
 
 }
 
@@ -16,6 +18,12 @@ void Application::setup()
 void Application::update()
 {
 	renderer.update();
+	if (histogramWindowApplication && !histogramWindowApplication->isClosed)
+	{
+		ofImage img;
+		img.grabScreen(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		histogramWindowApplication->setHistogram(img);
+	}
 }
 
 //--------------------------------------------------------------
@@ -84,11 +92,6 @@ void Application::gotMessage(ofMessage msg)
 
 }
 
-void Application::resetButtonPressed()
-{
-	renderer.importedImages.clear();
-}
-
 //--------------------------------------------------------------
 void Application::dragEvent(ofDragInfo dragInfo)
 {
@@ -98,4 +101,35 @@ void Application::dragEvent(ofDragInfo dragInfo)
 		renderer.importedImages.push_back(ofImage());
 		renderer.importedImages.back().load(dragInfo.files[i]);
 	}
+}
+
+//--------------------------------------------------------------
+void Application::resetButtonPressed()
+{
+	setup();
+	histogramWindow.get()->setWindowShouldClose();
+}
+
+//--------------------------------------------------------------
+void Application::histogramButtonPressed()
+{
+	ofImage img;
+	img.grabScreen(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+
+	if (!histogramWindowApplication || histogramWindowApplication->isClosed)
+	{
+		ofGLWindowSettings settings;
+		settings.setSize(500, 300);
+		settings.title = "Histogramme";
+
+		histogramWindow = ofCreateWindow(settings);
+		auto histogramApp = make_shared<HistogramApplication>();
+
+		ofRunApp(histogramWindow, histogramApp);
+
+		histogramWindowApplication = histogramApp.get();
+		histogramWindowApplication->isClosed = false;
+	}
+
+	histogramWindowApplication->setHistogram(img);
 }
