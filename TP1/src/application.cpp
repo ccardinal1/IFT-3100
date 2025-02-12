@@ -3,7 +3,6 @@
 //--------------------------------------------------------------
 void Application::setup()
 {
-	renderer.setup();
 	gui.setup();
 
 	resetButton.addListener(this, &Application::resetButtonPressed);
@@ -12,12 +11,12 @@ void Application::setup()
 	gui.add(resetButton.setup("Reinitialiser"));
 	gui.add(histogramButton.setup("Histogramme"));
 
+	assetManager.assets.clear();
 }
 
 //--------------------------------------------------------------
 void Application::update()
 {
-	renderer.update();
 	if (histogramWindowApplication && !histogramWindowApplication->isClosed)
 	{
 		ofImage img;
@@ -29,8 +28,8 @@ void Application::update()
 //--------------------------------------------------------------
 void Application::draw()
 {
-	renderer.draw();
 	gui.draw();
+	assetManager.draw();
 }
 
 //--------------------------------------------------------------
@@ -95,11 +94,11 @@ void Application::gotMessage(ofMessage msg)
 //--------------------------------------------------------------
 void Application::dragEvent(ofDragInfo dragInfo)
 {
+	int importedImageCount = assetManager.assets.size();
 
 	for (int i = 0; i < dragInfo.files.size(); i++)
 	{
-		renderer.importedImages.push_back(ofImage());
-		renderer.importedImages.back().load(dragInfo.files[i]);
+		assetManager.addImageAsset("imported_image_" + std::to_string(importedImageCount + i), dragInfo.files[i], dragInfo.position);
 	}
 }
 

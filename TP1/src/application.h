@@ -1,21 +1,21 @@
 #pragma once
 
 #include "ofMain.h"
-#include "renderer.h"
 #include "ofxGui.h"
 #include "histogramApplication.h"
+#include "assetManager.h"
 
 class Application : public ofBaseApp{
 
 	public:
-		Renderer renderer;
-
 		ofxPanel gui;
 		ofxButton resetButton;
 		ofxButton histogramButton;
 
 		HistogramApplication* histogramWindowApplication;
 		std::shared_ptr<ofAppBaseWindow> histogramWindow;
+
+		AssetManager assetManager;
 
 		void setup();
 		void update();
