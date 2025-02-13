@@ -11,11 +11,29 @@ class Application : public ofBaseApp{
 		ofxPanel gui;
 		ofxButton resetButton;
 		ofxButton histogramButton;
+		ofxGuiGroup groupDraw;
+		ofxGuiGroup groupDrawOptions;
+
+		ofxToggle toggleDrawLine;
+		ofxToggle toggleDrawRectangle;
+		ofxToggle toggleDrawCircle;
+		ofxToggle toggleDrawEllipse;
+		ofxToggle toggleDrawTriangle;
+
+		ofxColorSlider fillColorSlider;
+		ofxColorSlider backgroundColorSlider;
+
+		ofxIntSlider lineWidth;
+
+		ofxToggle toggleDrawFill;
 
 		HistogramApplication* histogramWindowApplication;
 		std::shared_ptr<ofAppBaseWindow> histogramWindow;
 
 		AssetManager assetManager;
+
+		int mousePressX;
+		int mousePressY;
 
 		void setup();
 		void update();
@@ -32,6 +50,12 @@ class Application : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		void drawLineToggleChanged(bool& value);
+		void drawRectangleToggleChanged(bool& value);
+		void drawCircleToggleChanged(bool& value);
+		void drawEllipseToggleChanged(bool& value);
+		void drawTriangleToggleChanged(bool& value);
 		
 		void resetButtonPressed();
 		void histogramButtonPressed();
