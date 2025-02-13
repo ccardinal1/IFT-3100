@@ -99,6 +99,7 @@ void AssetManager:: draw()
             case AssetType::CIRCLE:
                 ofSetColor(asset.color);
                 ofSetLineWidth(asset.lineWidth);
+                ofSetCircleResolution(100);
                 ofDrawCircle(asset.position.x, asset.position.y, asset.radius);
                 break;
             case AssetType::ELLIPSE:
