@@ -31,6 +31,7 @@ class Application : public ofBaseApp{
 		std::shared_ptr<ofAppBaseWindow> histogramWindow;
 
 		AssetManager assetManager;
+		Asset* selectedAsset;
 
 		int mousePressX;
 		int mousePressY;

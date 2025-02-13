@@ -21,6 +21,7 @@ struct Asset {
     glm::vec2 p1, p2, p3;
     ofColor color;
     bool isFilled;
+    bool isSelected;
 };
 
 class AssetManager {
@@ -33,7 +34,9 @@ public:
     void addTriangle(const std::string& name, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, int lineWidth, ofColor color, bool isFilled);
 
 	void draw();
-	void setPosition(const std::string& name, glm::vec2 newPos);
+
+    Asset* getAsset(glm::vec2 point);
+	void setPosition(Asset* asset, glm::vec2 newPos);
 
 	std::map<std::string, Asset> assets;
 };

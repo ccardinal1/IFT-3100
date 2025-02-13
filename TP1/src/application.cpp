@@ -90,12 +90,42 @@ void Application::mousePressed(int x, int y, int button)
 {
 	mousePressX = x;
 	mousePressY = y;
+
+	if (!toggleDrawLine && !toggleDrawRectangle && !toggleDrawCircle && !toggleDrawEllipse && !toggleDrawTriangle)
+	{
+		Asset* tempAsset = assetManager.getAsset({ x, y });
+
+		if (tempAsset == NULL)
+		{
+			if (selectedAsset != NULL)
+			{
+				selectedAsset->isSelected = false;
+				selectedAsset = NULL;
+			}
+		}
+		else if (selectedAsset == NULL)
+		{			
+			selectedAsset = tempAsset;
+			selectedAsset->isSelected = true;
+		}
+		else if (tempAsset != selectedAsset)
+		{
+			selectedAsset->isSelected = false;
+			tempAsset->isSelected = true;
+
+			selectedAsset = tempAsset;
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
-	if (toggleDrawLine)
+	if (selectedAsset)
+	{
+		assetManager.setPosition(selectedAsset, {x, y});
+	}
+	else if (toggleDrawLine)
 	{
 		assetManager.addLine("line_" + std::to_string(x) + "_" + std::to_string(y), { mousePressX, mousePressY }, { x, y }, lineWidth, fillColorSlider, toggleDrawFill);
 	}
@@ -146,6 +176,7 @@ void Application::drawLineToggleChanged(bool& value)
 {
 	if (toggleDrawLine)
 	{
+		selectedAsset = NULL;
 		toggleDrawRectangle = false;
 		toggleDrawCircle = false;
 		toggleDrawEllipse = false;
@@ -158,6 +189,7 @@ void Application::drawRectangleToggleChanged(bool& value)
 {
 	if (toggleDrawRectangle)
 	{
+		selectedAsset = NULL;
 		toggleDrawLine = false;
 		toggleDrawCircle = false;
 		toggleDrawEllipse = false;
@@ -170,6 +202,7 @@ void Application::drawCircleToggleChanged(bool& value)
 {
 	if (toggleDrawCircle)
 	{
+		selectedAsset = NULL;
 		toggleDrawLine = false;
 		toggleDrawRectangle = false;
 		toggleDrawEllipse = false;
@@ -182,6 +215,7 @@ void Application::drawEllipseToggleChanged(bool& value)
 {
 	if (toggleDrawEllipse)
 	{
+		selectedAsset = NULL;
 		toggleDrawLine = false;
 		toggleDrawRectangle = false;
 		toggleDrawCircle = false;
@@ -194,6 +228,7 @@ void Application::drawTriangleToggleChanged(bool& value)
 {
 	if (toggleDrawTriangle)
 	{
+		selectedAsset = NULL;
 		toggleDrawLine = false;
 		toggleDrawRectangle = false;
 		toggleDrawEllipse = false;
