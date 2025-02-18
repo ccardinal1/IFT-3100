@@ -28,7 +28,7 @@ void HistogramApplication::setHistogram(const ofImage& img)
     {
         for (int x = 0; x < img.getWidth(); x++)
         {
-            int brightness = img.getColor(x, y).getBrightness();
+            int brightness = img.getColor(x, y).getBrightness(); //TODO: Fix
             histogram[brightness]++;
         }
     }

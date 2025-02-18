@@ -3,6 +3,7 @@
 void AssetManager::addImage(const std::string& name, const std::string& path, glm::vec2 pos)
 {
 	Asset asset;
+	asset.name = name;
 	asset.type = AssetType::IMAGE;
 	if (!asset.image.load(path))
 	{
@@ -16,6 +17,7 @@ void AssetManager::addImage(const std::string& name, const std::string& path, gl
 void AssetManager::addRectangle(const std::string& name, glm::vec2 pos, float width, float height, int lineWidth, ofColor color, bool isFilled)
 {
 	Asset asset;
+	asset.name = name;
 	asset.type = AssetType::RECTANGLE;
 	asset.position = pos;
 	asset.width = width;
@@ -29,6 +31,7 @@ void AssetManager::addRectangle(const std::string& name, glm::vec2 pos, float wi
 void AssetManager::addCircle(const std::string& name, glm::vec2 pos, float radius, int lineWidth, ofColor color, bool isFilled)
 {
 	Asset asset;
+	asset.name = name;
 	asset.type = AssetType::CIRCLE;
 	asset.position = pos;
 	asset.radius = radius;
@@ -41,6 +44,7 @@ void AssetManager::addCircle(const std::string& name, glm::vec2 pos, float radiu
 void AssetManager::addEllipse(const std::string& name, glm::vec2 pos, float width, float height, int lineWidth, ofColor color, bool isFilled)
 {
 	Asset asset;
+	asset.name = name;
 	asset.type = AssetType::ELLIPSE;
 	asset.position = pos;
 	asset.width = width;
@@ -54,6 +58,7 @@ void AssetManager::addEllipse(const std::string& name, glm::vec2 pos, float widt
 void AssetManager::addLine(const std::string& name, glm::vec2 start, glm::vec2 end, int lineWidth, ofColor color, bool isFilled)
 {
 	Asset asset;
+	asset.name = name;
 	asset.type = AssetType::LINE;
 	asset.position = start;
 	asset.endpoint = end;
@@ -66,6 +71,7 @@ void AssetManager::addLine(const std::string& name, glm::vec2 start, glm::vec2 e
 void AssetManager::addTriangle(const std::string& name, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, int lineWidth, ofColor color, bool isFilled)
 {
 	Asset asset;
+	asset.name = name;
 	asset.type = AssetType::TRIANGLE;
 	asset.position = p1;
 	asset.p1 = p1;
@@ -218,4 +224,9 @@ void AssetManager::setPosition(Asset* asset, glm::vec2 newPos)
 			break;
 		}
 	}	
+}
+
+void AssetManager::deleteAsset(string assetName)
+{
+	assets.erase(assetName);
 }

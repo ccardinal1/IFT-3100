@@ -9,6 +9,7 @@ class Application : public ofBaseApp{
 
 	public:
 		ofxPanel gui;
+		ofxPanel assetsPanel;
 		ofxButton resetButton;
 		ofxButton histogramButton;
 		ofxGuiGroup groupDraw;
@@ -19,6 +20,9 @@ class Application : public ofBaseApp{
 		ofxToggle toggleDrawCircle;
 		ofxToggle toggleDrawEllipse;
 		ofxToggle toggleDrawTriangle;
+
+		ofxButton deleteButton;
+		std::unordered_map<std::string, std::shared_ptr<ofxToggle>> assetsButtons;
 
 		ofxColorSlider fillColorSlider;
 		ofxColorSlider backgroundColorSlider;
@@ -31,7 +35,7 @@ class Application : public ofBaseApp{
 		std::shared_ptr<ofAppBaseWindow> histogramWindow;
 
 		AssetManager assetManager;
-		Asset* selectedAsset;
+		std::vector<Asset*> selectedAssets;
 
 		int mousePressX;
 		int mousePressY;
@@ -58,7 +62,13 @@ class Application : public ofBaseApp{
 		void drawEllipseToggleChanged(bool& value);
 		void drawTriangleToggleChanged(bool& value);
 		
+		void isFilledToggleChanged(bool& value);
+		void drawColorChanged(ofColor& value);
+
+		void selectedAssetChanged(bool& value);
+		
 		void resetButtonPressed();
 		void histogramButtonPressed();
+		void deleteButtonPressed();
 
 };

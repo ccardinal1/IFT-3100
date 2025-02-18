@@ -12,6 +12,7 @@ enum class AssetType {
 
 struct Asset {
     AssetType type;
+    string name;
     ofImage image;
     glm::vec2 position;
 
@@ -37,6 +38,8 @@ public:
 
     Asset* getAsset(glm::vec2 point);
 	void setPosition(Asset* asset, glm::vec2 newPos);
+
+    void deleteAsset(string assetName);
 
 	std::map<std::string, Asset> assets;
 };

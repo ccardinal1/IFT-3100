@@ -4,9 +4,14 @@
 void Application::setup()
 {
 	gui.setup();
+	assetsPanel.setup();
+	assetsPanel.setName("Graphe de scene");
+	assetsPanel.setPosition(ofGetWindowWidth() - assetsPanel.getWidth() - 10, 10);
 
 	resetButton.addListener(this, &Application::resetButtonPressed);
 	histogramButton.addListener(this, &Application::histogramButtonPressed);
+	deleteButton.addListener(this, &Application::deleteButtonPressed);
+	toggleDrawFill.addListener(this, &Application::isFilledToggleChanged);
 
 	gui.add(resetButton.setup("Reinitialiser"));
 	gui.add(histogramButton.setup("Histogramme"));
@@ -39,6 +44,8 @@ void Application::setup()
 
 	gui.add(backgroundColorSlider.setup("Arriere-Plan", ofColor(100, 100, 100), ofColor(0, 0), ofColor(255, 255)));
 
+	assetsPanel.add(deleteButton.setup("Supprimer"));
+
 	assetManager.assets.clear();
 }
 
@@ -51,14 +58,20 @@ void Application::update()
 		img.grabScreen(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 		histogramWindowApplication->setHistogram(img);
 	}
+
+	for (Asset* asset : selectedAssets)
+	{
+		asset->color = fillColorSlider;
+	}
 }
 
 //--------------------------------------------------------------
 void Application::draw()
 {
 	ofBackground(backgroundColorSlider);
-	gui.draw();
 	assetManager.draw();
+	gui.draw();
+	assetsPanel.draw();
 }
 
 //--------------------------------------------------------------
@@ -74,7 +87,7 @@ void Application::keyReleased(int key)
 }
 
 //--------------------------------------------------------------
-void Application::mouseMoved(int x, int y )
+void Application::mouseMoved(int x, int y)
 {
 
 }
@@ -97,23 +110,35 @@ void Application::mousePressed(int x, int y, int button)
 
 		if (tempAsset == NULL)
 		{
-			if (selectedAsset != NULL)
+			if (!selectedAssets.empty())
 			{
-				selectedAsset->isSelected = false;
-				selectedAsset = NULL;
+				selectedAssets[0]->isSelected = false;
+				selectedAssets.clear();
 			}
 		}
-		else if (selectedAsset == NULL)
-		{			
-			selectedAsset = tempAsset;
-			selectedAsset->isSelected = true;
-		}
-		else if (tempAsset != selectedAsset)
+		else if (!selectedAssets.empty())
 		{
-			selectedAsset->isSelected = false;
+			for (Asset* asset : selectedAssets)
+			{
+				asset->isSelected = false;
+				*assetsButtons[asset->name] = false;
+			}
+
+			selectedAssets.clear();
+
+			tempAsset->isSelected = true;
+			selectedAssets.push_back(tempAsset);
+			*assetsButtons[tempAsset->name] = true;
+		}
+		else if (selectedAssets.empty() || tempAsset != selectedAssets[0])
+		{
+			if (!selectedAssets.empty())
+			{
+				selectedAssets[0]->isSelected = false;
+			}
 			tempAsset->isSelected = true;
 
-			selectedAsset = tempAsset;
+			selectedAssets.push_back(tempAsset);
 		}
 	}
 }
@@ -121,29 +146,59 @@ void Application::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
-	if (selectedAsset)
+	if (!selectedAssets.empty())
 	{
-		assetManager.setPosition(selectedAsset, {x, y});
+		assetManager.setPosition(selectedAssets[0], {x, y});
 	}
 	else if (toggleDrawLine)
 	{
-		assetManager.addLine("line_" + std::to_string(x) + "_" + std::to_string(y), { mousePressX, mousePressY }, { x, y }, lineWidth, fillColorSlider, toggleDrawFill);
+		string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
+		assetManager.addLine(shapeName, { mousePressX, mousePressY }, { x, y }, lineWidth, fillColorSlider, toggleDrawFill);
+
+		auto button = std::make_shared<ofxToggle>();
+		assetsPanel.add(button.get()->setup("Ligne", false));
+		button->addListener(this, &Application::selectedAssetChanged);
+		assetsButtons[shapeName] = button;
 	}
 	else if (toggleDrawRectangle)
 	{
-		assetManager.addRectangle("rectangle_" + std::to_string(x) + "_" + std::to_string(y), { mousePressX, mousePressY }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+		string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
+		assetManager.addRectangle(shapeName, { mousePressX, mousePressY }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+
+		auto button = std::make_shared<ofxToggle>();
+		assetsPanel.add(button.get()->setup("Rectangle", false));
+		button->addListener(this, &Application::selectedAssetChanged);
+		assetsButtons[shapeName] = button;
 	}
 	else if (toggleDrawCircle)
 	{
-		assetManager.addCircle("circle_" + std::to_string(x) + "_" + std::to_string(y), { mousePressX, mousePressY }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+		string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
+		assetManager.addCircle(shapeName, { mousePressX, mousePressY }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+
+		auto button = std::make_shared<ofxToggle>();
+		assetsPanel.add(button.get()->setup("Cercle", false));
+		button->addListener(this, &Application::selectedAssetChanged);
+		assetsButtons[shapeName] = button;
 	}
 	else if (toggleDrawEllipse)
 	{
-		assetManager.addEllipse("ellipse_" + std::to_string(x) + "_" + std::to_string(y), { mousePressX, mousePressY }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+		string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
+		assetManager.addEllipse(shapeName, { mousePressX, mousePressY }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+
+		auto button = std::make_shared<ofxToggle>();
+		assetsPanel.add(button.get()->setup("Ellipse", false));
+		button->addListener(this, &Application::selectedAssetChanged);
+		assetsButtons[shapeName] = button;
 	}
 	else if (toggleDrawTriangle)
 	{
-		assetManager.addTriangle("triangle_" + std::to_string(x) + "_" + std::to_string(y), { mousePressX, mousePressY }, { mousePressX + ( x - mousePressX) / 2, y }, { mousePressX - (x - mousePressX) / 2, y }, lineWidth, fillColorSlider, toggleDrawFill);
+		string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
+		assetManager.addTriangle(shapeName, { mousePressX, mousePressY }, { mousePressX + (x - mousePressX) / 2, y }, { mousePressX - (x - mousePressX) / 2, y }, lineWidth, fillColorSlider, toggleDrawFill);
+
+		auto button = std::make_shared<ofxToggle>();
+		assetsPanel.add(button.get()->setup("Triangle", false));
+		button->addListener(this, &Application::selectedAssetChanged);
+		assetsButtons[shapeName] = button;
 	}
 }
 
@@ -176,7 +231,7 @@ void Application::drawLineToggleChanged(bool& value)
 {
 	if (toggleDrawLine)
 	{
-		selectedAsset = NULL;
+		selectedAssets.clear();
 		toggleDrawRectangle = false;
 		toggleDrawCircle = false;
 		toggleDrawEllipse = false;
@@ -189,7 +244,7 @@ void Application::drawRectangleToggleChanged(bool& value)
 {
 	if (toggleDrawRectangle)
 	{
-		selectedAsset = NULL;
+		selectedAssets.clear();
 		toggleDrawLine = false;
 		toggleDrawCircle = false;
 		toggleDrawEllipse = false;
@@ -202,7 +257,7 @@ void Application::drawCircleToggleChanged(bool& value)
 {
 	if (toggleDrawCircle)
 	{
-		selectedAsset = NULL;
+		selectedAssets.clear();
 		toggleDrawLine = false;
 		toggleDrawRectangle = false;
 		toggleDrawEllipse = false;
@@ -215,7 +270,7 @@ void Application::drawEllipseToggleChanged(bool& value)
 {
 	if (toggleDrawEllipse)
 	{
-		selectedAsset = NULL;
+		selectedAssets.clear();
 		toggleDrawLine = false;
 		toggleDrawRectangle = false;
 		toggleDrawCircle = false;
@@ -228,11 +283,33 @@ void Application::drawTriangleToggleChanged(bool& value)
 {
 	if (toggleDrawTriangle)
 	{
-		selectedAsset = NULL;
+		selectedAssets.clear();
 		toggleDrawLine = false;
 		toggleDrawRectangle = false;
 		toggleDrawEllipse = false;
 		toggleDrawCircle = false;
+	}
+}
+
+//--------------------------------------------------------------
+void Application::isFilledToggleChanged(bool& value)
+{
+	for (Asset* asset : selectedAssets)
+	{
+		asset->isFilled = value;
+	}
+}
+
+//--------------------------------------------------------------
+void Application::selectedAssetChanged(bool& value)
+{
+	selectedAssets.clear();
+	for (auto& [key, button] : assetsButtons)
+	{
+		if (button && *button)
+		{
+			selectedAssets.push_back(&assetManager.assets[key]);
+		}
 	}
 }
 
@@ -243,13 +320,32 @@ void Application::dragEvent(ofDragInfo dragInfo)
 
 	for (int i = 0; i < dragInfo.files.size(); i++)
 	{
-		assetManager.addImage("imported_image_" + std::to_string(importedImageCount + i), dragInfo.files[i], dragInfo.position);
+		string imageName = "imported_image_" + std::to_string(importedImageCount + i);
+		assetManager.addImage(imageName, dragInfo.files[i], dragInfo.position);
+
+		auto button = std::make_shared<ofxToggle>();
+		assetsPanel.add(button.get()->setup("Image", false));
+		assetsButtons[imageName] = button;
 	}
 }
 
 //--------------------------------------------------------------
 void Application::resetButtonPressed()
 {
+	assetsPanel.clear();
+
+	std::vector<std::string> buttonsToRemove;
+
+	for (auto& [key, button] : assetsButtons)
+	{
+		buttonsToRemove.push_back(key);
+	}
+
+	for (auto& name : buttonsToRemove)
+	{
+		assetsButtons.erase(name);
+	}
+
 	setup();
 	histogramWindow.get()->setWindowShouldClose();
 }
@@ -276,4 +372,32 @@ void Application::histogramButtonPressed()
 	}
 
 	histogramWindowApplication->setHistogram(img);
+}
+
+//--------------------------------------------------------------
+void Application::deleteButtonPressed()
+{
+	std::vector<std::string> buttonsToRemove;
+	assetsPanel.clear();
+	assetsPanel.add(&deleteButton);
+
+	for (auto& [key, button] : assetsButtons) 
+	{
+
+		if (button && *button)
+		{
+			assetManager.deleteAsset(key);
+			buttonsToRemove.push_back(key);
+		}
+		else
+		{
+			assetsPanel.add(button.get());
+		}
+	}
+
+
+	for (const auto& name : buttonsToRemove)
+	{
+		assetsButtons.erase(name);
+	}
 }
