@@ -1,86 +1,140 @@
 #include "assetManager.h"
 
-void AssetManager::addImage(const std::string& name, const std::string& path, glm::vec2 pos)
+Asset* AssetManager::addImage(const std::string& name, const std::string& path, glm::vec2 pos)
 {
-	Asset asset;
+	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::IMAGE;
 	if (!asset.image.load(path))
 	{
 		ofLogError() << "Impossible de charger l'image: " << path;
-		return;
+		return nullptr;
 	}
-	asset.position = pos;
-	assets[name] = asset;
+	asset.position2d = pos;
+
+	return &asset;
 }
 
-void AssetManager::addRectangle(const std::string& name, glm::vec2 pos, float width, float height, int lineWidth, ofColor color, bool isFilled)
+Asset* AssetManager::addRectangle(const std::string& name, glm::vec2 pos, float width, float height, int lineWidth, ofColor color, bool isFilled)
 {
-	Asset asset;
+	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::RECTANGLE;
-	asset.position = pos;
+	asset.position2d = pos;
 	asset.width = width;
 	asset.height = height;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
 	asset.isFilled = isFilled;
-	assets[name] = asset;
+
+	return &asset;
 }
 
-void AssetManager::addCircle(const std::string& name, glm::vec2 pos, float radius, int lineWidth, ofColor color, bool isFilled)
+Asset* AssetManager::addCircle(const std::string& name, glm::vec2 pos, float radius, int lineWidth, ofColor color, bool isFilled)
 {
-	Asset asset;
+	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::CIRCLE;
-	asset.position = pos;
+	asset.position2d = pos;
 	asset.radius = radius;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
 	asset.isFilled = isFilled;
-	assets[name] = asset;
+
+	return &asset;
 }
 
-void AssetManager::addEllipse(const std::string& name, glm::vec2 pos, float width, float height, int lineWidth, ofColor color, bool isFilled)
+Asset* AssetManager::addEllipse(const std::string& name, glm::vec2 pos, float width, float height, int lineWidth, ofColor color, bool isFilled)
 {
-	Asset asset;
+	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::ELLIPSE;
-	asset.position = pos;
+	asset.position2d = pos;
 	asset.width = width;
 	asset.height = height;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
 	asset.isFilled = isFilled;
-	assets[name] = asset;
+
+	return &asset;
 }
 
-void AssetManager::addLine(const std::string& name, glm::vec2 start, glm::vec2 end, int lineWidth, ofColor color, bool isFilled)
+Asset* AssetManager::addLine(const std::string& name, glm::vec2 start, glm::vec2 end, int lineWidth, ofColor color, bool isFilled)
 {
-	Asset asset;
+	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::LINE;
-	asset.position = start;
+	asset.position2d = start;
 	asset.endpoint = end;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
 	asset.isFilled = isFilled;
-	assets[name] = asset;
+
+	return &asset;
 }
 
-void AssetManager::addTriangle(const std::string& name, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, int lineWidth, ofColor color, bool isFilled)
+Asset* AssetManager::addTriangle(const std::string& name, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, int lineWidth, ofColor color, bool isFilled)
 {
-	Asset asset;
+	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::TRIANGLE;
-	asset.position = p1;
+	asset.position2d = p1;
 	asset.p1 = p1;
 	asset.p2 = p2;
 	asset.p3 = p3;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
 	asset.isFilled = isFilled;
-	assets[name] = asset;
+
+	return &asset;
+}
+
+Asset* AssetManager::addCube(const std::string& name, glm::vec3 pos, float size, int lineWidth, ofColor color, bool isFilled)
+{
+	Asset& asset = assets[name];
+	asset.name = name;
+	asset.type = AssetType::CUBE;
+	asset.position3d = pos;
+	asset.width = size;
+	asset.height = size;
+	asset.lineWidth = lineWidth;
+	asset.color = color;
+	asset.isFilled = isFilled;
+
+	ofBoxPrimitive cube = ofBoxPrimitive(size, size, size);
+
+	cube.set(size);
+	cube.setPosition(pos);
+
+	cube.setSideColor(cube.SIDE_TOP, ofColor::yellow);
+	cube.setSideColor(cube.SIDE_FRONT, ofColor::green);
+	cube.setSideColor(cube.SIDE_LEFT, ofColor::red);
+	cube.setSideColor(cube.SIDE_RIGHT, ofColor::blue);
+
+	asset.geometryPrimitive = cube;
+
+	return &asset;
+}
+
+Asset* AssetManager::addSphere(const std::string& name, glm::vec3 pos, float size, int lineWidth, ofColor color, bool isFilled)
+{
+	Asset& asset = assets[name];
+	asset.name = name;
+	asset.type = AssetType::SPHERE;
+	asset.position3d = pos;
+	asset.width = size;
+	asset.height = size;
+	asset.lineWidth = lineWidth;
+	asset.color = color;
+	asset.isFilled = isFilled;
+
+	ofSpherePrimitive sphere = ofSpherePrimitive(size, 10);
+
+	sphere.setPosition(pos);
+
+	asset.geometryPrimitive = sphere;
+
+	return &asset;
 }
 
 void AssetManager::draw()
@@ -92,36 +146,40 @@ void AssetManager::draw()
 		else
 			ofNoFill();
 
+		ofSetColor(asset.color);
+		ofSetLineWidth(asset.lineWidth);
+
 		switch (asset.type)
 		{
 		case AssetType::IMAGE:
-			asset.image.draw(asset.position.x, asset.position.y);
+			asset.image.draw(asset.position2d.x, asset.position2d.y);
 			break;
 		case AssetType::RECTANGLE:
-			ofSetColor(asset.color);
-			ofSetLineWidth(asset.lineWidth);
-			ofDrawRectangle(asset.position.x, asset.position.y, asset.width, asset.height);
+			ofDrawRectangle(asset.position2d.x, asset.position2d.y, asset.width, asset.height);
 			break;
 		case AssetType::CIRCLE:
-			ofSetColor(asset.color);
-			ofSetLineWidth(asset.lineWidth);
 			ofSetCircleResolution(100);
-			ofDrawCircle(asset.position.x, asset.position.y, asset.radius);
+			ofDrawCircle(asset.position2d.x, asset.position2d.y, asset.radius);
 			break;
 		case AssetType::ELLIPSE:
-			ofSetColor(asset.color);
-			ofSetLineWidth(asset.lineWidth);
-			ofDrawEllipse(asset.position, asset.width, asset.height);
+			ofDrawEllipse(asset.position2d, asset.width, asset.height);
 			break;
 		case AssetType::LINE:
-			ofSetColor(asset.color);
-			ofSetLineWidth(asset.lineWidth);
-			ofDrawLine(asset.position, asset.endpoint);
+			ofDrawLine(asset.position2d, asset.endpoint);
 			break;
 		case AssetType::TRIANGLE:
-			ofSetColor(asset.color);
-			ofSetLineWidth(asset.lineWidth);
 			ofDrawTriangle(asset.p1, asset.p2, asset.p3);
+			break;
+		case AssetType::CUBE:
+		case AssetType::SPHERE:
+			if (asset.isFilled)
+			{
+				asset.geometryPrimitive.drawFaces();
+			}
+			else
+			{
+				asset.geometryPrimitive.drawWireframe();
+			}
 			break;
 		}
 	}
@@ -135,8 +193,8 @@ Asset* AssetManager::getAsset(glm::vec2 point)
 		{
 			case AssetType::IMAGE:
 			{
-				if (point.x >= asset.position.x && point.x <= asset.position.x + asset.image.getWidth() &&
-					point.y >= asset.position.y && point.y <= asset.position.y + asset.image.getHeight())
+				if (point.x >= asset.position2d.x && point.x <= asset.position2d.x + asset.image.getWidth() &&
+					point.y >= asset.position2d.y && point.y <= asset.position2d.y + asset.image.getHeight())
 				{
 					return &asset;
 				}
@@ -144,8 +202,8 @@ Asset* AssetManager::getAsset(glm::vec2 point)
 			}
 			case AssetType::RECTANGLE:
 			{
-				if (point.x >= asset.position.x && point.x <= asset.position.x + asset.width &&
-					point.y >= asset.position.y && point.y <= asset.position.y + asset.height)
+				if (point.x >= asset.position2d.x && point.x <= asset.position2d.x + asset.width &&
+					point.y >= asset.position2d.y && point.y <= asset.position2d.y + asset.height)
 				{
 					return &asset;
 				}
@@ -153,7 +211,7 @@ Asset* AssetManager::getAsset(glm::vec2 point)
 			}
 			case AssetType::CIRCLE:
 			{
-				float dist = glm::distance(point, asset.position);
+				float dist = glm::distance(point, asset.position2d);
 				if (dist <= asset.radius)
 				{
 					return &asset;
@@ -162,8 +220,8 @@ Asset* AssetManager::getAsset(glm::vec2 point)
 			}
 			case AssetType::ELLIPSE:
 			{
-				if (point.x >= asset.position.x && point.x <= asset.position.x + asset.width &&
-					point.y >= asset.position.y && point.y <= asset.position.y + asset.height)
+				if (point.x >= asset.position2d.x && point.x <= asset.position2d.x + asset.width &&
+					point.y >= asset.position2d.y && point.y <= asset.position2d.y + asset.height)
 				{
 					return &asset;
 				}
@@ -171,7 +229,7 @@ Asset* AssetManager::getAsset(glm::vec2 point)
 			}
 			case AssetType::LINE:
 			{
-				float d = glm::distance(point, glm::mix(asset.position, asset.endpoint, glm::clamp(glm::dot(point - asset.position, asset.endpoint - asset.position) / glm::dot(asset.endpoint - asset.position, asset.endpoint - asset.position), 0.0f, 1.0f)));
+				float d = glm::distance(point, glm::mix(asset.position2d, asset.endpoint, glm::clamp(glm::dot(point - asset.position2d, asset.endpoint - asset.position2d) / glm::dot(asset.endpoint - asset.position2d, asset.endpoint - asset.position2d), 0.0f, 1.0f)));
 				if (d < 5.0f)
 				{
 					return &asset;
@@ -186,6 +244,28 @@ Asset* AssetManager::getAsset(glm::vec2 point)
 					return &asset;
 				}
 				break;
+			}
+			case AssetType::CUBE:
+			case AssetType::SPHERE:
+			{
+				ofVec3f point3d = ofVec3f(point.x, point.y, 0);
+
+				ofVec3f boxPos = asset.geometryPrimitive.getPosition();
+
+				ofVec3f halfSize(asset.width * 0.5f, asset.width * 0.5f, asset.width * 0.5f);
+
+				ofVec3f minBound = boxPos - halfSize;
+				ofVec3f maxBound = boxPos + halfSize;
+
+				if (point3d.x >= minBound.x && point3d.x <= maxBound.x &&
+					point3d.y >= minBound.y && point3d.y <= maxBound.y &&
+					point3d.z >= minBound.z && point3d.z <= maxBound.z)
+				{
+					return &asset;
+				}
+
+				break;
+
 			}
 		}
 	}
@@ -206,24 +286,53 @@ void AssetManager::setPosition(Asset* asset, glm::vec2 newPos)
 			asset->p2 = { newPos.x - width / 2, newPos.y + height };
 			asset->p3 = { newPos.x + width / 2, newPos.y + height };
 
-			asset->position = newPos;
+			asset->position2d = newPos;
 			break;
 		}
 		case AssetType::LINE:
 		{
-			glm::vec2 delta = asset->position - asset->endpoint;
+			glm::vec2 delta = asset->position2d - asset->endpoint;
 
 			asset->endpoint = newPos - delta;
-			asset->position = newPos;
+			asset->position2d = newPos;
 
 			break;
 		}
 		default:
 		{
-			asset->position = newPos;
+			asset->position2d = newPos;
 			break;
 		}
 	}	
+}
+
+void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
+{
+	switch (asset->type)
+	{
+		case AssetType::CUBE:
+		case AssetType::SPHERE:
+		{
+			asset->position3d = newPos;
+			asset->geometryPrimitive.setPosition(newPos);
+			break;
+		}
+		default:
+		{
+			setPosition(asset, { newPos.x, newPos.y });
+			break;
+		}
+	}
+}
+
+void AssetManager::rotateX(Asset* asset, float deg)
+{
+	asset->geometryPrimitive.rotateDeg(deg, asset->geometryPrimitive.getXAxis());
+}
+
+void AssetManager::rotateY(Asset* asset, float deg)
+{
+	asset->geometryPrimitive.rotateDeg(deg, asset->geometryPrimitive.getYAxis());
 }
 
 void AssetManager::deleteAsset(string assetName)

@@ -14,6 +14,8 @@ class Application : public ofBaseApp{
 		ofxButton histogramButton;
 		ofxGuiGroup groupDraw;
 		ofxGuiGroup groupDrawOptions;
+		ofxGuiGroup groupGeometry;
+		ofxGuiGroup groupGeometryOptions;
 
 		ofxToggle toggleDrawLine;
 		ofxToggle toggleDrawRectangle;
@@ -21,13 +23,20 @@ class Application : public ofBaseApp{
 		ofxToggle toggleDrawEllipse;
 		ofxToggle toggleDrawTriangle;
 
+		ofxToggle toggleDrawCube;
+		ofxToggle toggleDrawSphere;
+
 		ofxButton deleteButton;
 		std::unordered_map<std::string, std::shared_ptr<ofxToggle>> assetsButtons;
 
 		ofxColorSlider fillColorSlider;
+
 		ofxColorSlider backgroundColorSlider;
 
 		ofxIntSlider lineWidth;
+
+		ofxIntSlider geometryRotateX;
+		ofxIntSlider geometryRotateY;
 
 		ofxToggle toggleDrawFill;
 
@@ -61,14 +70,24 @@ class Application : public ofBaseApp{
 		void drawCircleToggleChanged(bool& value);
 		void drawEllipseToggleChanged(bool& value);
 		void drawTriangleToggleChanged(bool& value);
+
+		void drawCubeToggleChanged(bool& value);
+		void drawSphereToggleChanged(bool& value);
 		
 		void isFilledToggleChanged(bool& value);
 		void drawColorChanged(ofColor& value);
+		void lineWidthChanged(int& value);
+
+		void geometryRotateXChanged(int& value);
+		void geometryRotateYChanged(int& value);
 
 		void selectedAssetChanged(bool& value);
 		
 		void resetButtonPressed();
 		void histogramButtonPressed();
 		void deleteButtonPressed();
+
+		void resetToggles();
+		void clearSelectedAssets();
 
 };
