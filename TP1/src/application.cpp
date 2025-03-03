@@ -13,6 +13,7 @@ void Application::setup()
 	deleteButton.addListener(this, &Application::deleteButtonPressed);
 	toggleDrawFill.addListener(this, &Application::isFilledToggleChanged);
 	lineWidth.addListener(this, &Application::lineWidthChanged);
+	boundingBoxLineWidth.addListener(this, &Application::boundingBoxLineWidthChanged);
 	
 	geometryRotateX.addListener(this, &Application::geometryRotateXChanged);
 	geometryRotateY.addListener(this, &Application::geometryRotateYChanged);
@@ -24,6 +25,7 @@ void Application::setup()
 	groupDrawOptions.setup("Options");
 	groupGeometry.setup("Geometrie");
 	groupGeometryOptions.setup("Options");
+	groupDrawBoundingBox.setup("Boite de delimitation");
 
 	toggleDrawLine.addListener(this, &Application::drawLineToggleChanged);
 	groupDraw.add(toggleDrawLine.setup("Ligne", false));
@@ -41,13 +43,26 @@ void Application::setup()
 	groupDraw.add(toggleDrawTriangle.setup("Triangle", false));
 
 	groupDrawOptions.add(toggleDrawFill.setup("Remplir", false));
-	groupDrawOptions.add(lineWidth.setup("Epaisseur", 5, 1, 100));
+	groupDrawOptions.add(lineWidth.setup("Epaisseur", 5, 1, 10));
 
 	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255));
 
 	colorParam.addListener(this, &Application::drawColorChanged);
 
 	groupDrawOptions.add(fillColorSlider.setup(colorParam));
+
+	toggleDrawBoundingBox.addListener(this, &Application::drawBoundingBoxToggleChanged);
+
+	groupDrawBoundingBox.add(toggleDrawBoundingBox.setup("Activer", false));
+
+	groupDrawBoundingBox.add(boundingBoxLineWidth.setup("Epaisseur", 2, 1, 10));
+
+	ofParameter<ofColor> boundingBoxColorParam = ofParameter<ofColor>("Couleur", ofColor(255, 0, 0), ofColor(0, 0), ofColor(255, 255));
+	boundingBoxColorParam.addListener(this, &Application::boundingBoxColorChanged);
+	groupDrawBoundingBox.add(boundingBoxColorSlider.setup(boundingBoxColorParam));
+
+	groupDrawOptions.add(&groupDrawBoundingBox);
+
 	groupDraw.add(&groupDrawOptions);
 
 	toggleDrawCube.addListener(this, &Application::drawCubeToggleChanged);
@@ -123,7 +138,7 @@ void Application::mousePressed(int x, int y, int button)
 	{
 		if (selectedAssets.size() == 0)
 		{
-			Asset* tempAsset = assetManager.getAsset({ x, y });
+			Asset* tempAsset = assetManager.getAsset({ x, y, 0 });
 
 			if (tempAsset == NULL)
 			{
@@ -173,7 +188,7 @@ void Application::mouseReleased(int x, int y, int button)
     if (toggleDrawLine)
 	{
 		string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addLine(shapeName, { mousePressX, mousePressY }, { x, y }, lineWidth, fillColorSlider, toggleDrawFill);
+		Asset* asset = assetManager.addLine(shapeName, { mousePressX, mousePressY, 0 }, { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Ligne", true));
@@ -186,7 +201,7 @@ void Application::mouseReleased(int x, int y, int button)
 	else if (toggleDrawRectangle)
 	{
 		string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addRectangle(shapeName, { mousePressX, mousePressY }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+		Asset* asset = assetManager.addRectangle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Rectangle", true));
@@ -199,7 +214,7 @@ void Application::mouseReleased(int x, int y, int button)
 	else if (toggleDrawCircle)
 	{
 		string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addCircle(shapeName, { mousePressX, mousePressY }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+		Asset* asset = assetManager.addCircle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Cercle", true));
@@ -212,7 +227,7 @@ void Application::mouseReleased(int x, int y, int button)
 	else if (toggleDrawEllipse)
 	{
 		string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addEllipse(shapeName, { mousePressX, mousePressY }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+		Asset* asset = assetManager.addEllipse(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Ellipse", true));
@@ -225,7 +240,7 @@ void Application::mouseReleased(int x, int y, int button)
 	else if (toggleDrawTriangle)
 	{
 		string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY }, { mousePressX + (x - mousePressX) / 2, y }, { mousePressX - (x - mousePressX) / 2, y }, lineWidth, fillColorSlider, toggleDrawFill);
+		Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY, 0 }, { mousePressX + (x - mousePressX) / 2, y, 0 }, { mousePressX - (x - mousePressX) / 2, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Triangle", true));
@@ -269,11 +284,11 @@ void Application::mouseReleased(int x, int y, int button)
 		{
 			if (asset->type == AssetType::CUBE || asset->type == AssetType::SPHERE)
 			{
-				assetManager.setPosition(asset, asset->position3d + glm::vec3(moveVec.x, moveVec.y, 0));
+				assetManager.setPosition(asset, asset->position + glm::vec3(moveVec.x, moveVec.y, 0));
 			}
 			else
 			{
-				assetManager.setPosition(asset, asset->position2d + moveVec);
+				assetManager.setPosition(asset, asset->position + moveVec);
 			}
 		}
 	}
@@ -398,12 +413,244 @@ void Application::drawColorChanged(ofColor& value)
 }
 
 //--------------------------------------------------------------
+void Application::boundingBoxColorChanged(ofColor& value)
+{
+	assetManager.boundingBox.color = boundingBoxColorSlider;
+}
+
+void Application::boundingBoxLineWidthChanged(int& value)
+{
+	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
+}
+
+//--------------------------------------------------------------
 void Application::lineWidthChanged(int& value)
 {
 	for (Asset* asset : selectedAssets)
 	{
 		asset->lineWidth = lineWidth;
 	}
+}
+
+//--------------------------------------------------------------
+void Application::drawBoundingBoxToggleChanged(bool& value)
+{
+	if (toggleDrawBoundingBox) {
+		updateBoundingBox();
+	}
+
+	assetManager.drawBoundingBox = toggleDrawBoundingBox;
+}
+
+void Application::updateBoundingBox()
+{
+	int maxX = INT_MIN, maxY = INT_MIN, maxZ = INT_MIN;
+	int minX = INT_MAX, minY = INT_MAX, minZ = INT_MAX;
+
+	for (auto const& [_, asset] : assetManager.assets)
+	{
+		glm::vec3 maxPos = getMaxPos(asset);
+
+		if (maxPos.x > maxX)
+		{
+			maxX = maxPos.x;
+		}
+
+		if (maxPos.y > maxY)
+		{
+			maxY = maxPos.y;
+		}
+
+		if (maxPos.z > maxZ)
+		{
+			maxZ = maxPos.z;
+		}
+
+		glm::vec3 minPos = getMinPos(asset);
+
+		if (minPos.x < minX)
+		{
+			minX = minPos.x;
+		}
+
+		if (minPos.y < minY)
+		{
+			minY = minPos.y;
+		}
+
+		if (minPos.z < minZ)
+		{
+			minZ = minPos.z;
+		}
+	}
+
+	Asset asset;
+	asset.width = maxX - minX;
+	asset.height = maxY - minY;
+	asset.depth = maxZ - minZ;
+	asset.position = { minX + asset.width * 0.5f, minY + asset.height * 0.5f, minZ + asset.depth * 0.5f };
+	asset.color = boundingBoxColorSlider;
+	asset.lineWidth = boundingBoxLineWidth;
+
+	assetManager.boundingBox = asset;
+}
+
+glm::vec3 Application::getMaxPos(Asset asset)
+{
+	int maxX = asset.position.x, maxY = asset.position.y, maxZ = asset.position.z;
+
+	switch (asset.type)
+	{
+		case AssetType::IMAGE:
+		case AssetType::RECTANGLE:
+		{
+			maxX = std::max(asset.position.x, asset.position.x + asset.width);
+			maxY = std::max(asset.position.y, asset.position.y + asset.height);
+			maxZ = std::max(asset.position.z, asset.position.z + asset.depth);
+
+			break;
+		}
+		case AssetType::ELLIPSE:
+		{
+			float halfWidth = std::abs(asset.width) / 2;
+			float halfHeight = std::abs(asset.height) / 2;
+
+			maxX = asset.position.x + halfWidth;
+			maxY = asset.position.y + halfHeight;
+			maxZ = asset.position.z;
+
+			break;
+		}
+		case AssetType::CIRCLE:
+		{
+			float radius = std::abs(asset.radius);
+
+			maxX = asset.position.x + radius;
+			maxY = asset.position.y + radius;
+			maxZ = asset.position.z;
+
+			break;
+		}
+		case AssetType::LINE:
+		{
+			maxX = std::max(asset.position.x, asset.endpoint.x);
+			maxY = std::max(asset.position.y, asset.endpoint.y);
+			maxZ = std::max(asset.position.z, asset.endpoint.z);
+
+			break;
+		}
+		case AssetType::TRIANGLE:
+		{
+			maxX = std::max({ asset.p1.x, asset.p2.x, asset.p3.x });
+			maxY = std::max({ asset.p1.y, asset.p2.y, asset.p3.y });
+			maxZ = std::max({ asset.p1.z, asset.p2.z, asset.p3.z });
+
+			break;
+		}
+		case AssetType::CUBE:
+		{
+			float halfSizeX = std::abs(asset.width) / 2;
+			float halfSizeY = std::abs(asset.height) / 2;
+			float halfSizeZ = std::abs(asset.depth) / 2;
+
+			maxX = asset.position.x + halfSizeX;
+			maxY = asset.position.y + halfSizeY;
+			maxZ = asset.position.z + halfSizeZ;
+
+			break;
+		}
+		case AssetType::SPHERE:
+		{
+			float radius = std::abs(asset.width);
+
+			maxX = asset.position.x + radius;
+			maxY = asset.position.y + radius;
+			maxZ = asset.position.z + radius;
+
+			break;
+		}
+	}
+
+	return { maxX, maxY, maxZ };
+}
+
+glm::vec3 Application::getMinPos(Asset asset)
+{
+	int minX = asset.position.x, minY = asset.position.y, minZ = asset.position.z;
+
+	switch (asset.type)
+	{
+		case AssetType::IMAGE:
+		case AssetType::RECTANGLE:
+		{
+			minX = std::min(asset.position.x, asset.position.x + asset.width);
+			minY = std::min(asset.position.y, asset.position.y + asset.height);
+			minZ = std::min(asset.position.z, asset.position.z + asset.depth);
+
+			break;
+		}
+		case AssetType::ELLIPSE:
+		{
+			float halfWidth = std::abs(asset.width) / 2;
+			float halfHeight = std::abs(asset.height) / 2;
+
+			minX = asset.position.x - halfWidth;
+			minY = asset.position.y - halfHeight;
+			minZ = asset.position.z;
+
+			break;
+		}
+		case AssetType::CIRCLE:
+		{
+			float radius = std::abs(asset.radius);
+
+			minX = asset.position.x - radius;
+			minY = asset.position.y - radius;
+			minZ = asset.position.z;
+
+			break;
+		}
+		case AssetType::LINE:
+		{
+			minX = std::min(asset.position.x, asset.endpoint.x);
+			minY = std::min(asset.position.y, asset.endpoint.y);
+			minZ = std::min(asset.position.z, asset.endpoint.z);
+
+			break;
+		}
+		case AssetType::TRIANGLE:
+		{
+			minX = std::min({ asset.p1.x, asset.p2.x, asset.p3.x });
+			minY = std::min({ asset.p1.y, asset.p2.y, asset.p3.y });
+			minZ = std::min({ asset.p1.z, asset.p2.z, asset.p3.z });
+
+			break;
+		}
+		case AssetType::CUBE:
+		{
+			float halfSizeX = std::abs(asset.width) / 2;
+			float halfSizeY = std::abs(asset.height) / 2;
+			float halfSizeZ = std::abs(asset.depth) / 2;
+
+			minX = asset.position.x - halfSizeX;
+			minY = asset.position.y - halfSizeY;
+			minZ = asset.position.z - halfSizeZ;
+
+			break;
+		}
+		case AssetType::SPHERE:
+		{
+			float radius = std::abs(asset.width);
+
+			minX = asset.position.x - radius;
+			minY = asset.position.y - radius;
+			minZ = asset.position.z - radius;
+
+			break;
+		}
+	}
+
+	return { minX, minY, minZ };
 }
 
 //--------------------------------------------------------------
@@ -471,7 +718,7 @@ void Application::dragEvent(ofDragInfo dragInfo)
 	for (int i = 0; i < dragInfo.files.size(); i++)
 	{
 		string imageName = "imported_image_" + std::to_string(importedImageCount + i);
-		assetManager.addImage(imageName, dragInfo.files[i], dragInfo.position);
+		assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Image", true));

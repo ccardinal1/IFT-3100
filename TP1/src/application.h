@@ -14,6 +14,7 @@ class Application : public ofBaseApp{
 		ofxButton histogramButton;
 		ofxGuiGroup groupDraw;
 		ofxGuiGroup groupDrawOptions;
+		ofxGuiGroup groupDrawBoundingBox;
 		ofxGuiGroup groupGeometry;
 		ofxGuiGroup groupGeometryOptions;
 
@@ -22,6 +23,7 @@ class Application : public ofBaseApp{
 		ofxToggle toggleDrawCircle;
 		ofxToggle toggleDrawEllipse;
 		ofxToggle toggleDrawTriangle;
+		ofxToggle toggleDrawBoundingBox;
 
 		ofxToggle toggleDrawCube;
 		ofxToggle toggleDrawSphere;
@@ -31,9 +33,12 @@ class Application : public ofBaseApp{
 
 		ofxColorSlider fillColorSlider;
 
+		ofxColorSlider boundingBoxColorSlider;
+
 		ofxColorSlider backgroundColorSlider;
 
 		ofxIntSlider lineWidth;
+		ofxIntSlider boundingBoxLineWidth;
 
 		ofxIntSlider geometryRotateX;
 		ofxIntSlider geometryRotateY;
@@ -70,6 +75,7 @@ class Application : public ofBaseApp{
 		void drawCircleToggleChanged(bool& value);
 		void drawEllipseToggleChanged(bool& value);
 		void drawTriangleToggleChanged(bool& value);
+		void drawBoundingBoxToggleChanged(bool& value);
 
 		void drawCubeToggleChanged(bool& value);
 		void drawSphereToggleChanged(bool& value);
@@ -77,6 +83,9 @@ class Application : public ofBaseApp{
 		void isFilledToggleChanged(bool& value);
 		void drawColorChanged(ofColor& value);
 		void lineWidthChanged(int& value);
+
+		void boundingBoxColorChanged(ofColor& value);
+		void boundingBoxLineWidthChanged(int& value);
 
 		void geometryRotateXChanged(int& value);
 		void geometryRotateYChanged(int& value);
@@ -90,4 +99,7 @@ class Application : public ofBaseApp{
 		void resetToggles();
 		void clearSelectedAssets();
 
+		void updateBoundingBox();
+		glm::vec3 getMaxPos(Asset asset);
+		glm::vec3 getMinPos(Asset asset);
 };
