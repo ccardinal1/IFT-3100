@@ -240,7 +240,7 @@ void Application::mouseReleased(int x, int y, int button)
 	else if (toggleDrawTriangle)
 	{
 		string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY, 0 }, { mousePressX + (x - mousePressX) / 2, y, 0 }, { mousePressX - (x - mousePressX) / 2, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+		Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY, 0 }, { mousePressX + (x - mousePressX) * 0.5f, y, 0 }, { mousePressX - (x - mousePressX) * 0.5f, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
 		auto button = std::make_shared<ofxToggle>();
 		assetsPanel.add(button.get()->setup("Triangle", true));
@@ -514,8 +514,8 @@ glm::vec3 Application::getMaxPos(Asset asset)
 		}
 		case AssetType::ELLIPSE:
 		{
-			float halfWidth = std::abs(asset.width) / 2;
-			float halfHeight = std::abs(asset.height) / 2;
+			float halfWidth = std::abs(asset.width) * 0.5f;
+			float halfHeight = std::abs(asset.height) * 0.5f;
 
 			maxX = asset.position.x + halfWidth;
 			maxY = asset.position.y + halfHeight;
@@ -551,9 +551,9 @@ glm::vec3 Application::getMaxPos(Asset asset)
 		}
 		case AssetType::CUBE:
 		{
-			float halfSizeX = std::abs(asset.width) / 2;
-			float halfSizeY = std::abs(asset.height) / 2;
-			float halfSizeZ = std::abs(asset.depth) / 2;
+			float halfSizeX = std::abs(asset.width) * 0.5f;
+			float halfSizeY = std::abs(asset.height) * 0.5f;
+			float halfSizeZ = std::abs(asset.depth) * 0.5f;
 
 			maxX = asset.position.x + halfSizeX;
 			maxY = asset.position.y + halfSizeY;
@@ -593,8 +593,8 @@ glm::vec3 Application::getMinPos(Asset asset)
 		}
 		case AssetType::ELLIPSE:
 		{
-			float halfWidth = std::abs(asset.width) / 2;
-			float halfHeight = std::abs(asset.height) / 2;
+			float halfWidth = std::abs(asset.width) * 0.5f;
+			float halfHeight = std::abs(asset.height) * 0.5f;
 
 			minX = asset.position.x - halfWidth;
 			minY = asset.position.y - halfHeight;
@@ -630,9 +630,9 @@ glm::vec3 Application::getMinPos(Asset asset)
 		}
 		case AssetType::CUBE:
 		{
-			float halfSizeX = std::abs(asset.width) / 2;
-			float halfSizeY = std::abs(asset.height) / 2;
-			float halfSizeZ = std::abs(asset.depth) / 2;
+			float halfSizeX = std::abs(asset.width) * 0.5f;
+			float halfSizeY = std::abs(asset.height) * 0.5f;
+			float halfSizeZ = std::abs(asset.depth) * 0.5f;
 
 			minX = asset.position.x - halfSizeX;
 			minY = asset.position.y - halfSizeY;
@@ -794,11 +794,13 @@ void Application::deleteButtonPressed()
 		}
 	}
 
-
 	for (const auto& name : buttonsToRemove)
 	{
 		assetsButtons.erase(name);
 	}
+
+	Asset empty;
+	assetManager.boundingBox = empty;
 }
 
 //--------------------------------------------------------------

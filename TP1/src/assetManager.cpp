@@ -10,7 +10,7 @@ Asset* AssetManager::addImage(const std::string& name, const std::string& path, 
 		ofLogError() << "Impossible de charger l'image: " << path;
 		return nullptr;
 	}
-	asset.position = { pos.x, pos.y, 0 };
+	asset.position = pos;
 
 	asset.width = asset.image.getWidth();
 	asset.height = asset.image.getHeight();
@@ -24,7 +24,7 @@ Asset* AssetManager::addRectangle(const std::string& name, glm::vec3 pos, float 
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::RECTANGLE;
-	asset.position = { pos.x, pos.y, 0 };
+	asset.position = pos;
 	asset.width = width;
 	asset.height = height;
 	asset.depth = 0;
@@ -40,7 +40,7 @@ Asset* AssetManager::addCircle(const std::string& name, glm::vec3 pos, float rad
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::CIRCLE;
-	asset.position = { pos.x, pos.y, 0 };
+	asset.position = pos;
 	asset.radius = radius;
 	asset.width = radius * 2;
 	asset.height = radius * 2;
@@ -57,7 +57,7 @@ Asset* AssetManager::addEllipse(const std::string& name, glm::vec3 pos, float wi
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::ELLIPSE;
-	asset.position = { pos.x, pos.y, 0 };
+	asset.position = pos;
 	asset.width = width;
 	asset.height = height;
 	asset.depth = 0;
@@ -73,8 +73,8 @@ Asset* AssetManager::addLine(const std::string& name, glm::vec3 start, glm::vec3
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::LINE;
-	asset.position = { start.x, start.y, 0 };
-	asset.endpoint = { end.x, end.y, 0 };
+	asset.position = start;
+	asset.endpoint = end;
 	asset.width = asset.endpoint.x - asset.position.x;
 	asset.height = asset.endpoint.y - asset.position.y;
 	asset.depth = asset.endpoint.z - asset.position.z;
@@ -90,7 +90,7 @@ Asset* AssetManager::addTriangle(const std::string& name, glm::vec3 p1, glm::vec
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::TRIANGLE;
-	asset.position = { p1.x, p1.y, 0 };
+	asset.position = p1;
 	asset.p1 = p1;
 	asset.p2 = p2;
 	asset.p3 = p3;
@@ -272,7 +272,7 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 			case AssetType::CUBE:
 			case AssetType::SPHERE:
 			{
-				ofVec3f point3d = ofVec3f(point.x, point.y, 0);
+				ofVec3f point3d = point;
 
 				ofVec3f boxPos = asset.geometryPrimitive.getPosition();
 
@@ -308,8 +308,8 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 			int depth = 0;
 
 			asset->p1 = newPos;
-			asset->p2 = { newPos.x - width / 2, newPos.y + height, depth };
-			asset->p3 = { newPos.x + width / 2, newPos.y + height, depth };
+			asset->p2 = { newPos.x - width * 0.5f, newPos.y + height, depth };
+			asset->p3 = { newPos.x + width * 0.5f, newPos.y + height, depth };
 
 			asset->position = newPos;
 			break;
