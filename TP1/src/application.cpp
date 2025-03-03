@@ -292,6 +292,8 @@ void Application::mouseReleased(int x, int y, int button)
 			}
 		}
 	}
+
+	updateBoundingBox();
 }
 
 //--------------------------------------------------------------
