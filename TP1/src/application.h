@@ -5,51 +5,121 @@
 #include "histogramApplication.h"
 #include "assetManager.h"
 
-class Application : public ofBaseApp{
+class ofxToggle2 : public ofxToggle {
+public:
+	ofRectangle getChecboxRect()
+	{
+		return this->checkboxRect;
+	}
+
+	bool ofxToggle2::operator=(bool v) {
+		this->value = v;
+		return v;
+	}
+
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
+class ofxButton2 : public ofxButton {
+public:
+	ofRectangle getChecboxRect()
+	{
+		return this->checkboxRect;
+	}
+
+	bool ofxButton2::operator=(bool v) {
+		this->value = v;
+		return v;
+	}
+
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
+class ofxIntSlider2 : public ofxIntSlider {
+public:
+	bool ofxIntSlider2::operator=(bool v) {
+		this->value = v;
+		return v;
+	}
+
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
+class ofxColorSlider2 : public ofxColorSlider {
+public:
+	ofColor ofxColorSlider2::operator=(ofColor color) {
+		this->operator=(color);
+
+		return color;
+	}
+
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
+class Application : public ofBaseApp {
 
 	public:
 		ofxPanel gui;
 		ofxPanel assetsPanel;
-		ofxButton resetButton;
-		ofxButton histogramButton;
+		ofxButton2 resetButton;
+		ofxButton2 histogramButton;
 		ofxGuiGroup groupDraw;
 		ofxGuiGroup groupDrawOptions;
 		ofxGuiGroup groupDrawBoundingBox;
 		ofxGuiGroup groupGeometry;
 		ofxGuiGroup groupGeometryOptions;
 
-		ofxToggle toggleDrawLine;
-		ofxToggle toggleDrawRectangle;
-		ofxToggle toggleDrawCircle;
-		ofxToggle toggleDrawEllipse;
-		ofxToggle toggleDrawTriangle;
-		ofxToggle toggleDrawBoundingBox;
+		ofxToggle2 toggleDrawLine;
+		ofxToggle2 toggleDrawRectangle;
+		ofxToggle2 toggleDrawCircle;
+		ofxToggle2 toggleDrawEllipse;
+		ofxToggle2 toggleDrawTriangle;
+		ofxToggle2 toggleDrawBoundingBox;
 
-		ofxToggle toggleDrawCube;
-		ofxToggle toggleDrawSphere;
+		ofxToggle2 toggleDrawCube;
+		ofxToggle2 toggleDrawSphere;
 
-		ofxButton deleteButton;
-		std::unordered_map<std::string, std::shared_ptr<ofxToggle>> assetsButtons;
+		ofxButton2 deleteButton;
+		std::unordered_map<std::string, std::shared_ptr<ofxToggle2>> assetsButtons;
 
-		ofxColorSlider fillColorSlider;
+		ofxColorSlider2 fillColorSlider;
 
-		ofxColorSlider boundingBoxColorSlider;
+		ofxColorSlider2 boundingBoxColorSlider;
 
-		ofxColorSlider backgroundColorSlider;
+		ofxColorSlider2 backgroundColorSlider;
 
-		ofxIntSlider lineWidth;
-		ofxIntSlider boundingBoxLineWidth;
+		ofxIntSlider2 lineWidth;
+		ofxIntSlider2 boundingBoxLineWidth;
 
-		ofxIntSlider geometryRotateX;
-		ofxIntSlider geometryRotateY;
+		ofxIntSlider2 geometryRotateX;
+		ofxIntSlider2 geometryRotateY;
 
-		ofxToggle toggleDrawFill;
+		ofxToggle2 toggleDrawFill;
 
 		HistogramApplication* histogramWindowApplication;
 		std::shared_ptr<ofAppBaseWindow> histogramWindow;
 
 		AssetManager assetManager;
 		std::vector<Asset*> selectedAssets;
+
+		std::vector<ofxPanel*> pointerGuiPanelElements;
+		std::vector<ofxGuiGroup*> pointerGuiGroupElements;
+		std::vector<ofxButton2*> pointerGuiButtonElements;
+		std::vector<ofxToggle2*> pointerGuiToggleElements;
+		std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
+		std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
 
 		int mousePressX;
 		int mousePressY;
@@ -98,6 +168,8 @@ class Application : public ofBaseApp{
 
 		void resetToggles();
 		void clearSelectedAssets();
+
+		void checkForCursor(int x, int y);
 
 		void updateBoundingBox();
 		glm::vec3 getMaxPos(Asset asset);

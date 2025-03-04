@@ -3,9 +3,43 @@
 //--------------------------------------------------------------
 void Application::setup()
 {
-	gui.setup();
-	assetsPanel.setup();
-	assetsPanel.setName("Graphe de scene");
+	gui.setup("Menu");
+
+	gui.setDefaultEventsPriority(OF_EVENT_ORDER_APP);
+
+	pointerGuiPanelElements.push_back(&gui);
+	pointerGuiPanelElements.push_back(&assetsPanel);
+
+	pointerGuiGroupElements.push_back(&groupDraw);
+	pointerGuiGroupElements.push_back(&groupDrawOptions);
+	pointerGuiGroupElements.push_back(&groupDrawBoundingBox);
+	pointerGuiGroupElements.push_back(&groupGeometry);
+	pointerGuiGroupElements.push_back(&groupGeometryOptions);
+
+	pointerGuiButtonElements.push_back(&resetButton);
+	pointerGuiButtonElements.push_back(&histogramButton);
+	pointerGuiButtonElements.push_back(&deleteButton);
+
+	pointerGuiToggleElements.push_back(&toggleDrawLine);
+	pointerGuiToggleElements.push_back(&toggleDrawRectangle);
+	pointerGuiToggleElements.push_back(&toggleDrawCircle);
+	pointerGuiToggleElements.push_back(&toggleDrawEllipse);
+	pointerGuiToggleElements.push_back(&toggleDrawTriangle);
+	pointerGuiToggleElements.push_back(&toggleDrawFill);
+	pointerGuiToggleElements.push_back(&toggleDrawBoundingBox);
+	pointerGuiToggleElements.push_back(&toggleDrawCube);
+	pointerGuiToggleElements.push_back(&toggleDrawSphere);
+
+	pointerGuiIntSliderElements.push_back(&lineWidth);
+	pointerGuiIntSliderElements.push_back(&boundingBoxLineWidth);
+	pointerGuiIntSliderElements.push_back(&geometryRotateX);
+	pointerGuiIntSliderElements.push_back(&geometryRotateY);
+
+	pointerGuiColorSliderElements.push_back(&fillColorSlider);
+	pointerGuiColorSliderElements.push_back(&boundingBoxColorSlider);
+	pointerGuiColorSliderElements.push_back(&backgroundColorSlider);
+
+	assetsPanel.setup("Graphe de scene");
 	assetsPanel.setPosition(ofGetWindowWidth() - assetsPanel.getWidth() - 10, 10);
 
 	resetButton.addListener(this, &Application::resetButtonPressed);
@@ -119,18 +153,141 @@ void Application::keyReleased(int key)
 //--------------------------------------------------------------
 void Application::mouseMoved(int x, int y)
 {
+	checkForCursor(x, y);
+}
 
+void Application::checkForCursor(int x, int y)
+{
+	for (auto& panel : pointerGuiPanelElements)
+	{
+		const int groupButtonOptionsWidth = 50;
+		const int groupButtonHeight = 20;
+
+		ofRectangle groupButton = ofRectangle(
+			panel->getPosition().x + panel->getShape().width - groupButtonOptionsWidth,
+			panel->getPosition().y,
+			groupButtonOptionsWidth,
+			groupButtonHeight
+		);
+
+		if (groupButton.inside(x, y)) {
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+
+			return;
+		}
+	}
+
+	for (auto& group : pointerGuiGroupElements)
+	{
+		const int groupButtonHeight = 20;
+
+		ofRectangle groupButton = ofRectangle(
+			group->getPosition().x,
+			group->getPosition().y,
+			group->getShape().width,
+			groupButtonHeight
+		);
+
+		if (groupButton.inside(x, y)) {
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+
+			return;
+		}
+	}
+
+	for (auto& button : pointerGuiButtonElements)
+	{
+		if (button->isVisible())
+		{
+			ofRectangle absoluteCheckboxRect = ofRectangle(
+				button->getChecboxRect().x + button->getPosition().x,
+				button->getChecboxRect().y + button->getPosition().y,
+				button->getChecboxRect().width,
+				button->getChecboxRect().height
+			);
+
+			if (absoluteCheckboxRect.inside(x, y)) {
+				SetCursor(LoadCursor(NULL, IDC_HAND));
+
+				return;
+			}
+		}
+	}
+
+	for (auto& button : pointerGuiToggleElements)
+	{
+		if (button->isVisible())
+		{
+			ofRectangle absoluteCheckboxRect = ofRectangle(
+				button->getChecboxRect().x + button->getPosition().x,
+				button->getChecboxRect().y + button->getPosition().y,
+				button->getChecboxRect().width,
+				button->getChecboxRect().height
+			);
+
+			if (absoluteCheckboxRect.inside(x, y)) {
+				SetCursor(LoadCursor(NULL, IDC_HAND));
+
+				return;
+			}
+		}
+	}
+
+	for (auto& button : pointerGuiIntSliderElements)
+	{
+		if (button->isVisible())
+		{
+			if (button->getShape().inside(x, y)) {
+				SetCursor(LoadCursor(NULL, IDC_HAND));
+
+				return;
+			}
+		}
+	}
+
+	for (auto& button : pointerGuiColorSliderElements)
+	{
+		if (button->isVisible())
+		{
+			if (button->getShape().inside(x, y)) {
+				SetCursor(LoadCursor(NULL, IDC_HAND));
+
+				return;
+			}
+		}
+	}
+
+	for (auto const& [_, button] : assetsButtons)
+	{
+		if (button->isVisible())
+		{
+			ofRectangle absoluteCheckboxRect = ofRectangle(
+				button->getChecboxRect().x + button->getPosition().x,
+				button->getChecboxRect().y + button->getPosition().y,
+				button->getChecboxRect().width,
+				button->getChecboxRect().height
+			);
+
+			if (absoluteCheckboxRect.inside(x, y)) {
+				SetCursor(LoadCursor(NULL, IDC_HAND));
+
+				return;
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
-
+	SetCursor(LoadCursor(NULL, IDC_SIZEALL));
 }
 
 //--------------------------------------------------------------
 void Application::mousePressed(int x, int y, int button)
 {
+	checkForCursor(x, y);
+
 	mousePressX = x;
 	mousePressY = y;
 
@@ -180,6 +337,8 @@ void Application::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
+	checkForCursor(x, y);
+
 	if (mousePressX == x && mousePressY == y)
 	{
 		return;
@@ -190,7 +349,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addLine(shapeName, { mousePressX, mousePressY, 0 }, { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Ligne", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -203,7 +362,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addRectangle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Rectangle", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -216,7 +375,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addCircle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Cercle", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -229,7 +388,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addEllipse(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Ellipse", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -242,7 +401,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY, 0 }, { mousePressX + (x - mousePressX) * 0.5f, y, 0 }, { mousePressX - (x - mousePressX) * 0.5f, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Triangle", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -255,7 +414,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "cube_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addCube(shapeName, { x, y, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Cube", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -268,7 +427,7 @@ void Application::mouseReleased(int x, int y, int button)
 		string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
 		Asset* asset = assetManager.addSphere(shapeName, { x, y, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Sphere", true));
 		button->addListener(this, &Application::selectedAssetChanged);
 		assetsButtons[shapeName] = button;
@@ -665,6 +824,8 @@ void Application::geometryRotateXChanged(int& value)
 			assetManager.rotateX(asset, value);
 		}
 	}
+
+	updateBoundingBox();
 }
 
 //--------------------------------------------------------------
@@ -677,6 +838,8 @@ void Application::geometryRotateYChanged(int& value)
 			assetManager.rotateY(asset, value);
 		}
 	}
+
+	updateBoundingBox();
 }
 
 //--------------------------------------------------------------
@@ -722,7 +885,7 @@ void Application::dragEvent(ofDragInfo dragInfo)
 		string imageName = "imported_image_" + std::to_string(importedImageCount + i);
 		assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
 
-		auto button = std::make_shared<ofxToggle>();
+		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Image", true));
 		assetsButtons[imageName] = button;
 	}
@@ -733,17 +896,7 @@ void Application::resetButtonPressed()
 {
 	assetsPanel.clear();
 
-	std::vector<std::string> buttonsToRemove;
-
-	for (auto& [key, button] : assetsButtons)
-	{
-		buttonsToRemove.push_back(key);
-	}
-
-	for (auto& name : buttonsToRemove)
-	{
-		assetsButtons.erase(name);
-	}
+	assetsButtons.clear();
 
 	setup();
 	histogramWindow.get()->setWindowShouldClose();

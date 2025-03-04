@@ -3,12 +3,10 @@
 #include "histogramApplication.h"
 
 //========================================================================
-int main( ){
-
-	//Use ofGLFWWindowSettings for more options like multi-monitor fullscreen
+int main() {
 	ofGLWindowSettings settings;
 	settings.setSize(1024, 768);
-	settings.windowMode = OF_WINDOW; //can also be OF_FULLSCREEN
+	settings.windowMode = OF_WINDOW;
 
 	auto window = ofCreateWindow(settings);
 	auto mainApp = make_shared<Application>();
@@ -16,5 +14,4 @@ int main( ){
 	ofRunApp(window, mainApp);
 
 	ofRunMainLoop();
-
 }
