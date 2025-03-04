@@ -49,7 +49,7 @@ void Application::setup()
 
 	cameraPanel.setup();
 	cameraPanel.setName("Camera");
-	cameraPanel.setPosition(ofGetWindowWidth() - gui.getWidth() - 10, gui.getPosition().y + gui.getHeight() + 100);
+	cameraPanel.setPosition(assetsPanel.getPosition().x, assetsPanel.getPosition().y + assetsPanel.getHeight() + 500);
 
 	cameraPanel.add(lblCamActive.setup("", "Camera active: 1"));
 
@@ -139,15 +139,16 @@ void Application::setup()
 
 	assetManager.assets.clear();
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 3; i++)
+	{
 		cameras.push_back(std::make_unique<ofEasyCam>());
+		cameras[i]->setTarget({ ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 300 });
 		cameras[i]->setDistance(300);
 		cameras[i]->disableMouseMiddleButton();
 		cameras[i]->disableMouseInput();
 		cameras[i]->disableOrtho();
 	}
 
-	cameras[activeCamIndex]->setTarget({ ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 300 });
 }
 
 //--------------------------------------------------------------
@@ -204,11 +205,14 @@ void Application::keyReleased(int key)
 	case 49:
 	case 50:
 	case 51:
-		activeCamIndex = key - 49;
+		if (key - 49 != activeCamIndex)
+		{
+			activeCamIndex = key - 49;
 
-		lblCamActive = "Camera active: " + ofToString(activeCamIndex + 1);
+			lblCamActive = "Camera active: " + ofToString(activeCamIndex + 1);
 
-		togglePerspective = !cameras[activeCamIndex]->getOrtho();
+			togglePerspective = !cameras[activeCamIndex]->getOrtho();
+		}
 		break;
 	}
 }
@@ -878,6 +882,43 @@ glm::vec3 Application::getMinPos(Asset asset)
 	return { minX, minY, minZ };
 }
 
+void Application::setCameraTargetOnSelectedAssets()
+{
+	ofVec3f minBounds(FLT_MAX, FLT_MAX, FLT_MAX);
+	ofVec3f maxBounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	if (selectedAssets.size() == 0)
+	{
+		cameras[activeCamIndex]->setTarget({ 0, 0, 0 });
+		cameras[activeCamIndex]->setDistance(300);
+	}
+	else
+	{
+		for (Asset* asset : selectedAssets)
+		{
+			minBounds.x = std::min(minBounds.x, asset->position.x);
+			minBounds.y = std::min(minBounds.y, asset->position.y);
+			minBounds.z = std::min(minBounds.z, asset->position.z);
+
+			maxBounds.x = std::max(maxBounds.x, asset->position.x);
+			maxBounds.y = std::max(maxBounds.y, asset->position.y);
+			maxBounds.z = std::max(maxBounds.z, asset->position.z);
+		}
+
+		ofVec3f center = (minBounds + maxBounds) * 0.5;
+		float radius = (maxBounds - minBounds).length() * 0.5;
+
+		float fov = ofDegToRad(cameras[activeCamIndex]->getFov());
+		float distance = radius / std::tan(fov / 2.0);
+
+		distance = std::max(300.0f, distance);
+
+		ofVec3f camPos = center + ofVec3f(0, 0, distance);
+		cameras[activeCamIndex]->setPosition(camPos);
+		cameras[activeCamIndex]->lookAt(center);
+	}
+}
+
 //--------------------------------------------------------------
 void Application::geometryRotateXChanged(int& value)
 {
@@ -909,23 +950,12 @@ void Application::geometryRotateYChanged(int& value)
 //--------------------------------------------------------------
 void Application::selectedAssetChanged(bool& value)
 {
-	ofVec3f minBounds(FLT_MAX, FLT_MAX, FLT_MAX);
-	ofVec3f maxBounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
 	selectedAssets.clear();
 	for (auto& [key, button] : assetsButtons)
 	{
 		if (button && *button)
 		{
 			Asset* asset = &assetManager.assets[key];
-
-			minBounds.x = std::min(minBounds.x, asset->position.x);
-			minBounds.y = std::min(minBounds.y, asset->position.y);
-			minBounds.z = std::min(minBounds.z, asset->position.z);
-
-			maxBounds.x = std::max(maxBounds.x, asset->position.x);
-			maxBounds.y = std::max(maxBounds.y, asset->position.y);
-			maxBounds.z = std::max(maxBounds.z, asset->position.z);
 
 			ofLog(OF_LOG_NOTICE, "selected asset pos: " + ofToString(asset->position));
 
@@ -954,25 +984,7 @@ void Application::selectedAssetChanged(bool& value)
 		}
 	}
 
-	if (selectedAssets.size() == 0)
-	{
-		cameras[activeCamIndex]->setTarget({ 0, 0, 0 });
-		cameras[activeCamIndex]->setDistance(300);
-	}
-	else
-	{
-		ofVec3f center = (minBounds + maxBounds) * 0.5;
-		float radius = (maxBounds - minBounds).length() * 0.5;
-
-		float fov = ofDegToRad(cameras[activeCamIndex]->getFov());
-		float distance = radius / std::tan(fov / 2.0);
-
-		distance = std::max(300.0f, distance);
-
-		ofVec3f camPos = center + ofVec3f(0, 0, distance);
-		cameras[activeCamIndex]->setPosition(camPos);
-		cameras[activeCamIndex]->lookAt(center);
-	}
+	setCameraTargetOnSelectedAssets();
 }
 
 void Application::togglePerspectiveChanged(bool& value)

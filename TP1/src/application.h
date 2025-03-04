@@ -192,4 +192,6 @@ class Application : public ofBaseApp {
 		glm::vec3 getMinPos(Asset asset);
 
 		bool clickedInUi = false;
+
+		void setCameraTargetOnSelectedAssets();
 };
