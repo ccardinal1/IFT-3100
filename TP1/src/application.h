@@ -57,7 +57,7 @@ public:
 class ofxColorSlider2 : public ofxColorSlider {
 public:
 	ofColor ofxColorSlider2::operator=(ofColor color) {
-		this->operator=(color);
+		this->changeValue(color);
 
 		return color;
 	}
@@ -73,6 +73,11 @@ class Application : public ofBaseApp {
 	public:
 		ofxPanel gui;
 		ofxPanel assetsPanel;
+		ofxPanel cameraPanel;
+
+		ofxToggle2 togglePerspective;
+		ofxToggle2 toggleOrtho;
+
 		ofxButton2 resetButton;
 		ofxButton2 histogramButton;
 		ofxGuiGroup groupDraw;
@@ -80,6 +85,8 @@ class Application : public ofBaseApp {
 		ofxGuiGroup groupDrawBoundingBox;
 		ofxGuiGroup groupGeometry;
 		ofxGuiGroup groupGeometryOptions;
+		ofxGuiGroup groupCamera;
+		ofxGuiGroup groupCameraProjection;
 
 		ofxToggle2 toggleDrawLine;
 		ofxToggle2 toggleDrawRectangle;
@@ -121,6 +128,8 @@ class Application : public ofBaseApp {
 		std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
 		std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
 
+		ofEasyCam camera;
+
 		int mousePressX;
 		int mousePressY;
 
@@ -161,6 +170,8 @@ class Application : public ofBaseApp {
 		void geometryRotateYChanged(int& value);
 
 		void selectedAssetChanged(bool& value);
+
+		void toggleProjectionModeChanged(bool& value);
 		
 		void resetButtonPressed();
 		void histogramButtonPressed();

@@ -122,11 +122,6 @@ Asset* AssetManager::addCube(const std::string& name, glm::vec3 pos, float size,
 	cube.set(size);
 	cube.setPosition(pos);
 
-	cube.setSideColor(cube.SIDE_TOP, ofColor::yellow);
-	cube.setSideColor(cube.SIDE_FRONT, ofColor::green);
-	cube.setSideColor(cube.SIDE_LEFT, ofColor::red);
-	cube.setSideColor(cube.SIDE_RIGHT, ofColor::blue);
-
 	asset.geometryPrimitive = cube;
 
 	return &asset;
@@ -280,6 +275,7 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 
 				ofVec3f minBound = boxPos - halfSize;
 				ofVec3f maxBound = boxPos + halfSize;
+
 
 				if (point3d.x >= minBound.x && point3d.x <= maxBound.x &&
 					point3d.y >= minBound.y && point3d.y <= maxBound.y &&
