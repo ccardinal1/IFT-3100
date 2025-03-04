@@ -128,7 +128,11 @@ class Application : public ofBaseApp {
 		std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
 		std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
 
-		ofEasyCam camera;
+		std::vector<std::unique_ptr<ofEasyCam>> cameras;
+
+		int activeCamIndex=0;
+
+		ofxLabel lblCamActive;
 
 		int mousePressX;
 		int mousePressY;
@@ -171,7 +175,8 @@ class Application : public ofBaseApp {
 
 		void selectedAssetChanged(bool& value);
 
-		void toggleProjectionModeChanged(bool& value);
+		void togglePerspectiveChanged(bool& value);
+		void toggleOrthoChanged(bool& value);
 		
 		void resetButtonPressed();
 		void histogramButtonPressed();

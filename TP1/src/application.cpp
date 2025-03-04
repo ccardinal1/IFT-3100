@@ -49,7 +49,9 @@ void Application::setup()
 
 	cameraPanel.setup();
 	cameraPanel.setName("Camera");
-	cameraPanel.setPosition(ofGetWindowWidth() - cameraPanel.getWidth() - 10, assetsPanel.getPosition().y + assetsPanel.getHeight() + 100);
+	cameraPanel.setPosition(ofGetWindowWidth() - gui.getWidth() - 10, gui.getPosition().y + gui.getHeight() + 100);
+
+	cameraPanel.add(lblCamActive.setup("", "Camera active: 1"));
 
 	resetButton.addListener(this, &Application::resetButtonPressed);
 	histogramButton.addListener(this, &Application::histogramButtonPressed);
@@ -124,8 +126,8 @@ void Application::setup()
 	groupCameraProjection.add(togglePerspective.setup("Perspective", true));
 	groupCameraProjection.add(toggleOrtho.setup("Orthogonale", false));
 
-	togglePerspective.addListener(this, &Application::toggleProjectionModeChanged);
-	toggleOrtho.addListener(this, &Application::toggleProjectionModeChanged);
+	togglePerspective.addListener(this, &Application::togglePerspectiveChanged);
+	toggleOrtho.addListener(this, &Application::toggleOrthoChanged);
 
 	gui.add(&groupDraw);
 	gui.add(&groupGeometry);
@@ -137,11 +139,15 @@ void Application::setup()
 
 	assetManager.assets.clear();
 
-	camera.setTarget({ ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 300 });
+	for (int i = 0; i < 3; i++) {
+		cameras.push_back(std::make_unique<ofEasyCam>());
+		cameras[i]->setDistance(300);
+		cameras[i]->disableMouseMiddleButton();
+		cameras[i]->disableMouseInput();
+		cameras[i]->disableOrtho();
+	}
 
-	camera.disableMouseMiddleButton();
-	camera.disableMouseInput();
-	camera.disableOrtho();
+	cameras[activeCamIndex]->setTarget({ ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 300 });
 }
 
 //--------------------------------------------------------------
@@ -159,10 +165,10 @@ void Application::update()
 void Application::draw()
 {
 	ofBackground(backgroundColorSlider);
-	camera.begin();
+	cameras[activeCamIndex]->begin();
 	ofEnableDepthTest();
 
-	if (camera.getMouseInputEnabled())
+	if (cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		ofDrawGrid(10);
 	}
@@ -170,7 +176,7 @@ void Application::draw()
 	assetManager.draw();
 
 	ofDisableDepthTest();
-	camera.end();
+	cameras[activeCamIndex]->end();
 
 	gui.draw();
 	assetsPanel.draw();
@@ -182,7 +188,7 @@ void Application::keyPressed(int key)
 {
 	if (key == 32)
 	{
-		camera.enableMouseInput();
+		cameras[activeCamIndex]->enableMouseInput();
 		resetToggles();
 	}
 }
@@ -190,9 +196,20 @@ void Application::keyPressed(int key)
 //--------------------------------------------------------------
 void Application::keyReleased(int key)
 {
-	if (key == 32)
+	switch (key)
 	{
-		camera.disableMouseInput();
+	case 32:
+		cameras[activeCamIndex]->disableMouseInput();
+		break;
+	case 49:
+	case 50:
+	case 51:
+		activeCamIndex = key - 49;
+
+		lblCamActive = "Camera active: " + ofToString(activeCamIndex + 1);
+
+		togglePerspective = !cameras[activeCamIndex]->getOrtho();
+		break;
 	}
 }
 
@@ -340,7 +357,7 @@ void Application::mousePressed(int x, int y, int button)
 
 	if (!gui.getShape().inside(x, y))
 	{
-		if (button != 0 || camera.getMouseInputEnabled())
+		if (button != 0 || cameras[activeCamIndex]->getMouseInputEnabled())
 			return;
 
 		checkForCursor(x, y);
@@ -401,7 +418,7 @@ void Application::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
-	if (button != 0 || (mousePressX == x && mousePressY == y) || camera.getMouseInputEnabled())
+	if (button != 0 || (mousePressX == x && mousePressY == y) || cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		clickedInUi = false;
 		return;
@@ -417,49 +434,49 @@ void Application::mouseReleased(int x, int y, int button)
 		if (toggleDrawLine)
 		{
 			string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addLine(shapeName, camera.screenToWorld({ mousePressX, mousePressY, 0 }), { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addLine(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Ligne";
 		}
 		else if (toggleDrawRectangle)
 		{
 			string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addRectangle(shapeName, camera.screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addRectangle(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Rectangle";
 		}
 		else if (toggleDrawCircle)
 		{
 			string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addCircle(shapeName, camera.screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addCircle(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Cercle";
 		}
 		else if (toggleDrawEllipse)
 		{
 			string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addEllipse(shapeName, camera.screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addEllipse(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Ellipse";
 		}
 		else if (toggleDrawTriangle)
 		{
 			string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addTriangle(shapeName, camera.screenToWorld({ mousePressX, mousePressY, 0 }), { mousePressX + (x - mousePressX) / 2, y, 0 }, { mousePressX - (x - mousePressX) / 2, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addTriangle(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), { mousePressX + (x - mousePressX) / 2, y, 0 }, { mousePressX - (x - mousePressX) / 2, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Triangle";
 		}
 		else if (toggleDrawCube)
 		{
 			string shapeName = "cube_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addCube(shapeName, camera.screenToWorld({ x, y, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addCube(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Cube";
 		}
 		else if (toggleDrawSphere)
 		{
 			string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addSphere(shapeName, camera.screenToWorld({ x, y, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addSphere(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Sphere";
 		}
@@ -492,8 +509,8 @@ void Application::mouseReleased(int x, int y, int button)
 			asset->isSelected = true;
 			selectedAssets.push_back(asset);
 
-			camera.setTarget(asset->position);
-			camera.setDistance(300);
+			cameras[activeCamIndex]->setTarget(asset->position);
+			cameras[activeCamIndex]->setDistance(300);
 		}
 	}
 	else
@@ -923,8 +940,8 @@ void Application::selectedAssetChanged(bool& value)
 					geometryRotateX = asset->geometryPrimitive.getPitchDeg();
 					geometryRotateY = asset->geometryPrimitive.getHeadingDeg();
 
-					camera.setTarget(asset->position);
-					camera.setDistance(300);
+					cameras[activeCamIndex]->setTarget(asset->position);
+					cameras[activeCamIndex]->setDistance(300);
 				}
 				else
 				{
@@ -939,51 +956,44 @@ void Application::selectedAssetChanged(bool& value)
 
 	if (selectedAssets.size() == 0)
 	{
-		camera.setTarget({ 0, 0, 0 });
-		camera.setDistance(300);
+		cameras[activeCamIndex]->setTarget({ 0, 0, 0 });
+		cameras[activeCamIndex]->setDistance(300);
 	}
 	else
 	{
 		ofVec3f center = (minBounds + maxBounds) * 0.5;
 		float radius = (maxBounds - minBounds).length() * 0.5;
 
-		float fov = ofDegToRad(camera.getFov());
+		float fov = ofDegToRad(cameras[activeCamIndex]->getFov());
 		float distance = radius / std::tan(fov / 2.0);
 
 		distance = std::max(300.0f, distance);
 
 		ofVec3f camPos = center + ofVec3f(0, 0, distance);
-		camera.setPosition(camPos);
-		camera.lookAt(center);
+		cameras[activeCamIndex]->setPosition(camPos);
+		cameras[activeCamIndex]->lookAt(center);
 	}
 }
 
-void Application::toggleProjectionModeChanged(bool& value)
+void Application::togglePerspectiveChanged(bool& value)
 {
-	if (!togglePerspective && !camera.getOrtho())
-	{
-		togglePerspective = true;
-		return;
-	}
+	toggleOrtho = !value;
+}
 
-	if (!toggleOrtho && camera.getOrtho())
+void Application::toggleOrthoChanged(bool& value)
+{
+	if (value)
 	{
-		toggleOrtho = true;
-		return;
-	}
-
-	if (togglePerspective && camera.getOrtho())
-	{
-		camera.disableOrtho();
-		toggleOrtho = false;
-	}
-
-	if (toggleOrtho && !camera.getOrtho())
-	{
-		camera.enableOrtho();
+		cameras[activeCamIndex]->enableOrtho();
 		togglePerspective = false;
 	}
+	else
+	{
+		cameras[activeCamIndex]->disableOrtho();
+		togglePerspective = true;
+	}
 }
+
 
 //--------------------------------------------------------------
 void Application::dragEvent(ofDragInfo dragInfo)
