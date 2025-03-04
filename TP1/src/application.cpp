@@ -280,179 +280,196 @@ void Application::checkForCursor(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
-	SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+	if (!gui.getShape().inside(x, y) && !clickedInUi)
+	{
+		SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+	}
 }
 
 //--------------------------------------------------------------
 void Application::mousePressed(int x, int y, int button)
 {
-	checkForCursor(x, y);
-
-	mousePressX = x;
-	mousePressY = y;
-
-	if (!toggleDrawLine && !toggleDrawRectangle && !toggleDrawCircle && !toggleDrawEllipse && !toggleDrawTriangle && !toggleDrawCube && !toggleDrawSphere)
+	if (!gui.getShape().inside(x, y))
 	{
-		if (selectedAssets.size() == 0)
+		checkForCursor(x, y);
+
+		mousePressX = x;
+		mousePressY = y;
+
+		if (!toggleDrawLine && !toggleDrawRectangle && !toggleDrawCircle && !toggleDrawEllipse && !toggleDrawTriangle && !toggleDrawCube && !toggleDrawSphere)
 		{
-			Asset* tempAsset = assetManager.getAsset({ x, y, 0 });
-
-			if (tempAsset == NULL)
+			if (selectedAssets.size() == 0)
 			{
-				if (!selectedAssets.empty())
+				Asset* tempAsset = assetManager.getAsset({ x, y, 0 });
+
+				if (tempAsset == NULL)
 				{
-					selectedAssets[0]->isSelected = false;
+					if (!selectedAssets.empty())
+					{
+						selectedAssets[0]->isSelected = false;
+						selectedAssets.clear();
+					}
+				}
+				else if (!selectedAssets.empty())
+				{
+					for (Asset* asset : selectedAssets)
+					{
+						asset->isSelected = false;
+						*assetsButtons[asset->name] = false;
+					}
+
 					selectedAssets.clear();
+
+					tempAsset->isSelected = true;
+					selectedAssets.push_back(tempAsset);
+					*assetsButtons[tempAsset->name] = true;
 				}
-			}
-			else if (!selectedAssets.empty())
-			{
-				for (Asset* asset : selectedAssets)
+				else if (selectedAssets.empty() || tempAsset != selectedAssets[0])
 				{
-					asset->isSelected = false;
-					*assetsButtons[asset->name] = false;
+					if (!selectedAssets.empty())
+					{
+						selectedAssets[0]->isSelected = false;
+					}
+					tempAsset->isSelected = true;
+					*assetsButtons[tempAsset->name] = true;
+
+					selectedAssets.push_back(tempAsset);
 				}
-
-				selectedAssets.clear();
-
-				tempAsset->isSelected = true;
-				selectedAssets.push_back(tempAsset);
-				*assetsButtons[tempAsset->name] = true;
-			}
-			else if (selectedAssets.empty() || tempAsset != selectedAssets[0])
-			{
-				if (!selectedAssets.empty())
-				{
-					selectedAssets[0]->isSelected = false;
-				}
-				tempAsset->isSelected = true;
-				*assetsButtons[tempAsset->name] = true;
-
-				selectedAssets.push_back(tempAsset);
 			}
 		}
+	}
+	else
+	{
+		clickedInUi = true;
 	}
 }
 
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
-	checkForCursor(x, y);
-
-	if (mousePressX == x && mousePressY == y)
+	if (!clickedInUi)
 	{
-		return;
-	}
+		checkForCursor(x, y);
 
-    if (toggleDrawLine)
-	{
-		string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addLine(shapeName, { mousePressX, mousePressY, 0 }, { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Ligne", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (toggleDrawRectangle)
-	{
-		string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addRectangle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Rectangle", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (toggleDrawCircle)
-	{
-		string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addCircle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Cercle", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (toggleDrawEllipse)
-	{
-		string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addEllipse(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Ellipse", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (toggleDrawTriangle)
-	{
-		string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY, 0 }, { mousePressX + (x - mousePressX) * 0.5f, y, 0 }, { mousePressX - (x - mousePressX) * 0.5f, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Triangle", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (toggleDrawCube)
-	{
-		string shapeName = "cube_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addCube(shapeName, { x, y, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Cube", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (toggleDrawSphere)
-	{
-		string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
-		Asset* asset = assetManager.addSphere(shapeName, { x, y, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
-
-		auto button = std::make_shared<ofxToggle2>();
-		assetsPanel.add(button.get()->setup("Sphere", true));
-		button->addListener(this, &Application::selectedAssetChanged);
-		assetsButtons[shapeName] = button;
-
-		asset->isSelected = true;
-		selectedAssets.push_back(asset);
-	}
-	else if (!selectedAssets.empty())
-	{
-		glm::vec2 moveVec = { x - mousePressX, y - mousePressY };
-
-		for (Asset* asset : selectedAssets)
+		if (mousePressX == x && mousePressY == y)
 		{
-			if (asset->type == AssetType::CUBE || asset->type == AssetType::SPHERE)
+			return;
+		}
+
+		if (toggleDrawLine)
+		{
+			string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addLine(shapeName, { mousePressX, mousePressY, 0 }, { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Ligne", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (toggleDrawRectangle)
+		{
+			string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addRectangle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Rectangle", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (toggleDrawCircle)
+		{
+			string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addCircle(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Cercle", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (toggleDrawEllipse)
+		{
+			string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addEllipse(shapeName, { mousePressX, mousePressY, 0 }, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Ellipse", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (toggleDrawTriangle)
+		{
+			string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addTriangle(shapeName, { mousePressX, mousePressY, 0 }, { mousePressX + (x - mousePressX) * 0.5f, y, 0 }, { mousePressX - (x - mousePressX) * 0.5f, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Triangle", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (toggleDrawCube)
+		{
+			string shapeName = "cube_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addCube(shapeName, { x, y, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Cube", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (toggleDrawSphere)
+		{
+			string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
+			Asset* asset = assetManager.addSphere(shapeName, { x, y, 0 }, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup("Sphere", true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[shapeName] = button;
+
+			asset->isSelected = true;
+			selectedAssets.push_back(asset);
+		}
+		else if (!selectedAssets.empty())
+		{
+			glm::vec2 moveVec = { x - mousePressX, y - mousePressY };
+
+			for (Asset* asset : selectedAssets)
 			{
-				assetManager.setPosition(asset, asset->position + glm::vec3(moveVec.x, moveVec.y, 0));
-			}
-			else
-			{
-				assetManager.setPosition(asset, asset->position + moveVec);
+				if (asset->type == AssetType::CUBE || asset->type == AssetType::SPHERE)
+				{
+					assetManager.setPosition(asset, asset->position + glm::vec3(moveVec.x, moveVec.y, 0));
+				}
+				else
+				{
+					assetManager.setPosition(asset, asset->position + moveVec);
+				}
 			}
 		}
-	}
 
-	updateBoundingBox();
+		updateBoundingBox();
+	}
+	else
+	{
+		clickedInUi = false;
+	}
 }
 
 //--------------------------------------------------------------

@@ -174,4 +174,6 @@ class Application : public ofBaseApp {
 		void updateBoundingBox();
 		glm::vec3 getMaxPos(Asset asset);
 		glm::vec3 getMinPos(Asset asset);
+
+		bool clickedInUi = false;
 };
