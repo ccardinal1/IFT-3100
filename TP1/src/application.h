@@ -70,128 +70,133 @@ public:
 
 class Application : public ofBaseApp {
 
-	public:
-		ofxPanel gui;
-		ofxPanel assetsPanel;
-		ofxPanel cameraPanel;
+public:
+	ofxPanel gui;
+	ofxPanel assetsPanel;
+	ofxPanel cameraPanel;
 
-		ofxToggle2 togglePerspective;
-		ofxToggle2 toggleOrtho;
+	ofxToggle2 togglePerspective;
+	ofxToggle2 toggleOrtho;
 
-		ofxButton2 resetButton;
-		ofxButton2 histogramButton;
-		ofxGuiGroup groupDraw;
-		ofxGuiGroup groupDrawOptions;
-		ofxGuiGroup groupDrawBoundingBox;
-		ofxGuiGroup groupGeometry;
-		ofxGuiGroup groupGeometryOptions;
-		ofxGuiGroup groupCamera;
-		ofxGuiGroup groupCameraProjection;
+	ofxButton2 resetButton;
+	ofxButton2 histogramButton;
+	ofxGuiGroup groupDraw;
+	ofxGuiGroup groupDrawOptions;
+	ofxGuiGroup groupDrawBoundingBox;
+	ofxGuiGroup groupGeometry;
+	ofxGuiGroup groupGeometryOptions;
+	ofxGuiGroup groupCamera;
+	ofxGuiGroup groupCameraProjection;
 
-		ofxToggle2 toggleDrawLine;
-		ofxToggle2 toggleDrawRectangle;
-		ofxToggle2 toggleDrawCircle;
-		ofxToggle2 toggleDrawEllipse;
-		ofxToggle2 toggleDrawTriangle;
-		ofxToggle2 toggleDrawBoundingBox;
+	ofxToggle2 toggleDrawLine;
+	ofxToggle2 toggleDrawRectangle;
+	ofxToggle2 toggleDrawCircle;
+	ofxToggle2 toggleDrawEllipse;
+	ofxToggle2 toggleDrawTriangle;
+	ofxToggle2 toggleDrawBoundingBox;
 
-		ofxToggle2 toggleDrawCube;
-		ofxToggle2 toggleDrawSphere;
+	ofxToggle2 toggleDrawCube;
+	ofxToggle2 toggleDrawSphere;
 
-		ofxButton2 deleteButton;
-		std::unordered_map<std::string, std::shared_ptr<ofxToggle2>> assetsButtons;
+	ofxButton2 deleteButton;
+	std::unordered_map<std::string, std::shared_ptr<ofxToggle2>> assetsButtons;
 
-		ofxColorSlider2 fillColorSlider;
+	ofxColorSlider2 fillColorSlider;
 
-		ofxColorSlider2 boundingBoxColorSlider;
+	ofxColorSlider2 boundingBoxColorSlider;
 
-		ofxColorSlider2 backgroundColorSlider;
+	ofxColorSlider2 backgroundColorSlider;
 
-		ofxIntSlider2 lineWidth;
-		ofxIntSlider2 boundingBoxLineWidth;
+	ofxIntSlider2 lineWidth;
+	ofxIntSlider2 boundingBoxLineWidth;
 
-		ofxIntSlider2 geometryRotateX;
-		ofxIntSlider2 geometryRotateY;
+	ofxIntSlider2 geometryRotateX;
+	ofxIntSlider2 geometryRotateY;
 
-		ofxToggle2 toggleDrawFill;
+	ofxToggle2 toggleDrawFill;
 
-		HistogramApplication* histogramWindowApplication;
-		std::shared_ptr<ofAppBaseWindow> histogramWindow;
+	HistogramApplication* histogramWindowApplication;
+	std::shared_ptr<ofAppBaseWindow> histogramWindow;
 
-		AssetManager assetManager;
-		std::vector<Asset*> selectedAssets;
+	AssetManager assetManager;
+	std::vector<Asset*> selectedAssets;
 
-		std::vector<ofxPanel*> pointerGuiPanelElements;
-		std::vector<ofxGuiGroup*> pointerGuiGroupElements;
-		std::vector<ofxButton2*> pointerGuiButtonElements;
-		std::vector<ofxToggle2*> pointerGuiToggleElements;
-		std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
-		std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
+	std::vector<ofxPanel*> pointerGuiPanelElements;
+	std::vector<ofxGuiGroup*> pointerGuiGroupElements;
+	std::vector<ofxButton2*> pointerGuiButtonElements;
+	std::vector<ofxToggle2*> pointerGuiToggleElements;
+	std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
+	std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
 
-		std::vector<std::unique_ptr<ofEasyCam>> cameras;
+	std::vector<std::unique_ptr<ofEasyCam>> cameras;
 
-		int activeCamIndex=0;
+	int activeCamIndex = 0;
 
-		ofxLabel lblCamActive;
+	ofxLabel lblCamActive;
 
-		int mousePressX;
-		int mousePressY;
+	int mousePressX;
+	int mousePressY;
 
-		void setup();
-		void update();
-		void draw();
+	void setup();
+	void update();
+	void draw();
 
-		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
+	void keyPressed(int key);
+	void keyReleased(int key);
+	void mouseMoved(int x, int y);
+	void mouseDragged(int x, int y, int button);
+	void mousePressed(int x, int y, int button);
+	void mouseReleased(int x, int y, int button);
+	void mouseEntered(int x, int y);
+	void mouseExited(int x, int y);
+	void windowResized(int w, int h);
+	void dragEvent(ofDragInfo dragInfo);
+	void gotMessage(ofMessage msg);
 
-		void drawLineToggleChanged(bool& value);
-		void drawRectangleToggleChanged(bool& value);
-		void drawCircleToggleChanged(bool& value);
-		void drawEllipseToggleChanged(bool& value);
-		void drawTriangleToggleChanged(bool& value);
-		void drawBoundingBoxToggleChanged(bool& value);
+	void drawLineToggleChanged(bool& value);
+	void drawRectangleToggleChanged(bool& value);
+	void drawCircleToggleChanged(bool& value);
+	void drawEllipseToggleChanged(bool& value);
+	void drawTriangleToggleChanged(bool& value);
+	void drawBoundingBoxToggleChanged(bool& value);
 
-		void drawCubeToggleChanged(bool& value);
-		void drawSphereToggleChanged(bool& value);
-		
-		void isFilledToggleChanged(bool& value);
-		void drawColorChanged(ofColor& value);
-		void lineWidthChanged(int& value);
+	void drawCubeToggleChanged(bool& value);
+	void drawSphereToggleChanged(bool& value);
 
-		void boundingBoxColorChanged(ofColor& value);
-		void boundingBoxLineWidthChanged(int& value);
+	void isFilledToggleChanged(bool& value);
+	void drawColorChanged(ofColor& value);
+	void lineWidthChanged(int& value);
 
-		void geometryRotateXChanged(int& value);
-		void geometryRotateYChanged(int& value);
+	void boundingBoxColorChanged(ofColor& value);
+	void boundingBoxLineWidthChanged(int& value);
 
-		void selectedAssetChanged(bool& value);
+	void geometryRotateXChanged(int& value);
+	void geometryRotateYChanged(int& value);
 
-		void togglePerspectiveChanged(bool& value);
-		void toggleOrthoChanged(bool& value);
-		
-		void resetButtonPressed();
-		void histogramButtonPressed();
-		void deleteButtonPressed();
+	void selectedAssetChanged(bool& value);
 
-		void resetToggles();
-		void clearSelectedAssets();
+	void togglePerspectiveChanged(bool& value);
+	void toggleOrthoChanged(bool& value);
 
-		void checkForCursor(int x, int y);
+	void resetButtonPressed();
+	void histogramButtonPressed();
+	void deleteButtonPressed();
 
-		void updateBoundingBox();
-		glm::vec3 getMaxPos(Asset asset);
-		glm::vec3 getMinPos(Asset asset);
+	void resetToggles();
+	void clearSelectedAssets();
 
-		bool clickedInUi = false;
+	void checkForCursor(int x, int y);
 
-		void setCameraTargetOnSelectedAssets();
+	void updateBoundingBox();
+	glm::vec3 getMaxPos(Asset asset);
+	glm::vec3 getMinPos(Asset asset);
+
+	bool clickedInUi = false;
+	bool recording = false;
+	bool screenshot = false;
+	int imageIndex = 0;
+
+	void setCameraTargetOnSelectedAssets();
+
+	void exportImage();
 };

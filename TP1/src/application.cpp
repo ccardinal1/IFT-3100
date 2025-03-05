@@ -149,6 +149,8 @@ void Application::setup()
 		cameras[i]->disableOrtho();
 	}
 
+	ofSetFrameRate(60);
+
 }
 
 //--------------------------------------------------------------
@@ -175,6 +177,10 @@ void Application::draw()
 	}
 
 	assetManager.draw();
+	if (recording || screenshot) {
+		exportImage();
+		if (screenshot) screenshot = false;
+	}
 
 	ofDisableDepthTest();
 	cameras[activeCamIndex]->end();
@@ -213,6 +219,17 @@ void Application::keyReleased(int key)
 
 			togglePerspective = !cameras[activeCamIndex]->getOrtho();
 		}
+		break;
+	case 111:
+		recording = !recording;
+		if (recording) {
+			ofSetFrameRate(6);
+			imageIndex = 0;
+		}
+		else ofSetFrameRate(60);
+		break;
+	case 112:
+		screenshot = true;
 		break;
 	}
 }
@@ -1110,4 +1127,17 @@ void Application::clearSelectedAssets()
 	}
 
 	selectedAssets.clear();
+}
+
+void Application::exportImage() {
+	ofImage image;
+	string fileName;
+	if (recording) {
+		fileName = "image_export_" + ofGetTimestampString("%F-%H-%M-%S") + "_" + std::to_string(imageIndex) + ".png";
+		imageIndex++;
+	}
+	else fileName = "image_export_" + ofGetTimestampString("%F-%H-%M-%S") + ".png";
+	ofLog(OF_LOG_NOTICE, "Image exportée vers /bin/data/" + fileName);
+	image.grabScreen(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+	image.save(fileName);
 }
