@@ -188,6 +188,11 @@ void Application::draw()
 	gui.draw();
 	assetsPanel.draw();
 	cameraPanel.draw();
+	if (recording) {
+		ofSetColor(255, 0, 0);
+		ofFill();
+		ofDrawCircle(18, 18, 16);
+	}
 }
 
 //--------------------------------------------------------------
