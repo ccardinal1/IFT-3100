@@ -10,6 +10,7 @@ void Application::setup()
 	pointerGuiPanelElements.push_back(&gui);
 	pointerGuiPanelElements.push_back(&assetsPanel);
 	pointerGuiPanelElements.push_back(&cameraPanel);
+	pointerGuiPanelElements.push_back(&objectPanel);
 
 	pointerGuiGroupElements.push_back(&groupDraw);
 	pointerGuiGroupElements.push_back(&groupDrawOptions);
@@ -44,12 +45,35 @@ void Application::setup()
 	pointerGuiColorSliderElements.push_back(&boundingBoxColorSlider);
 	pointerGuiColorSliderElements.push_back(&backgroundColorSlider);
 
+	pointerGuiFloatFieldElements.push_back(&translateXField);
+	pointerGuiFloatFieldElements.push_back(&translateYField);
+	pointerGuiFloatFieldElements.push_back(&translateZField);
+	pointerGuiFloatFieldElements.push_back(&rotateXField);
+	pointerGuiFloatFieldElements.push_back(&rotateYField);
+	pointerGuiFloatFieldElements.push_back(&rotateZField);
+	pointerGuiFloatFieldElements.push_back(&scaleXField);
+	pointerGuiFloatFieldElements.push_back(&scaleYField);
+	pointerGuiFloatFieldElements.push_back(&scaleZField);
+
+	pointerGuiFloatSliderElements.push_back(&translateXSlider);
+	pointerGuiFloatSliderElements.push_back(&translateYSlider);
+	pointerGuiFloatSliderElements.push_back(&translateZSlider);
+	pointerGuiFloatSliderElements.push_back(&rotateXSlider);
+	pointerGuiFloatSliderElements.push_back(&rotateYSlider);
+	pointerGuiFloatSliderElements.push_back(&rotateZSlider);
+	pointerGuiFloatSliderElements.push_back(&scaleXSlider);
+	pointerGuiFloatSliderElements.push_back(&scaleYSlider);
+	pointerGuiFloatSliderElements.push_back(&scaleZSlider);
+
 	assetsPanel.setup("Graphe de scene");
 	assetsPanel.setPosition(ofGetWindowWidth() - assetsPanel.getWidth() - 10, 10);
 
 	cameraPanel.setup();
 	cameraPanel.setName("Camera");
 	cameraPanel.setPosition(assetsPanel.getPosition().x, assetsPanel.getPosition().y + assetsPanel.getHeight() + 500);
+
+	objectPanel.setup("Item(s) selectionne(s)");
+	objectPanel.setPosition(assetsPanel.getPosition().x - assetsPanel.getWidth() - 10, assetsPanel.getPosition().y);
 
 	cameraPanel.add(lblCamActive.setup("", "Camera active: 1"));
 
@@ -63,6 +87,25 @@ void Application::setup()
 	geometryRotateX.addListener(this, &Application::geometryRotateXChanged);
 	geometryRotateY.addListener(this, &Application::geometryRotateYChanged);
 
+	translateXField.addListener(this, &Application::translateXChanged);
+	translateXSlider.addListener(this, &Application::translateXChanged);
+	translateYField.addListener(this, &Application::translateYChanged);
+	translateYSlider.addListener(this, &Application::translateYChanged);
+	translateZField.addListener(this, &Application::translateZChanged);
+	translateZSlider.addListener(this, &Application::translateZChanged);
+	rotateXField.addListener(this, &Application::rotateXChanged);
+	rotateXSlider.addListener(this, &Application::rotateXChanged);
+	rotateYField.addListener(this, &Application::rotateYChanged);
+	rotateYSlider.addListener(this, &Application::rotateYChanged);
+	rotateZField.addListener(this, &Application::rotateZChanged);
+	rotateZSlider.addListener(this, &Application::rotateZChanged);
+	scaleXField.addListener(this, &Application::scaleXChanged);
+	scaleXSlider.addListener(this, &Application::scaleXChanged);
+	scaleYField.addListener(this, &Application::scaleYChanged);
+	scaleYSlider.addListener(this, &Application::scaleYChanged);
+	scaleZField.addListener(this, &Application::scaleZChanged);
+	scaleZSlider.addListener(this, &Application::scaleZChanged);
+
 	gui.add(resetButton.setup("Reinitialiser"));
 	gui.add(histogramButton.setup("Histogramme"));
 
@@ -72,6 +115,9 @@ void Application::setup()
 	groupGeometryOptions.setup("Options");
 	groupCameraProjection.setup("Mode de projection");
 	groupDrawBoundingBox.setup("Boite de delimitation");
+	groupTranslation.setup("Translation");
+	groupRotation.setup("Rotation");
+	groupScale.setup("Echelle");
 
 	toggleDrawLine.addListener(this, &Application::drawLineToggleChanged);
 	groupDraw.add(toggleDrawLine.setup("Ligne", false));
@@ -126,6 +172,25 @@ void Application::setup()
 	groupCameraProjection.add(togglePerspective.setup("Perspective", true));
 	groupCameraProjection.add(toggleOrtho.setup("Orthogonale", false));
 
+	groupTranslation.add(translateXField.setup("Position X", 0));
+	groupTranslation.add(translateYField.setup("Position Y", 0));
+	groupTranslation.add(translateZField.setup("Position Z", 0));
+	groupTranslation.add(translateXSlider.setup("Translation X", 0, -30, 30));
+	groupTranslation.add(translateYSlider.setup("Translation Y", 0, -30, 30));
+	groupTranslation.add(translateZSlider.setup("Translation Z", 0, -30, 30));
+	groupRotation.add(rotateXField.setup("Angle X", 0, 0, 360));
+	groupRotation.add(rotateYField.setup("Angle Y", 0, 0, 360));
+	groupRotation.add(rotateZField.setup("Angle Z", 0, 0, 360));
+	groupRotation.add(rotateXSlider.setup("Rotation X", 0, -180, 180));
+	groupRotation.add(rotateYSlider.setup("Rotation Y", 0, -180, 180));
+	groupRotation.add(rotateZSlider.setup("Rotation Z", 0, -180, 180));
+	groupScale.add(scaleXField.setup("Echelle X", 1));
+	groupScale.add(scaleYField.setup("Echelle Y", 1));
+	groupScale.add(scaleZField.setup("Echelle Z", 1));
+	groupScale.add(scaleXSlider.setup("Agrandissement X", 0, -10, 10));
+	groupScale.add(scaleYSlider.setup("Agrandissement Y", 0, -10, 10));
+	groupScale.add(scaleZSlider.setup("Agrandissement Z", 0, -10, 10));
+
 	togglePerspective.addListener(this, &Application::togglePerspectiveChanged);
 	toggleOrtho.addListener(this, &Application::toggleOrthoChanged);
 
@@ -136,6 +201,10 @@ void Application::setup()
 	cameraPanel.add(&groupCameraProjection);
 
 	assetsPanel.add(deleteButton.setup("Supprimer"));
+
+	objectPanel.add(&groupTranslation);
+	objectPanel.add(&groupRotation);
+	objectPanel.add(&groupScale);
 
 	assetManager.assets.clear();
 
@@ -188,6 +257,7 @@ void Application::draw()
 	gui.draw();
 	assetsPanel.draw();
 	cameraPanel.draw();
+	if (selectedAssets.size() == 1) objectPanel.draw();
 	if (recording) {
 		ofSetColor(255, 0, 0);
 		ofFill();
@@ -362,6 +432,22 @@ void Application::checkForCursor(int x, int y)
 
 				return;
 			}
+		}
+	}
+
+	for (auto& button : pointerGuiFloatFieldElements) {
+		if (button->getShape().inside(x, y)) {
+			SetCursor(LoadCursor(NULL, IDC_IBEAM));
+
+			return;
+		}
+	}
+
+	for (auto& button : pointerGuiFloatSliderElements) {
+		if (button->getShape().inside(x, y)) {
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+
+			return;
 		}
 	}
 }
@@ -1006,7 +1092,43 @@ void Application::selectedAssetChanged(bool& value)
 		}
 	}
 
-	setCameraTargetOnSelectedAssets();
+	setCameraTargetOnSelectedAssets();// TODO? update objectPanel
+}
+
+void Application::translateXChanged(float& value) {
+	// TODO
+}
+
+void Application::translateYChanged(float& value) {
+	// TODO
+}
+
+void Application::translateZChanged(float& value) {
+	// TODO
+}
+
+void Application::rotateXChanged(float& value) {
+	//TODO
+}
+
+void Application::rotateYChanged(float& value) {
+	//TODO
+}
+
+void Application::rotateZChanged(float& value) {
+	//TODO
+}
+
+void Application::scaleXChanged(float& value) {
+	//TODO
+}
+
+void Application::scaleYChanged(float& value) {
+	//TODO
+}
+
+void Application::scaleZChanged(float& value) {
+	//TODO
 }
 
 void Application::togglePerspectiveChanged(bool& value)
@@ -1048,6 +1170,7 @@ void Application::dragEvent(ofDragInfo dragInfo)
 //--------------------------------------------------------------
 void Application::resetButtonPressed()
 {
+	clearSelectedAssets();
 	assetsPanel.clear();
 
 	assetsButtons.clear();

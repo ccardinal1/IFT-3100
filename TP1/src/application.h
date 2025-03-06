@@ -74,6 +74,7 @@ public:
 	ofxPanel gui;
 	ofxPanel assetsPanel;
 	ofxPanel cameraPanel;
+	ofxPanel objectPanel;
 
 	ofxToggle2 togglePerspective;
 	ofxToggle2 toggleOrtho;
@@ -87,6 +88,9 @@ public:
 	ofxGuiGroup groupGeometryOptions;
 	ofxGuiGroup groupCamera;
 	ofxGuiGroup groupCameraProjection;
+	ofxGuiGroup groupTranslation;
+	ofxGuiGroup groupRotation;
+	ofxGuiGroup groupScale;
 
 	ofxToggle2 toggleDrawLine;
 	ofxToggle2 toggleDrawRectangle;
@@ -113,6 +117,25 @@ public:
 	ofxIntSlider2 geometryRotateX;
 	ofxIntSlider2 geometryRotateY;
 
+	ofxFloatField translateXField;
+	ofxFloatSlider translateXSlider;
+	ofxFloatField translateYField;
+	ofxFloatSlider translateYSlider;
+	ofxFloatField translateZField;
+	ofxFloatSlider translateZSlider;
+	ofxFloatField rotateXField;
+	ofxFloatSlider rotateXSlider;
+	ofxFloatField rotateYField;
+	ofxFloatSlider rotateYSlider;
+	ofxFloatField rotateZField;
+	ofxFloatSlider rotateZSlider;
+	ofxFloatField scaleXField;
+	ofxFloatSlider scaleXSlider;
+	ofxFloatField scaleYField;
+	ofxFloatSlider scaleYSlider;
+	ofxFloatField scaleZField;
+	ofxFloatSlider scaleZSlider;
+
 	ofxToggle2 toggleDrawFill;
 
 	HistogramApplication* histogramWindowApplication;
@@ -127,6 +150,8 @@ public:
 	std::vector<ofxToggle2*> pointerGuiToggleElements;
 	std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
 	std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
+	std::vector<ofxFloatField*> pointerGuiFloatFieldElements;
+	std::vector<ofxFloatSlider*> pointerGuiFloatSliderElements;
 
 	std::vector<std::unique_ptr<ofEasyCam>> cameras;
 
@@ -172,6 +197,16 @@ public:
 
 	void geometryRotateXChanged(int& value);
 	void geometryRotateYChanged(int& value);
+
+	void translateXChanged(float& value);
+	void translateYChanged(float& value);
+	void translateZChanged(float& value);
+	void rotateXChanged(float& value);
+	void rotateYChanged(float& value);
+	void rotateZChanged(float& value);
+	void scaleXChanged(float& value);
+	void scaleYChanged(float& value);
+	void scaleZChanged(float& value);
 
 	void selectedAssetChanged(bool& value);
 
