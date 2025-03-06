@@ -185,18 +185,18 @@ void Application::setup()
 	groupTranslation.add(translateXField.setup("Position X", 0.0f, -10000000.0f, 10000000.0f));
 	groupTranslation.add(translateYField.setup("Position Y", 0.0f, -10000000.0f, 10000000.0f));
 	groupTranslation.add(translateZField.setup("Position Z", 0.0f, -10000000.0f, 10000000.0f));
-	groupTranslation.add(translateXSlider.setup("Translation X", 0.0f, -30.0f, 30.0f));
-	groupTranslation.add(translateYSlider.setup("Translation Y", 0.0f, -30.0f, 30.0f));
-	groupTranslation.add(translateZSlider.setup("Translation Z", 0.0f, -30.0f, 30.0f));
+	groupTranslation.add(translateXSlider.setup("Translation X", 0.0f, -300.0f, 300.0f));
+	groupTranslation.add(translateYSlider.setup("Translation Y", 0.0f, -300.0f, 300.0f));
+	groupTranslation.add(translateZSlider.setup("Translation Z", 0.0f, -300.0f, 300.0f));
 	groupRotation.add(rotateXField.setup("Angle X", 0.0f, 0.0f, 360.0f));
 	groupRotation.add(rotateYField.setup("Angle Y", 0.0f, 0.0f, 360.0f));
 	groupRotation.add(rotateZField.setup("Angle Z", 0.0f, 0.0f, 360.0f));
 	groupRotation.add(rotateXSlider.setup("Rotation X", 0.0f, -180.0f, 180.0f));
 	groupRotation.add(rotateYSlider.setup("Rotation Y", 0.0f, -180.0f, 180.0f));
 	groupRotation.add(rotateZSlider.setup("Rotation Z", 0.0f, -180.0f, 180.0f));
-	groupScale.add(scaleXField.setup("Echelle X", 1.0f, -30.0f, 30.0f));
-	groupScale.add(scaleYField.setup("Echelle Y", 1.0f, -30.0f, 30.0f));
-	groupScale.add(scaleZField.setup("Echelle Z", 1.0f, -30.0f, 30.0f));
+	groupScale.add(scaleXField.setup("Echelle X", 1.0f, -30000.0f, 30000.0f));
+	groupScale.add(scaleYField.setup("Echelle Y", 1.0f, -30000.0f, 30000.0f));
+	groupScale.add(scaleZField.setup("Echelle Z", 1.0f, -30000.0f, 30000.0f));
 	groupScale.add(scaleXSlider.setup("Agrand. X", 0.0f, -10.0f, 10.0f));
 	groupScale.add(scaleYSlider.setup("Agrand. Y", 0.0f, -10.0f, 10.0f));
 	groupScale.add(scaleZSlider.setup("Agrand. Z", 0.0f, -10.0f, 10.0f));
@@ -1174,15 +1174,21 @@ void Application::selectedAssetChanged(bool& value)
 }
 
 void Application::positionXChanged(float& value) {
-	//TODO
+	if(selectedAssets.size() == 1) assetManager.setPosition(selectedAssets[0], glm::vec3(value, selectedAssets[0]->position.y, selectedAssets[0]->position.z));
+
+	return;
 }
 
 void Application::positionYChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setPosition(selectedAssets[0], glm::vec3(selectedAssets[0]->position.x, value, selectedAssets[0]->position.z));
+
+	return;
 }
 
 void Application::positionZChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setPosition(selectedAssets[0], glm::vec3(selectedAssets[0]->position.x, selectedAssets[0]->position.y, value));
+
+	return;
 }
 
 void Application::translateXChanged(float& value) {
