@@ -51,9 +51,12 @@ public:
 
     Asset* getAsset(glm::vec3 point);
 	void setPosition(Asset* asset, glm::vec3 newPos);
+    void setRotation(Asset* asset, glm::vec3 newRot);
+    void setScale(Asset* asset, glm::vec3 newSca);
 
     void rotateX(Asset* asset, float deg);
     void rotateY(Asset* asset, float deg);
+    void rotateZ(Asset* asset, float deg);
 
     void deleteAsset(string assetName);
 

@@ -129,11 +129,11 @@ public:
 	ofxFloatSlider translateYSlider;
 	ofxFloatField translateZField;
 	ofxFloatSlider translateZSlider;
-	ofxLabel rotateXLabel;
+	ofxFloatField rotateXField;
 	ofxFloatSlider rotateXSlider;
-	ofxLabel rotateYLabel;
+	ofxFloatField rotateYField;
 	ofxFloatSlider rotateYSlider;
-	ofxLabel rotateZLabel;
+	ofxFloatField rotateZField;
 	ofxFloatSlider rotateZSlider;
 	ofxFloatField scaleXField;
 	ofxFloatSlider scaleXSlider;
@@ -215,6 +215,9 @@ public:
 	void translateXChanged(float& value);
 	void translateYChanged(float& value);
 	void translateZChanged(float& value);
+	void angleXChanged(float& value);
+	void angleYChanged(float& value);
+	void angleZChanged(float& value);
 	void rotateXChanged(float& value);
 	void rotateYChanged(float& value);
 	void rotateZChanged(float& value);

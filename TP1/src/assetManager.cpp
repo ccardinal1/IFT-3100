@@ -45,6 +45,8 @@ Asset* AssetManager::addCircle(const std::string& name, glm::vec3 pos, float rad
 	asset.name = name;
 	asset.type = AssetType::CIRCLE;
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.radius = radius;
 	asset.width = radius * 2;
 	asset.height = radius * 2;
@@ -62,6 +64,8 @@ Asset* AssetManager::addEllipse(const std::string& name, glm::vec3 pos, float wi
 	asset.name = name;
 	asset.type = AssetType::ELLIPSE;
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.width = width;
 	asset.height = height;
 	asset.depth = 0;
@@ -78,6 +82,8 @@ Asset* AssetManager::addLine(const std::string& name, glm::vec3 start, glm::vec3
 	asset.name = name;
 	asset.type = AssetType::LINE;
 	asset.position = start;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.endpoint = end;
 	asset.width = asset.endpoint.x - asset.position.x;
 	asset.height = asset.endpoint.y - asset.position.y;
@@ -95,6 +101,8 @@ Asset* AssetManager::addTriangle(const std::string& name, glm::vec3 p1, glm::vec
 	asset.name = name;
 	asset.type = AssetType::TRIANGLE;
 	asset.position = p1;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.p1 = p1;
 	asset.p2 = p2;
 	asset.p3 = p3;
@@ -114,6 +122,8 @@ Asset* AssetManager::addCube(const std::string& name, glm::vec3 pos, float size,
 	asset.name = name;
 	asset.type = AssetType::CUBE;
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.width = size;
 	asset.height = size;
 	asset.depth = size;
@@ -137,6 +147,8 @@ Asset* AssetManager::addSphere(const std::string& name, glm::vec3 pos, float siz
 	asset.name = name;
 	asset.type = AssetType::SPHERE;
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.width = size;
 	asset.height = size;
 	asset.depth = size;
@@ -159,6 +171,8 @@ Asset* AssetManager::add3dModel(const std::string& name, glm::vec3 pos, string p
 	asset.name = name;
 	asset.type = AssetType::MODEL;
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.model.loadModel(path);
 	asset.model.enableMaterials();
 
@@ -361,6 +375,14 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 	}	
 }
 
+void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
+	//TODO
+}
+
+void AssetManager::setScale(Asset* asset, glm::vec3 newSca) {
+	//TODO
+}
+
 void AssetManager::rotateX(Asset* asset, float deg)
 {
 	asset->geometryPrimitive.rotateDeg(deg, asset->geometryPrimitive.getXAxis());
@@ -369,6 +391,10 @@ void AssetManager::rotateX(Asset* asset, float deg)
 void AssetManager::rotateY(Asset* asset, float deg)
 {
 	asset->geometryPrimitive.rotateDeg(deg, asset->geometryPrimitive.getYAxis());
+}
+
+void AssetManager::rotateZ(Asset* asset, float deg) {
+	asset->geometryPrimitive.rotateDeg(deg, asset->geometryPrimitive.getZAxis());
 }
 
 void AssetManager::deleteAsset(string assetName)

@@ -48,13 +48,12 @@ void Application::setup()
 	pointerGuiFloatFieldElements.push_back(&translateXField);
 	pointerGuiFloatFieldElements.push_back(&translateYField);
 	pointerGuiFloatFieldElements.push_back(&translateZField);
+	pointerGuiFloatFieldElements.push_back(&rotateXField);
+	pointerGuiFloatFieldElements.push_back(&rotateYField);
+	pointerGuiFloatFieldElements.push_back(&rotateZField);
 	pointerGuiFloatFieldElements.push_back(&scaleXField);
 	pointerGuiFloatFieldElements.push_back(&scaleYField);
 	pointerGuiFloatFieldElements.push_back(&scaleZField);
-
-	pointerGuiLabelElements.push_back(&rotateXLabel);
-	pointerGuiLabelElements.push_back(&rotateYLabel);
-	pointerGuiLabelElements.push_back(&rotateZLabel);
 
 	pointerGuiFloatSliderElements.push_back(&translateXSlider);
 	pointerGuiFloatSliderElements.push_back(&translateYSlider);
@@ -95,6 +94,9 @@ void Application::setup()
 	translateYSlider.addListener(this, &Application::translateYChanged);
 	translateZField.addListener(this, &Application::positionZChanged);
 	translateZSlider.addListener(this, &Application::translateZChanged);
+	rotateXField.addListener(this, &Application::angleXChanged);
+	rotateYField.addListener(this, &Application::angleYChanged);
+	rotateZField.addListener(this, &Application::angleZChanged);
 	rotateXSlider.addListener(this, &Application::rotateXChanged);
 	rotateYSlider.addListener(this, &Application::rotateYChanged);
 	rotateZSlider.addListener(this, &Application::rotateZChanged);
@@ -186,9 +188,9 @@ void Application::setup()
 	groupTranslation.add(translateXSlider.setup("Translation X", 0.0f, -30.0f, 30.0f));
 	groupTranslation.add(translateYSlider.setup("Translation Y", 0.0f, -30.0f, 30.0f));
 	groupTranslation.add(translateZSlider.setup("Translation Z", 0.0f, -30.0f, 30.0f));
-	groupRotation.add(rotateXLabel.setup("Angle X: ", std::to_string(0)));
-	groupRotation.add(rotateYLabel.setup("Angle Y: ", std::to_string(0)));
-	groupRotation.add(rotateZLabel.setup("Angle Z: ", std::to_string(0)));
+	groupRotation.add(rotateXField.setup("Angle X", 0.0f, 0.0f, 360.0f));
+	groupRotation.add(rotateYField.setup("Angle Y", 0.0f, 0.0f, 360.0f));
+	groupRotation.add(rotateZField.setup("Angle Z", 0.0f, 0.0f, 360.0f));
 	groupRotation.add(rotateXSlider.setup("Rotation X", 0.0f, -180.0f, 180.0f));
 	groupRotation.add(rotateYSlider.setup("Rotation Y", 0.0f, -180.0f, 180.0f));
 	groupRotation.add(rotateZSlider.setup("Rotation Z", 0.0f, -180.0f, 180.0f));
@@ -1174,8 +1176,20 @@ void Application::selectedAssetChanged(bool& value)
 			groupTranslation.minimize();
 			groupTranslation.maximize();
 		}
-		angleXField.setup("Angle X", selectedAssets[0]->)
-		//TODO
+		rotateXField.setup("Angle X", selectedAssets[0]->rotation.x);
+		rotateYField.setup("Angle Y", selectedAssets[0]->rotation.y);
+		rotateZField.setup("Angle Z", selectedAssets[0]->rotation.z);
+		if (!groupRotation.isMinimized()) {
+			groupRotation.minimize();
+			groupRotation.maximize();
+		}
+		scaleXField.setup("Echelle X", selectedAssets[0]->scale.x);
+		scaleYField.setup("Echelle Y", selectedAssets[0]->scale.y);
+		scaleZField.setup("Echelle Z", selectedAssets[0]->scale.z);
+		if (!groupScale.isMinimized()) {
+			groupScale.minimize();
+			groupScale.maximize();
+		}
 	}
 }
 
