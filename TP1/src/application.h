@@ -4,6 +4,7 @@
 #include "ofxGui.h"
 #include "histogramApplication.h"
 #include "assetManager.h"
+#include "ofxAssimpModelLoader.h"
 
 class ofxToggle2 : public ofxToggle {
 public:
@@ -102,6 +103,10 @@ public:
 	ofxToggle2 toggleDrawCube;
 	ofxToggle2 toggleDrawSphere;
 
+	ofxToggle2 toggleAddModel1;
+	ofxToggle2 toggleAddModel2;
+	ofxToggle2 toggleAddModel3;
+
 	ofxButton2 deleteButton;
 	std::unordered_map<std::string, std::shared_ptr<ofxToggle2>> assetsButtons;
 
@@ -188,6 +193,10 @@ public:
 	void drawCubeToggleChanged(bool& value);
 	void drawSphereToggleChanged(bool& value);
 
+	void drawModel1ToggleChanged(bool& value);
+	void drawModel2ToggleChanged(bool& value);
+	void drawModel3ToggleChanged(bool& value);
+
 	void isFilledToggleChanged(bool& value);
 	void drawColorChanged(ofColor& value);
 	void lineWidthChanged(int& value);
@@ -223,8 +232,8 @@ public:
 	void checkForCursor(int x, int y);
 
 	void updateBoundingBox();
-	glm::vec3 getMaxPos(Asset asset);
-	glm::vec3 getMinPos(Asset asset);
+	glm::vec3 getMaxPos(Asset* asset);
+	glm::vec3 getMinPos(Asset* asset);
 
 	bool clickedInUi = false;
 	bool recording = false;

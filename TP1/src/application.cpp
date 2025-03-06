@@ -164,6 +164,15 @@ void Application::setup()
 	toggleDrawSphere.addListener(this, &Application::drawSphereToggleChanged);
 	groupGeometry.add(toggleDrawSphere.setup("Sphere", false));
 
+	toggleAddModel1.addListener(this, &Application::drawModel1ToggleChanged);
+	groupGeometry.add(toggleAddModel1.setup("Modele 1", false));
+
+	toggleAddModel2.addListener(this, &Application::drawModel2ToggleChanged);
+	groupGeometry.add(toggleAddModel2.setup("Modele 2", false));
+
+	toggleAddModel3.addListener(this, &Application::drawModel3ToggleChanged);
+	groupGeometry.add(toggleAddModel3.setup("Modele 3", false));
+
 	groupGeometryOptions.add(geometryRotateX.setup("Rotation X", 0, 0, 360));
 	groupGeometryOptions.add(geometryRotateY.setup("Rotation Y", 0, 0, 360));
 	groupGeometry.add(&groupGeometryOptions);
@@ -206,12 +215,14 @@ void Application::setup()
 	objectPanel.add(&groupRotation);
 	objectPanel.add(&groupScale);
 
+	objectPanel.minimize();
+
 	assetManager.assets.clear();
 
 	for (int i = 0; i < 3; i++)
 	{
 		cameras.push_back(std::make_unique<ofEasyCam>());
-		cameras[i]->setTarget({ ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 300 });
+		cameras[i]->setTarget({ 0, 0, 0 });
 		cameras[i]->setDistance(300);
 		cameras[i]->disableMouseMiddleButton();
 		cameras[i]->disableMouseInput();
@@ -219,7 +230,6 @@ void Application::setup()
 	}
 
 	ofSetFrameRate(60);
-
 }
 
 //--------------------------------------------------------------
@@ -252,6 +262,7 @@ void Application::draw()
 	}
 
 	ofDisableDepthTest();
+
 	cameras[activeCamIndex]->end();
 
 	gui.draw();
@@ -259,7 +270,7 @@ void Application::draw()
 	cameraPanel.draw();
 	if (selectedAssets.size() == 1) objectPanel.draw();
 	if (recording) {
-		ofSetColor(255, 0, 0);
+		ofSetColor(255, 0, 0); 
 		ofFill();
 		ofDrawCircle(18, 18, 16);
 	}
@@ -530,7 +541,7 @@ void Application::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
-	if (button != 0 || (mousePressX == x && mousePressY == y) || cameras[activeCamIndex]->getMouseInputEnabled())
+	if (button != 0 || ((mousePressX == x && mousePressY == y) && !(toggleAddModel1 || toggleAddModel2 || toggleAddModel3)) || cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		clickedInUi = false;
 		return;
@@ -588,9 +599,42 @@ void Application::mouseReleased(int x, int y, int button)
 		else if (toggleDrawSphere)
 		{
 			string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addSphere(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addSphere(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 0 }), (x - mousePressX)/2, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Sphere";
+		}
+		else if (toggleAddModel1)
+		{
+			string shapeName = "model1_" + std::to_string(x) + "_" + std::to_string(y);
+
+			asset = assetManager.add3dModel(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 10 }), "set-of-plants-3d-model\\Little plant\\littlePlant.obj");
+
+			asset->model.setRotation(0, 180, 1, 0, 0);
+			asset->model.setScale(0.05, 0.05, 0.05);
+
+			buttonName = "Plante 1";
+		}
+		else if (toggleAddModel2)
+		{
+			string shapeName = "model2_" + std::to_string(x) + "_" + std::to_string(y);
+
+			asset = assetManager.add3dModel(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 10 }), "set-of-plants-3d-model\\Yucca\\yuccaPlant.obj");
+
+			asset->model.setRotation(0, 180, 1, 0, 0);
+			asset->model.setScale(0.2, 0.2, 0.2);
+
+			buttonName = "Plante 2";
+		}
+		else if (toggleAddModel3)
+		{
+			string shapeName = "model3_" + std::to_string(x) + "_" + std::to_string(y);
+
+			asset = assetManager.add3dModel(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 10 }), "set-of-plants-3d-model\\eb_house_plant_02\\eb_house_plant_02.obj");
+
+			asset->model.setRotation(0, 180, 1, 0, 0);
+			asset->model.setScale(0.10, 0.10, 0.10);
+
+			buttonName = "Plante 3";
 		}
 		else if (!selectedAssets.empty())
 		{
@@ -623,6 +667,8 @@ void Application::mouseReleased(int x, int y, int button)
 
 			cameras[activeCamIndex]->setTarget(asset->position);
 			cameras[activeCamIndex]->setDistance(300);
+
+			resetToggles();
 		}
 	}
 	else
@@ -732,6 +778,36 @@ void Application::drawSphereToggleChanged(bool& value)
 	}
 }
 
+void Application::drawModel1ToggleChanged(bool& value)
+{
+	if (toggleAddModel1)
+	{
+		clearSelectedAssets();
+		resetToggles();
+		toggleAddModel1 = true;
+	}
+}
+
+void Application::drawModel2ToggleChanged(bool& value)
+{
+	if (toggleAddModel2)
+	{
+		clearSelectedAssets();
+		resetToggles();
+		toggleAddModel2 = true;
+	}
+}
+
+void Application::drawModel3ToggleChanged(bool& value)
+{
+	if (toggleAddModel3)
+	{
+		clearSelectedAssets();
+		resetToggles();
+		toggleAddModel3 = true;
+	}
+}
+
 //--------------------------------------------------------------
 void Application::isFilledToggleChanged(bool& value)
 {
@@ -784,9 +860,9 @@ void Application::updateBoundingBox()
 	int maxX = INT_MIN, maxY = INT_MIN, maxZ = INT_MIN;
 	int minX = INT_MAX, minY = INT_MAX, minZ = INT_MAX;
 
-	for (auto const& [_, asset] : assetManager.assets)
+	for (auto& [_, asset] : assetManager.assets)
 	{
-		glm::vec3 maxPos = getMaxPos(asset);
+		glm::vec3 maxPos = getMaxPos(&asset);
 
 		if (maxPos.x > maxX)
 		{
@@ -803,7 +879,7 @@ void Application::updateBoundingBox()
 			maxZ = maxPos.z;
 		}
 
-		glm::vec3 minPos = getMinPos(asset);
+		glm::vec3 minPos = getMinPos(&asset);
 
 		if (minPos.x < minX)
 		{
@@ -821,88 +897,86 @@ void Application::updateBoundingBox()
 		}
 	}
 
-	Asset asset;
-	asset.width = maxX - minX;
-	asset.height = maxY - minY;
-	asset.depth = maxZ - minZ;
-	asset.position = { minX + asset.width * 0.5f, minY + asset.height * 0.5f, minZ + asset.depth * 0.5f };
-	asset.color = boundingBoxColorSlider;
-	asset.lineWidth = boundingBoxLineWidth;
+	assetManager.boundingBox.width = maxX - minX;
+	assetManager.boundingBox.height = maxY - minY;
+	assetManager.boundingBox.depth = maxZ - minZ;
+	assetManager.boundingBox.position = { minX + assetManager.boundingBox.width * 0.5f, minY + assetManager.boundingBox.width * 0.5f, minZ + assetManager.boundingBox.width * 0.5f };
+	assetManager.boundingBox.color = boundingBoxColorSlider;
+	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
 
-	assetManager.boundingBox = asset;
 }
 
-glm::vec3 Application::getMaxPos(Asset asset)
+glm::vec3 Application::getMaxPos(Asset* asset)
 {
-	int maxX = asset.position.x, maxY = asset.position.y, maxZ = asset.position.z;
+	int maxX = asset->position.x, maxY = asset->position.y, maxZ = asset->position.z;
 
-	switch (asset.type)
+	switch (asset->type)
 	{
 	case AssetType::IMAGE:
 	case AssetType::RECTANGLE:
 	{
-		maxX = std::max(asset.position.x, asset.position.x + asset.width);
-		maxY = std::max(asset.position.y, asset.position.y + asset.height);
-		maxZ = std::max(asset.position.z, asset.position.z + asset.depth);
+		maxX = std::max(asset->position.x, asset->position.x + asset->width);
+		maxY = std::max(asset->position.y, asset->position.y + asset->height);
+		maxZ = std::max(asset->position.z, asset->position.z + asset->depth);
 
 		break;
 	}
 	case AssetType::ELLIPSE:
 	{
-		float halfWidth = std::abs(asset.width) * 0.5f;
-		float halfHeight = std::abs(asset.height) * 0.5f;
+		float halfWidth = std::abs(asset->width) * 0.5f;
+		float halfHeight = std::abs(asset->height) * 0.5f;
 
-		maxX = asset.position.x + halfWidth;
-		maxY = asset.position.y + halfHeight;
-		maxZ = asset.position.z;
+		maxX = asset->position.x + halfWidth;
+		maxY = asset->position.y + halfHeight;
+		maxZ = asset->position.z;
 
 		break;
 	}
 	case AssetType::CIRCLE:
 	{
-		float radius = std::abs(asset.radius);
+		float radius = std::abs(asset->radius);
 
-		maxX = asset.position.x + radius;
-		maxY = asset.position.y + radius;
-		maxZ = asset.position.z;
+		maxX = asset->position.x + radius;
+		maxY = asset->position.y + radius;
+		maxZ = asset->position.z;
 
 		break;
 	}
 	case AssetType::LINE:
 	{
-		maxX = std::max(asset.position.x, asset.endpoint.x);
-		maxY = std::max(asset.position.y, asset.endpoint.y);
-		maxZ = std::max(asset.position.z, asset.endpoint.z);
+		maxX = std::max(asset->position.x, asset->endpoint.x);
+		maxY = std::max(asset->position.y, asset->endpoint.y);
+		maxZ = std::max(asset->position.z, asset->endpoint.z);
 
 		break;
 	}
 	case AssetType::TRIANGLE:
 	{
-		maxX = std::max({ asset.p1.x, asset.p2.x, asset.p3.x });
-		maxY = std::max({ asset.p1.y, asset.p2.y, asset.p3.y });
-		maxZ = std::max({ asset.p1.z, asset.p2.z, asset.p3.z });
+		maxX = std::max({ asset->p1.x, asset->p2.x, asset->p3.x });
+		maxY = std::max({ asset->p1.y, asset->p2.y, asset->p3.y });
+		maxZ = std::max({ asset->p1.z, asset->p2.z, asset->p3.z });
 
 		break;
 	}
 	case AssetType::CUBE:
 	{
-		float halfSizeX = std::abs(asset.width) * 0.5f;
-		float halfSizeY = std::abs(asset.height) * 0.5f;
-		float halfSizeZ = std::abs(asset.depth) * 0.5f;
+		float halfSizeX = std::abs(asset->width) * 0.5f;
+		float halfSizeY = std::abs(asset->height) * 0.5f;
+		float halfSizeZ = std::abs(asset->depth) * 0.5f;
 
-		maxX = asset.position.x + halfSizeX;
-		maxY = asset.position.y + halfSizeY;
-		maxZ = asset.position.z + halfSizeZ;
+		maxX = asset->position.x + halfSizeX;
+		maxY = asset->position.y + halfSizeY;
+		maxZ = asset->position.z + halfSizeZ;
 
 		break;
 	}
 	case AssetType::SPHERE:
 	{
-		float radius = std::abs(asset.width);
+		float radius = std::abs(asset->width);
 
-		maxX = asset.position.x + radius;
-		maxY = asset.position.y + radius;
-		maxZ = asset.position.z + radius;
+		maxX = asset->position.x + radius;
+		maxY = asset->position.y + radius;
+		maxZ = asset->position.z + radius;
 
 		break;
 	}
@@ -911,77 +985,77 @@ glm::vec3 Application::getMaxPos(Asset asset)
 	return { maxX, maxY, maxZ };
 }
 
-glm::vec3 Application::getMinPos(Asset asset)
+glm::vec3 Application::getMinPos(Asset* asset)
 {
-	int minX = asset.position.x, minY = asset.position.y, minZ = asset.position.z;
+	int minX = asset->position.x, minY = asset->position.y, minZ = asset->position.z;
 
-	switch (asset.type)
+	switch (asset->type)
 	{
 	case AssetType::IMAGE:
 	case AssetType::RECTANGLE:
 	{
-		minX = std::min(asset.position.x, asset.position.x + asset.width);
-		minY = std::min(asset.position.y, asset.position.y + asset.height);
-		minZ = std::min(asset.position.z, asset.position.z + asset.depth);
+		minX = std::min(asset->position.x, asset->position.x + asset->width);
+		minY = std::min(asset->position.y, asset->position.y + asset->height);
+		minZ = std::min(asset->position.z, asset->position.z + asset->depth);
 
 		break;
 	}
 	case AssetType::ELLIPSE:
 	{
-		float halfWidth = std::abs(asset.width) * 0.5f;
-		float halfHeight = std::abs(asset.height) * 0.5f;
+		float halfWidth = std::abs(asset->width) * 0.5f;
+		float halfHeight = std::abs(asset->height) * 0.5f;
 
-		minX = asset.position.x - halfWidth;
-		minY = asset.position.y - halfHeight;
-		minZ = asset.position.z;
+		minX = asset->position.x - halfWidth;
+		minY = asset->position.y - halfHeight;
+		minZ = asset->position.z;
 
 		break;
 	}
 	case AssetType::CIRCLE:
 	{
-		float radius = std::abs(asset.radius);
+		float radius = std::abs(asset->radius);
 
-		minX = asset.position.x - radius;
-		minY = asset.position.y - radius;
-		minZ = asset.position.z;
+		minX = asset->position.x - radius;
+		minY = asset->position.y - radius;
+		minZ = asset->position.z;
 
 		break;
 	}
 	case AssetType::LINE:
 	{
-		minX = std::min(asset.position.x, asset.endpoint.x);
-		minY = std::min(asset.position.y, asset.endpoint.y);
-		minZ = std::min(asset.position.z, asset.endpoint.z);
+		minX = std::min(asset->position.x, asset->endpoint.x);
+		minY = std::min(asset->position.y, asset->endpoint.y);
+		minZ = std::min(asset->position.z, asset->endpoint.z);
 
 		break;
 	}
 	case AssetType::TRIANGLE:
 	{
-		minX = std::min({ asset.p1.x, asset.p2.x, asset.p3.x });
-		minY = std::min({ asset.p1.y, asset.p2.y, asset.p3.y });
-		minZ = std::min({ asset.p1.z, asset.p2.z, asset.p3.z });
+		minX = std::min({ asset->p1.x, asset->p2.x, asset->p3.x });
+		minY = std::min({ asset->p1.y, asset->p2.y, asset->p3.y });
+		minZ = std::min({ asset->p1.z, asset->p2.z, asset->p3.z });
 
 		break;
 	}
 	case AssetType::CUBE:
 	{
-		float halfSizeX = std::abs(asset.width) * 0.5f;
-		float halfSizeY = std::abs(asset.height) * 0.5f;
-		float halfSizeZ = std::abs(asset.depth) * 0.5f;
+		float halfSizeX = std::abs(asset->width) * 0.5f;
+		float halfSizeY = std::abs(asset->height) * 0.5f;
+		float halfSizeZ = std::abs(asset->depth) * 0.5f;
 
-		minX = asset.position.x - halfSizeX;
-		minY = asset.position.y - halfSizeY;
-		minZ = asset.position.z - halfSizeZ;
+		minX = asset->position.x - halfSizeX;
+		minY = asset->position.y - halfSizeY;
+		minZ = asset->position.z - halfSizeZ;
 
 		break;
 	}
 	case AssetType::SPHERE:
 	{
-		float radius = std::abs(asset.width);
+		float radius = std::abs(asset->width);
 
-		minX = asset.position.x - radius;
-		minY = asset.position.y - radius;
-		minZ = asset.position.z - radius;
+		minX = asset->position.x - radius;
+		minY = asset->position.y - radius;
+		minZ = asset->position.z - radius;
 
 		break;
 	}
@@ -997,8 +1071,8 @@ void Application::setCameraTargetOnSelectedAssets()
 
 	if (selectedAssets.size() == 0)
 	{
-		cameras[activeCamIndex]->setTarget({ 0, 0, 0 });
-		cameras[activeCamIndex]->setDistance(300);
+		//cameras[activeCamIndex]->setTarget({ 0, 0, 0 });
+		//cameras[activeCamIndex]->setDistance(300);
 	}
 	else
 	{
@@ -1229,8 +1303,8 @@ void Application::deleteButtonPressed()
 		assetsButtons.erase(name);
 	}
 
-	Asset empty;
-	assetManager.boundingBox = empty;
+	//Asset empty;
+	//assetManager.boundingBox = empty;
 }
 
 //--------------------------------------------------------------
@@ -1244,6 +1318,10 @@ void Application::resetToggles()
 
 	toggleDrawCube = false;
 	toggleDrawSphere = false;
+
+	toggleAddModel1 = false;
+	toggleAddModel2 = false;
+	toggleAddModel3 = false;
 }
 
 //--------------------------------------------------------------
