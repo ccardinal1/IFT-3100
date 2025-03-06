@@ -9,7 +9,8 @@ enum class AssetType {
     LINE,
     TRIANGLE,
     CUBE,
-    SPHERE
+    SPHERE,
+    MODEL
 };
 
 struct Asset {

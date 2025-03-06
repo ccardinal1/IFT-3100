@@ -85,7 +85,7 @@ public:
 	ofxGuiGroup groupDrawOptions;
 	ofxGuiGroup groupDrawBoundingBox;
 	ofxGuiGroup groupGeometry;
-	ofxGuiGroup groupGeometryOptions;
+	//ofxGuiGroup groupGeometryOptions;
 	ofxGuiGroup groupCamera;
 	ofxGuiGroup groupCameraProjection;
 	ofxGuiGroup groupTranslation;
@@ -114,8 +114,8 @@ public:
 	ofxIntSlider2 lineWidth;
 	ofxIntSlider2 boundingBoxLineWidth;
 
-	ofxIntSlider2 geometryRotateX;
-	ofxIntSlider2 geometryRotateY;
+	//ofxIntSlider2 geometryRotateX;
+	//ofxIntSlider2 geometryRotateY;
 
 	ofxFloatField translateXField;
 	ofxFloatSlider translateXSlider;
@@ -195,18 +195,27 @@ public:
 	void boundingBoxColorChanged(ofColor& value);
 	void boundingBoxLineWidthChanged(int& value);
 
-	void geometryRotateXChanged(int& value);
-	void geometryRotateYChanged(int& value);
+	//void geometryRotateXChanged(int& value);
+	//void geometryRotateYChanged(int& value);
 
+	void positionXChanged(float& value);
+	void positionYChanged(float& value);
+	void positionZChanged(float& value);
 	void translateXChanged(float& value);
 	void translateYChanged(float& value);
 	void translateZChanged(float& value);
+	void angleXChanged(float& value);
+	void angleYChanged(float& value);
+	void angleZChanged(float& value);
 	void rotateXChanged(float& value);
 	void rotateYChanged(float& value);
 	void rotateZChanged(float& value);
 	void scaleXChanged(float& value);
 	void scaleYChanged(float& value);
 	void scaleZChanged(float& value);
+	void growthXChanged(float& value);
+	void growthYChanged(float& value);
+	void growthZChanged(float& value);
 
 	void selectedAssetChanged(bool& value);
 
