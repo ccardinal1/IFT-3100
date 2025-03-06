@@ -6,6 +6,14 @@
 #include "assetManager.h"
 #include "ofxAssimpModelLoader.h"
 
+class ofxGuiGroup2 : public ofxGuiGroup {
+public:
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
 class ofxToggle2 : public ofxToggle {
 public:
 	ofRectangle getChecboxRect()
@@ -69,6 +77,34 @@ public:
 	}
 };
 
+class ofxFloatSlider2 : public ofxFloatSlider {
+public:
+	ofColor ofxFloatSlider2::operator=(float value) {
+		this->value = value;
+
+		return value;
+	}
+
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
+class ofxFloatField2 : public ofxFloatField {
+public:
+	ofColor ofxFloatField2::operator=(float value) {
+		this->value = value;
+
+		return value;
+	}
+
+	bool isVisible()
+	{
+		return this->isGuiDrawing();
+	}
+};
+
 class Application : public ofBaseApp {
 
 public:
@@ -83,16 +119,16 @@ public:
 
 	ofxButton2 resetButton;
 	ofxButton2 histogramButton;
-	ofxGuiGroup groupDraw;
-	ofxGuiGroup groupDrawOptions;
-	ofxGuiGroup groupDrawBoundingBox;
-	ofxGuiGroup groupGeometry;
-	//ofxGuiGroup groupGeometryOptions;
-	ofxGuiGroup groupCamera;
-	ofxGuiGroup groupCameraProjection;
-	ofxGuiGroup groupTranslation;
-	ofxGuiGroup groupRotation;
-	ofxGuiGroup groupScale;
+	ofxGuiGroup2 groupDraw;
+	ofxGuiGroup2 groupDrawOptions;
+	ofxGuiGroup2 groupDrawBoundingBox;
+	ofxGuiGroup2 groupGeometry;
+	//ofxGuiGroup2 groupGeometryOptions;
+	ofxGuiGroup2 groupCamera;
+	ofxGuiGroup2 groupCameraProjection;
+	ofxGuiGroup2 groupTranslation;
+	ofxGuiGroup2 groupRotation;
+	ofxGuiGroup2 groupScale;
 
 	ofxToggle2 toggleDrawLine;
 	ofxToggle2 toggleDrawRectangle;
@@ -123,24 +159,24 @@ public:
 	//ofxIntSlider2 geometryRotateX;
 	//ofxIntSlider2 geometryRotateY;
 
-	ofxFloatField translateXField;
-	ofxFloatSlider translateXSlider;
-	ofxFloatField translateYField;
-	ofxFloatSlider translateYSlider;
-	ofxFloatField translateZField;
-	ofxFloatSlider translateZSlider;
-	ofxFloatField rotateXField;
-	ofxFloatSlider rotateXSlider;
-	ofxFloatField rotateYField;
-	ofxFloatSlider rotateYSlider;
-	ofxFloatField rotateZField;
-	ofxFloatSlider rotateZSlider;
-	ofxFloatField scaleXField;
-	ofxFloatSlider scaleXSlider;
-	ofxFloatField scaleYField;
-	ofxFloatSlider scaleYSlider;
-	ofxFloatField scaleZField;
-	ofxFloatSlider scaleZSlider;
+	ofxFloatField2 translateXField;
+	ofxFloatSlider2 translateXSlider;
+	ofxFloatField2 translateYField;
+	ofxFloatSlider2 translateYSlider;
+	ofxFloatField2 translateZField;
+	ofxFloatSlider2 translateZSlider;
+	ofxFloatField2 rotateXField;
+	ofxFloatSlider2 rotateXSlider;
+	ofxFloatField2 rotateYField;
+	ofxFloatSlider2 rotateYSlider;
+	ofxFloatField2 rotateZField;
+	ofxFloatSlider2 rotateZSlider;
+	ofxFloatField2 scaleXField;
+	ofxFloatSlider2 scaleXSlider;
+	ofxFloatField2 scaleYField;
+	ofxFloatSlider2 scaleYSlider;
+	ofxFloatField2 scaleZField;
+	ofxFloatSlider2 scaleZSlider;
 
 	ofxToggle2 toggleDrawFill;
 
@@ -151,14 +187,13 @@ public:
 	std::vector<Asset*> selectedAssets;
 
 	std::vector<ofxPanel*> pointerGuiPanelElements;
-	std::vector<ofxGuiGroup*> pointerGuiGroupElements;
+	std::vector<ofxGuiGroup2*> pointerGuiGroupElements;
 	std::vector<ofxButton2*> pointerGuiButtonElements;
 	std::vector<ofxToggle2*> pointerGuiToggleElements;
 	std::vector<ofxIntSlider2*> pointerGuiIntSliderElements;
 	std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
-	std::vector<ofxFloatField*> pointerGuiFloatFieldElements;
-	std::vector<ofxFloatSlider*> pointerGuiFloatSliderElements;
-	std::vector<ofxLabel*> pointerGuiLabelElements;
+	std::vector<ofxFloatField2*> pointerGuiFloatFieldElements;
+	std::vector<ofxFloatSlider2*> pointerGuiFloatSliderElements;
 
 	std::vector<std::unique_ptr<ofEasyCam>> cameras;
 
@@ -250,9 +285,15 @@ public:
 	bool clickedInUi = false;
 	bool recording = false;
 	bool screenshot = false;
+	bool cameraMode = false;
 	int imageIndex = 0;
 
 	void setCameraTargetOnSelectedAssets(bool value);
+	bool isDrawing();
+	bool isInGui(int x, int y);
 
 	void exportImage();
+
+	const HCURSOR PEN = LoadCursorFromFile(L"../assets/aero_pen.cur");
+	const HCURSOR CAM = LoadCursorFromFile(L"../assets/grab.cur");
 };

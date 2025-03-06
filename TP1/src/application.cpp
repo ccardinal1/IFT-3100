@@ -281,10 +281,12 @@ void Application::draw()
 //--------------------------------------------------------------
 void Application::keyPressed(int key)
 {
-	if (key == 32)
+	if (key == 32) // espace
 	{
 		cameras[activeCamIndex]->enableMouseInput();
+		cameraMode = true;
 		resetToggles();
+		SetCursor(CAM);
 	}
 }
 
@@ -293,12 +295,13 @@ void Application::keyReleased(int key)
 {
 	switch (key)
 	{
-	case 32:
+	case 32: // espace
 		cameras[activeCamIndex]->disableMouseInput();
+		cameraMode = false;
 		break;
-	case 49:
-	case 50:
-	case 51:
+	case 49: // 1
+	case 50: // 2
+	case 51: // 3
 		if (key - 49 != activeCamIndex)
 		{
 			activeCamIndex = key - 49;
@@ -308,7 +311,7 @@ void Application::keyReleased(int key)
 			togglePerspective = !cameras[activeCamIndex]->getOrtho();
 		}
 		break;
-	case 111:
+	case 111: // o
 		recording = !recording;
 		if (recording) {
 			ofSetFrameRate(6);
@@ -316,7 +319,7 @@ void Application::keyReleased(int key)
 		}
 		else ofSetFrameRate(60);
 		break;
-	case 112:
+	case 112: // p
 		screenshot = true;
 		break;
 	}
@@ -325,7 +328,18 @@ void Application::keyReleased(int key)
 //--------------------------------------------------------------
 void Application::mouseMoved(int x, int y)
 {
-	checkForCursor(x, y);
+	if (isInGui(x, y))
+	{
+		checkForCursor(x, y);
+	}
+	else if (cameraMode)
+	{
+		SetCursor(CAM);
+	}
+	else if (isDrawing())
+	{
+		SetCursor(PEN);
+	}
 }
 
 void Application::checkForCursor(int x, int y)
@@ -468,9 +482,13 @@ void Application::checkForCursor(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
-	if (!gui.getShape().inside(x, y) && !clickedInUi)
+	if (!isInGui(x, y) && !clickedInUi && !isDrawing() && !cameraMode)
 	{
 		SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+	}
+	else if (isDrawing())
+	{
+		SetCursor(PEN);
 	}
 }
 
@@ -480,7 +498,7 @@ void Application::mousePressed(int x, int y, int button)
 	mousePressX = x;
 	mousePressY = y;
 
-	if (!gui.getShape().inside(x, y))
+	if (!isInGui(x, y))
 	{
 		if (button != 0 || cameras[activeCamIndex]->getMouseInputEnabled())
 			return;
@@ -490,47 +508,45 @@ void Application::mousePressed(int x, int y, int button)
 		mousePressX = x;
 		mousePressY = y;
 
-		if (!toggleDrawLine && !toggleDrawRectangle && !toggleDrawCircle && !toggleDrawEllipse && !toggleDrawTriangle && !toggleDrawCube && !toggleDrawSphere)
+		if (!isDrawing() && selectedAssets.size() == 0)
 		{
-			if (selectedAssets.size() == 0)
+			Asset* tempAsset = assetManager.getAsset({ x, y, 0 });
+
+			if (tempAsset == NULL)
 			{
-				Asset* tempAsset = assetManager.getAsset({ x, y, 0 });
-
-				if (tempAsset == NULL)
+				if (!selectedAssets.empty())
 				{
-					if (!selectedAssets.empty())
-					{
-						selectedAssets[0]->isSelected = false;
-						selectedAssets.clear();
-					}
-				}
-				else if (!selectedAssets.empty())
-				{
-					for (Asset* asset : selectedAssets)
-					{
-						asset->isSelected = false;
-						*assetsButtons[asset->name] = false;
-					}
-
+					selectedAssets[0]->isSelected = false;
 					selectedAssets.clear();
-
-					tempAsset->isSelected = true;
-					selectedAssets.push_back(tempAsset);
-					*assetsButtons[tempAsset->name] = true;
-
 				}
-				else if (selectedAssets.empty() || tempAsset != selectedAssets[0])
+			}
+			else if (!selectedAssets.empty())
+			{
+				for (Asset* asset : selectedAssets)
 				{
-					if (!selectedAssets.empty())
-					{
-						selectedAssets[0]->isSelected = false;
-					}
-					tempAsset->isSelected = true;
-					*assetsButtons[tempAsset->name] = true;
-
-					selectedAssets.push_back(tempAsset);
-
+					asset->isSelected = false;
+					*assetsButtons[asset->name] = false;
 				}
+
+				selectedAssets.clear();
+
+				tempAsset->isSelected = true;
+				selectedAssets.push_back(tempAsset);
+				*assetsButtons[tempAsset->name] = true;
+
+			}
+			else if (selectedAssets.empty() || tempAsset != selectedAssets[0])
+			{
+				if (!selectedAssets.empty())
+				{
+					selectedAssets[0]->isSelected = false;
+				}
+
+				tempAsset->isSelected = true;
+				*assetsButtons[tempAsset->name] = true;
+
+				selectedAssets.push_back(tempAsset);
+
 			}
 		}
 	}
@@ -675,6 +691,23 @@ void Application::mouseReleased(int x, int y, int button)
 	{
 		clickedInUi = false;
 	}
+}
+
+bool Application::isDrawing()
+{
+	return toggleDrawLine || toggleDrawRectangle || toggleDrawCircle || toggleDrawEllipse || toggleDrawTriangle || toggleDrawCube || toggleDrawSphere;
+}
+
+bool Application::isInGui(int x, int y)
+{
+	for (const auto& guiElem : pointerGuiPanelElements)
+	{
+		if (guiElem->getShape().inside(x, y)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------
@@ -863,38 +896,15 @@ void Application::updateBoundingBox()
 	for (auto& [_, asset] : assetManager.assets)
 	{
 		glm::vec3 maxPos = getMaxPos(&asset);
-
-		if (maxPos.x > maxX)
-		{
-			maxX = maxPos.x;
-		}
-
-		if (maxPos.y > maxY)
-		{
-			maxY = maxPos.y;
-		}
-
-		if (maxPos.z > maxZ)
-		{
-			maxZ = maxPos.z;
-		}
-
 		glm::vec3 minPos = getMinPos(&asset);
 
-		if (minPos.x < minX)
-		{
-			minX = minPos.x;
-		}
+		maxX = std::max(maxX, static_cast<int>(maxPos.x));
+		maxY = std::max(maxY, static_cast<int>(maxPos.y));
+		maxZ = std::max(maxZ, static_cast<int>(maxPos.z));
 
-		if (minPos.y < minY)
-		{
-			minY = minPos.y;
-		}
-
-		if (minPos.z < minZ)
-		{
-			minZ = minPos.z;
-		}
+		minX = std::min(minX, static_cast<int>(minPos.x));
+		minY = std::min(minY, static_cast<int>(minPos.y));
+		minZ = std::min(minZ, static_cast<int>(minPos.z));
 	}
 
 	assetManager.boundingBox.width = maxX - minX;
@@ -1103,34 +1113,6 @@ void Application::setCameraTargetOnSelectedAssets(bool value)
 }
 
 //--------------------------------------------------------------
-/*void Application::geometryRotateXChanged(int& value)
-{
-	for (Asset* asset : selectedAssets)
-	{
-		if (asset->type == AssetType::CUBE)
-		{
-			assetManager.rotateX(asset, value);
-		}
-	}
-
-	updateBoundingBox();
-}*/
-
-//--------------------------------------------------------------
-/*void Application::geometryRotateYChanged(int& value)
-{
-	for (Asset* asset : selectedAssets)
-	{
-		if (asset->type == AssetType::CUBE)
-		{
-			assetManager.rotateY(asset, value);
-		}
-	}
-
-	updateBoundingBox();
-}*/
-
-//--------------------------------------------------------------
 void Application::selectedAssetChanged(bool& value)
 {
 	selectedAssets.clear();
@@ -1139,8 +1121,6 @@ void Application::selectedAssetChanged(bool& value)
 		if (button && *button)
 		{
 			Asset* asset = &assetManager.assets[key];
-
-			ofLog(OF_LOG_NOTICE, "selected asset pos: " + ofToString(asset->position));
 
 			if (selectedAssets.size() == 0)
 			{
@@ -1380,9 +1360,6 @@ void Application::deleteButtonPressed()
 
 	bool tmp = true;
 	selectedAssetChanged(tmp);
-
-	//Asset empty;
-	//assetManager.boundingBox = empty;
 }
 
 //--------------------------------------------------------------
@@ -1421,7 +1398,9 @@ void Application::exportImage() {
 		imageIndex++;
 	}
 	else fileName = "image_export_" + ofGetTimestampString("%F-%H-%M-%S") + ".png";
-	ofLog(OF_LOG_NOTICE, "Image export�e vers /bin/data/" + fileName);
+
+	ofLog(OF_LOG_NOTICE, "Image exportée vers /bin/data/" + fileName);
+
 	image.grabScreen(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 	image.save(fileName);
 }
