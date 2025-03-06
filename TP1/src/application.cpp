@@ -187,9 +187,9 @@ void Application::setup()
 	groupScale.add(scaleXField.setup("Echelle X", 1));
 	groupScale.add(scaleYField.setup("Echelle Y", 1));
 	groupScale.add(scaleZField.setup("Echelle Z", 1));
-	groupScale.add(scaleXSlider.setup("Agrandissement X", 0, -10, 10));
-	groupScale.add(scaleYSlider.setup("Agrandissement Y", 0, -10, 10));
-	groupScale.add(scaleZSlider.setup("Agrandissement Z", 0, -10, 10));
+	groupScale.add(scaleXSlider.setup("Agrand. X", 0, -10, 10));
+	groupScale.add(scaleYSlider.setup("Agrand. Y", 0, -10, 10));
+	groupScale.add(scaleZSlider.setup("Agrand. Z", 0, -10, 10));
 
 	togglePerspective.addListener(this, &Application::togglePerspectiveChanged);
 	toggleOrtho.addListener(this, &Application::toggleOrthoChanged);
