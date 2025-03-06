@@ -149,6 +149,20 @@ Asset* AssetManager::addSphere(const std::string& name, glm::vec3 pos, float siz
 	return &asset;
 }
 
+Asset* AssetManager::add3dModel(const std::string& name, glm::vec3 pos, string path)
+{
+	Asset& asset = assets[name];
+	asset.name = name;
+	asset.type = AssetType::MODEL;
+	asset.position = pos;
+	asset.model.loadModel(path);
+	asset.model.enableMaterials();
+
+	asset.model.setPosition(pos.x, pos.y, pos.z);
+
+	return &asset;
+}
+
 void AssetManager::draw()
 {
 	for (auto& [name, asset] : assets)
@@ -193,6 +207,8 @@ void AssetManager::draw()
 				asset.geometryPrimitive.drawWireframe();
 			}
 			break;
+		case AssetType::MODEL:
+			asset.model.drawFaces();
 		}
 	}
 
@@ -324,6 +340,11 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 		{
 			asset->position = newPos;
 			asset->geometryPrimitive.setPosition(newPos);
+			break;
+		}
+		case AssetType::MODEL:
+		{
+			asset->position = newPos;
 			break;
 		}
 		default:

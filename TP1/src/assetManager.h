@@ -1,5 +1,6 @@
 #pragma once
 #include <ofMain.h>
+#include "ofxAssimpModelLoader.h"
 
 enum class AssetType {
     IMAGE,
@@ -19,6 +20,7 @@ struct Asset {
     ofImage image;
     of3dPrimitive geometryPrimitive;
     glm::vec3 position;
+    ofxAssimpModelLoader model;
 
     float width, height, radius, depth;
     int lineWidth;
@@ -40,6 +42,8 @@ public:
 
     Asset* addCube(const std::string& name, glm::vec3 pos, float size, int lineWidth, ofColor color, bool isFilled);
     Asset* addSphere(const std::string& name, glm::vec3 pos, float size, int lineWidth, ofColor color, bool isFilled);
+
+    Asset* add3dModel(const std::string& name, glm::vec3 pos, string path);
 
 	void draw();
 

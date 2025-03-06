@@ -1,5 +1,6 @@
 TP1/bin/*
-!/bin/data/
+!TP1/bin/data/
+!TP1/bin/data/**
 [Bb]uild/
 [Oo]bj/
 *.o
