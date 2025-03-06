@@ -128,11 +128,11 @@ public:
 	ofxFloatSlider translateYSlider;
 	ofxFloatField translateZField;
 	ofxFloatSlider translateZSlider;
-	ofxFloatField rotateXField;
+	ofxLabel rotateXLabel;
 	ofxFloatSlider rotateXSlider;
-	ofxFloatField rotateYField;
+	ofxLabel rotateYLabel;
 	ofxFloatSlider rotateYSlider;
-	ofxFloatField rotateZField;
+	ofxLabel rotateZLabel;
 	ofxFloatSlider rotateZSlider;
 	ofxFloatField scaleXField;
 	ofxFloatSlider scaleXSlider;
@@ -157,6 +157,7 @@ public:
 	std::vector<ofxColorSlider2*> pointerGuiColorSliderElements;
 	std::vector<ofxFloatField*> pointerGuiFloatFieldElements;
 	std::vector<ofxFloatSlider*> pointerGuiFloatSliderElements;
+	std::vector<ofxLabel*> pointerGuiLabelElements;
 
 	std::vector<std::unique_ptr<ofEasyCam>> cameras;
 
@@ -213,9 +214,6 @@ public:
 	void translateXChanged(float& value);
 	void translateYChanged(float& value);
 	void translateZChanged(float& value);
-	void angleXChanged(float& value);
-	void angleYChanged(float& value);
-	void angleZChanged(float& value);
 	void rotateXChanged(float& value);
 	void rotateYChanged(float& value);
 	void rotateZChanged(float& value);

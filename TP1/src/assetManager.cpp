@@ -11,6 +11,8 @@ Asset* AssetManager::addImage(const std::string& name, const std::string& path, 
 		return nullptr;
 	}
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 
 	asset.width = asset.image.getWidth();
 	asset.height = asset.image.getHeight();
@@ -25,6 +27,8 @@ Asset* AssetManager::addRectangle(const std::string& name, glm::vec3 pos, float 
 	asset.name = name;
 	asset.type = AssetType::RECTANGLE;
 	asset.position = pos;
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
 	asset.width = width;
 	asset.height = height;
 	asset.depth = 0;

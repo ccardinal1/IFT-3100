@@ -20,6 +20,8 @@ struct Asset {
     ofImage image;
     of3dPrimitive geometryPrimitive;
     glm::vec3 position;
+    glm::vec3 rotation;
+    glm::vec3 scale;
     ofxAssimpModelLoader model;
 
     float width, height, radius, depth;
