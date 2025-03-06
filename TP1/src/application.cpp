@@ -71,7 +71,8 @@ void Application::setup()
 
 	cameraPanel.setup();
 	cameraPanel.setName("Camera");
-	cameraPanel.setPosition(assetsPanel.getPosition().x, assetsPanel.getPosition().y + assetsPanel.getHeight() + 500);
+	cameraPanel.setWidthElements(220);
+	cameraPanel.setPosition(ofGetWindowWidth() - cameraPanel.getWidth() - 10, assetsPanel.getPosition().y + assetsPanel.getHeight() + 500);
 
 	objectPanel.setup("Item(s) selectionne(s)");
 	objectPanel.setPosition(assetsPanel.getPosition().x - assetsPanel.getWidth() - 10, assetsPanel.getPosition().y);
@@ -200,11 +201,13 @@ void Application::setup()
 
 	togglePerspective.addListener(this, &Application::togglePerspectiveChanged);
 	toggleOrtho.addListener(this, &Application::toggleOrthoChanged);
+	toggleCenterOnSelection.addListener(this, &Application::toggleCenterOnSelectionChanged);
 
 	gui.add(&groupDraw);
 	gui.add(&groupGeometry);
 	gui.add(backgroundColorSlider.setup("Arriere-Plan", ofColor(100, 100, 100), ofColor(0, 0), ofColor(255, 255)));
 
+	cameraPanel.add(toggleCenterOnSelection.setup("Centrer sur la selection", false));
 	cameraPanel.add(&groupCameraProjection);
 
 	assetsPanel.add(deleteButton.setup("Supprimer"));
@@ -220,11 +223,10 @@ void Application::setup()
 	for (int i = 0; i < 3; i++)
 	{
 		cameras.push_back(std::make_unique<ofEasyCam>());
-		cameras[i]->setTarget({ 0, 0, 0 });
-		cameras[i]->setDistance(300);
 		cameras[i]->disableMouseMiddleButton();
 		cameras[i]->disableMouseInput();
 		cameras[i]->disableOrtho();
+		cameras[i]->setPosition(0, 0, 779);
 	}
 
 	ofSetFrameRate(60);
@@ -250,7 +252,7 @@ void Application::draw()
 
 	if (cameras[activeCamIndex]->getMouseInputEnabled())
 	{
-		ofDrawGrid(10);
+		ofDrawGrid(10, 20, true);
 	}
 
 	assetManager.draw();
@@ -268,7 +270,7 @@ void Application::draw()
 	cameraPanel.draw();
 	if (selectedAssets.size() == 1) objectPanel.draw();
 	if (recording) {
-		ofSetColor(255, 0, 0); 
+		ofSetColor(255, 0, 0);
 		ofFill();
 		ofDrawCircle(18, 18, 16);
 	}
@@ -551,53 +553,60 @@ void Application::mouseReleased(int x, int y, int button)
 
 		Asset* asset = nullptr;
 		string buttonName = "";
+		glm::vec3 screenZero = cameras[activeCamIndex]->worldToScreen(glm::vec3(0, 0, 0));
+		glm::vec3 assetPosition = cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, screenZero.z });
 
 		if (toggleDrawLine)
 		{
 			string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addLine(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), { x, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addLine(shapeName, assetPosition, cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }), lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Ligne";
 		}
 		else if (toggleDrawRectangle)
 		{
 			string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addRectangle(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addRectangle(shapeName, assetPosition, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Rectangle";
 		}
 		else if (toggleDrawCircle)
 		{
 			string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addCircle(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addCircle(shapeName, assetPosition, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Cercle";
 		}
 		else if (toggleDrawEllipse)
 		{
 			string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addEllipse(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addEllipse(shapeName, assetPosition, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Ellipse";
 		}
 		else if (toggleDrawTriangle)
 		{
 			string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addTriangle(shapeName, cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, 0 }), { mousePressX + (x - mousePressX) / 2, y, 0 }, { mousePressX - (x - mousePressX) / 2, y, 0 }, lineWidth, fillColorSlider, toggleDrawFill);
+
+			glm::vec3 p1 = cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, screenZero.z });
+			glm::vec3 p2 = cameras[activeCamIndex]->screenToWorld({ mousePressX + (x - mousePressX) / 2, y, screenZero.z });
+			glm::vec3 p3 = cameras[activeCamIndex]->screenToWorld({ mousePressX - (x - mousePressX) / 2, y, screenZero.z });
+
+			asset = assetManager.addTriangle(shapeName, p1, p2, p3, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Triangle";
 		}
 		else if (toggleDrawCube)
 		{
 			string shapeName = "cube_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addCube(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 0 }), x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addCube(shapeName, assetPosition, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Cube";
 		}
 		else if (toggleDrawSphere)
 		{
 			string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addSphere(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 0 }), (x - mousePressX)/2, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addSphere(shapeName, assetPosition, (x - mousePressX) / 2, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Sphere";
 		}
@@ -605,10 +614,10 @@ void Application::mouseReleased(int x, int y, int button)
 		{
 			string shapeName = "model1_" + std::to_string(x) + "_" + std::to_string(y);
 
-			asset = assetManager.add3dModel(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 10 }), "set-of-plants-3d-model\\Little plant\\littlePlant.obj");
+			asset = assetManager.add3dModel(shapeName, assetPosition, "set-of-plants-3d-model\\Little plant\\littlePlant.obj");
 
+			asset->model.setScale(0.25, 0.25, 0.25);
 			asset->model.setRotation(0, 180, 1, 0, 0);
-			asset->model.setScale(0.05, 0.05, 0.05);
 
 			buttonName = "Plante 1";
 		}
@@ -616,10 +625,9 @@ void Application::mouseReleased(int x, int y, int button)
 		{
 			string shapeName = "model2_" + std::to_string(x) + "_" + std::to_string(y);
 
-			asset = assetManager.add3dModel(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 10 }), "set-of-plants-3d-model\\Yucca\\yuccaPlant.obj");
+			asset = assetManager.add3dModel(shapeName, assetPosition, "set-of-plants-3d-model\\Yucca\\yuccaPlant.obj");
 
 			asset->model.setRotation(0, 180, 1, 0, 0);
-			asset->model.setScale(0.2, 0.2, 0.2);
 
 			buttonName = "Plante 2";
 		}
@@ -627,27 +635,20 @@ void Application::mouseReleased(int x, int y, int button)
 		{
 			string shapeName = "model3_" + std::to_string(x) + "_" + std::to_string(y);
 
-			asset = assetManager.add3dModel(shapeName, cameras[activeCamIndex]->screenToWorld({ x, y, 10 }), "set-of-plants-3d-model\\eb_house_plant_02\\eb_house_plant_02.obj");
+			asset = assetManager.add3dModel(shapeName, assetPosition, "set-of-plants-3d-model\\eb_house_plant_02\\eb_house_plant_02.obj");
 
+			asset->model.setScale(0.5, 0.5, 0.5);
 			asset->model.setRotation(0, 180, 1, 0, 0);
-			asset->model.setScale(0.10, 0.10, 0.10);
 
 			buttonName = "Plante 3";
 		}
 		else if (!selectedAssets.empty())
 		{
-			glm::vec2 moveVec = { x - mousePressX, y - mousePressY };
+			glm::vec3 moveVec = cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }) - assetPosition;
 
 			for (Asset* asset : selectedAssets)
 			{
-				if (asset->type == AssetType::CUBE || asset->type == AssetType::SPHERE)
-				{
-					assetManager.setPosition(asset, asset->position + glm::vec3(moveVec.x, moveVec.y, 0));
-				}
-				else
-				{
-					assetManager.setPosition(asset, asset->position + moveVec);
-				}
+				assetManager.setPosition(asset, asset->position + moveVec);
 			}
 		}
 
@@ -664,9 +665,6 @@ void Application::mouseReleased(int x, int y, int button)
 			bool tmp = true;
 			selectedAssets.push_back(asset);
 			selectedAssetChanged(tmp);
-
-			cameras[activeCamIndex]->setTarget(asset->position);
-			cameras[activeCamIndex]->setDistance(300);
 
 			resetToggles();
 		}
@@ -1064,15 +1062,17 @@ glm::vec3 Application::getMinPos(Asset* asset)
 	return { minX, minY, minZ };
 }
 
-void Application::setCameraTargetOnSelectedAssets()
+void Application::setCameraTargetOnSelectedAssets(bool value)
 {
+	if (cameras.size() == 0)
+		return;
+
 	ofVec3f minBounds(FLT_MAX, FLT_MAX, FLT_MAX);
 	ofVec3f maxBounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	if (selectedAssets.size() == 0)
+	if (selectedAssets.size() == 0 || !toggleCenterOnSelection)
 	{
-		//cameras[activeCamIndex]->setTarget({ 0, 0, 0 });
-		//cameras[activeCamIndex]->setDistance(300);
+		cameras[activeCamIndex]->setPosition(0, 0, 779);
 	}
 	else
 	{
@@ -1093,7 +1093,6 @@ void Application::setCameraTargetOnSelectedAssets()
 		float fov = ofDegToRad(cameras[activeCamIndex]->getFov());
 		float distance = radius / std::tan(fov / 2.0);
 
-		distance = std::max(300.0f, distance);
 
 		ofVec3f camPos = center + ofVec3f(0, 0, distance);
 		cameras[activeCamIndex]->setPosition(camPos);
@@ -1151,9 +1150,6 @@ void Application::selectedAssetChanged(bool& value)
 				{
 					//geometryRotateX = asset->geometryPrimitive.getPitchDeg();
 					//geometryRotateY = asset->geometryPrimitive.getHeadingDeg();
-
-					cameras[activeCamIndex]->setTarget(asset->position);
-					cameras[activeCamIndex]->setDistance(300);
 				}
 				else
 				{
@@ -1166,8 +1162,10 @@ void Application::selectedAssetChanged(bool& value)
 		}
 	}
 
-	setCameraTargetOnSelectedAssets();
-	
+	if (toggleCenterOnSelection)
+	{
+		setCameraTargetOnSelectedAssets(true);
+	}
 	if (selectedAssets.size() == 1) {
 		translateXField.setup("Position X", selectedAssets[0]->position.x);
 		translateYField.setup("Position Y", selectedAssets[0]->position.y);
@@ -1269,6 +1267,21 @@ void Application::toggleOrthoChanged(bool& value)
 	{
 		cameras[activeCamIndex]->disableOrtho();
 		togglePerspective = true;
+	}
+}
+
+void Application::toggleCenterOnSelectionChanged(bool& value)
+{
+	if (cameras.size() == 0)
+		return;
+
+	if (value)
+	{
+		setCameraTargetOnSelectedAssets(value);
+	}
+	else
+	{
+		cameras[activeCamIndex]->setPosition(0, 0, 779);
 	}
 }
 
@@ -1394,7 +1407,7 @@ void Application::exportImage() {
 		imageIndex++;
 	}
 	else fileName = "image_export_" + ofGetTimestampString("%F-%H-%M-%S") + ".png";
-	ofLog(OF_LOG_NOTICE, "Image exportée vers /bin/data/" + fileName);
+	ofLog(OF_LOG_NOTICE, "Image exportï¿½e vers /bin/data/" + fileName);
 	image.grabScreen(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 	image.save(fileName);
 }

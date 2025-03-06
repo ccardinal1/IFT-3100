@@ -212,6 +212,8 @@ void AssetManager::draw()
 			}
 			break;
 		case AssetType::MODEL:
+			//ofLog(OF_LOG_NOTICE, "draw model pos: " + ofToString(asset.model.getPosition()));
+			asset.model.setPosition(asset.position.x, asset.position.y, asset.position.z);
 			asset.model.drawFaces();
 		}
 	}

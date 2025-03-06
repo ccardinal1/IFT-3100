@@ -79,6 +79,7 @@ public:
 
 	ofxToggle2 togglePerspective;
 	ofxToggle2 toggleOrtho;
+	ofxToggle2 toggleCenterOnSelection;
 
 	ofxButton2 resetButton;
 	ofxButton2 histogramButton;
@@ -228,6 +229,7 @@ public:
 
 	void togglePerspectiveChanged(bool& value);
 	void toggleOrthoChanged(bool& value);
+	void toggleCenterOnSelectionChanged(bool& value);
 
 	void resetButtonPressed();
 	void histogramButtonPressed();
@@ -247,7 +249,7 @@ public:
 	bool screenshot = false;
 	int imageIndex = 0;
 
-	void setCameraTargetOnSelectedAssets();
+	void setCameraTargetOnSelectedAssets(bool value);
 
 	void exportImage();
 };
