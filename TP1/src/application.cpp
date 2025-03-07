@@ -686,6 +686,7 @@ void Application::mouseReleased(int x, int y, int button)
 					groupTranslation.maximize();
 				}
 			}
+		}
 
 		if (asset != nullptr)
 		{
