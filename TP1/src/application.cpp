@@ -1365,10 +1365,13 @@ void Application::dragEvent(ofDragInfo dragInfo)
 {
 	int importedImageCount = assetManager.assets.size();
 
+	glm::vec3 screenZero = cameras[activeCamIndex]->worldToScreen(glm::vec3(0, 0, 0));
+	glm::vec3 assetPosition = cameras[activeCamIndex]->screenToWorld({ dragInfo.position.x, dragInfo.position.y, screenZero.z });
+
 	for (int i = 0; i < dragInfo.files.size(); i++)
 	{
 		string imageName = "imported_image_" + std::to_string(importedImageCount + i);
-		Asset* asset = assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
+		Asset* asset = assetManager.addImage(imageName, dragInfo.files[i], assetPosition);
 
 		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Image", true));
