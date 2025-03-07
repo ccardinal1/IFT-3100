@@ -154,6 +154,7 @@ public:
 	ofxToggle2 toggleDrawEllipse;
 	ofxToggle2 toggleDrawTriangle;
 	ofxToggle2 toggleDrawBoundingBox;
+	ofxToggle2 toggleDynamicColors;
 
 	ofxToggle2 toggleDrawCube;
 	ofxToggle2 toggleDrawSphere;
@@ -296,6 +297,7 @@ public:
 	void togglePerspectiveChanged(bool& value);
 	void toggleOrthoChanged(bool& value);
 	void toggleCenterOnSelectionChanged(bool& value);
+	void toggleDynamicColorsChanged(bool& value);
 
 	void resetButtonPressed();
 	void histogramButtonPressed();
@@ -319,6 +321,7 @@ public:
 	int imageIndex = 0;
 	bool isMousePressed = false;
 	bool spacePressed = false;
+	bool dynamicColor = false;
 	glm::vec3 previousPosition;
 	glm::vec3 previousRotation;
 	glm::vec3 previousScale;
