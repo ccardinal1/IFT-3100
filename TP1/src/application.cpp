@@ -568,7 +568,7 @@ void Application::mousePressed(int x, int y, int button)
 void Application::mouseReleased(int x, int y, int button)
 {
 	isMousePressed = false;
-	
+
 	if (button != 0 || ((mousePressX == x && mousePressY == y) && !isDrawing()) || cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		clickedInUi = false;
@@ -688,28 +688,29 @@ void Application::mouseReleased(int x, int y, int button)
 				}
 			}
 
-		if (asset != nullptr)
+			if (asset != nullptr)
+			{
+				auto button = std::make_shared<ofxToggle2>();
+				assetsPanel.add(button.get()->setup(buttonName, true));
+				button->addListener(this, &Application::selectedAssetChanged);
+				assetsButtons[asset->name] = button;
+
+				asset->isSelected = true;
+				bool tmp = true;
+				selectedAssets.push_back(asset);
+				selectedAssetChanged(tmp);
+
+				resetToggles();
+			}
+
+			updateBoundingBox();
+		}
+		else
 		{
-			auto button = std::make_shared<ofxToggle2>();
-			assetsPanel.add(button.get()->setup(buttonName, true));
-			button->addListener(this, &Application::selectedAssetChanged);
-			assetsButtons[asset->name] = button;
-
-			asset->isSelected = true;
-			bool tmp = true;
-			selectedAssets.push_back(asset);
-			selectedAssetChanged(tmp);
-
-			resetToggles();
+			clickedInUi = false;
 		}
 
-		updateBoundingBox();
 	}
-	else
-	{
-		clickedInUi = false;
-	}
-
 }
 
 bool Application::isDrawing()
