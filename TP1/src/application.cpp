@@ -16,7 +16,6 @@ void Application::setup()
 	pointerGuiGroupElements.push_back(&groupDrawOptions);
 	pointerGuiGroupElements.push_back(&groupDrawBoundingBox);
 	pointerGuiGroupElements.push_back(&groupGeometry);
-	//pointerGuiGroupElements.push_back(&groupGeometryOptions);
 	pointerGuiGroupElements.push_back(&groupCamera);
 	pointerGuiGroupElements.push_back(&groupCameraProjection);
 	pointerGuiGroupElements.push_back(&groupHSBFillColor);
@@ -42,8 +41,6 @@ void Application::setup()
 
 	pointerGuiIntSliderElements.push_back(&lineWidth);
 	pointerGuiIntSliderElements.push_back(&boundingBoxLineWidth);
-	//pointerGuiIntSliderElements.push_back(&geometryRotateX);
-	//pointerGuiIntSliderElements.push_back(&geometryRotateY);
 
 	pointerGuiColorSliderElements.push_back(&RGBAFillColorSlider);
 	pointerGuiColorSliderElements.push_back(&RGBABoundingBoxColorSlider);
@@ -98,9 +95,6 @@ void Application::setup()
 	lineWidth.addListener(this, &Application::lineWidthChanged);
 	boundingBoxLineWidth.addListener(this, &Application::boundingBoxLineWidthChanged);
 
-	//geometryRotateX.addListener(this, &Application::geometryRotateXChanged);
-	//geometryRotateY.addListener(this, &Application::geometryRotateYChanged);
-
 	translateXField.addListener(this, &Application::positionXChanged);
 	translateXSlider.addListener(this, &Application::translateXChanged);
 	translateYField.addListener(this, &Application::positionYChanged);
@@ -126,7 +120,6 @@ void Application::setup()
 	groupDraw.setup("Outils de dessin");
 	groupDrawOptions.setup("Options");
 	groupGeometry.setup("Geometrie");
-	//groupGeometryOptions.setup("Options");
 	groupCameraProjection.setup("Mode de projection");
 	groupDrawBoundingBox.setup("Boite de delimitation");
 	groupTranslation.setup("Translation");
@@ -212,11 +205,6 @@ void Application::setup()
 
 	toggleAddModel3.addListener(this, &Application::drawModel3ToggleChanged);
 	groupGeometry.add(toggleAddModel3.setup("Modele 3", false));
-
-	//groupGeometryOptions.add(geometryRotateX.setup("Rotation X", 0, 0, 360));
-	//groupGeometryOptions.add(geometryRotateY.setup("Rotation Y", 0, 0, 360));
-	//groupGeometry.add(&groupGeometryOptions);
-	//groupGeometryOptions.minimize();
 
 	groupCameraProjection.add(togglePerspective.setup("Perspective", true));
 	groupCameraProjection.add(toggleOrtho.setup("Orthogonale", false));
@@ -1392,17 +1380,6 @@ void Application::selectedAssetChanged(bool& value)
 				toggleDrawFill = asset->isFilled;
 				RGBAFillColorSlider = asset->color;
 				lineWidth = asset->lineWidth;
-
-				if (asset->geometryPrimitive.getMesh().getNumVertices() > 0)
-				{
-					//geometryRotateX = asset->geometryPrimitive.getPitchDeg();
-					//geometryRotateY = asset->geometryPrimitive.getHeadingDeg();
-				}
-				else
-				{
-					//geometryRotateX = 0;
-					//geometryRotateY = 0;
-				}
 			}
 
 			selectedAssets.push_back(asset);

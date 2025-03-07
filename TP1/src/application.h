@@ -139,7 +139,6 @@ public:
 	ofxGuiGroup2 groupDrawOptions;
 	ofxGuiGroup2 groupDrawBoundingBox;
 	ofxGuiGroup2 groupGeometry;
-	//ofxGuiGroup2 groupGeometryOptions;
 	ofxGuiGroup2 groupCamera;
 	ofxGuiGroup2 groupCameraProjection;
 	ofxGuiGroup2 groupTranslation;
@@ -184,9 +183,6 @@ public:
 
 	ofxIntSlider2 lineWidth;
 	ofxIntSlider2 boundingBoxLineWidth;
-
-	//ofxIntSlider2 geometryRotateX;
-	//ofxIntSlider2 geometryRotateY;
 
 	ofxFloatField2 translateXField;
 	ofxFloatSlider2 translateXSlider;
@@ -275,9 +271,6 @@ public:
 	void HSBDrawColorChanged(float& value);
 	void HSBBoundingBoxColorChanged(float& value);
 	void HSBBackgroundColorChanged(float& value);
-
-	//void geometryRotateXChanged(int& value);
-	//void geometryRotateYChanged(int& value);
 
 	void positionXChanged(float& value);
 	void positionYChanged(float& value);
