@@ -71,6 +71,11 @@ public:
 		return color;
 	}
 
+	void setColor(ofColor color)
+	{
+		this->changeValue(color);
+	}
+
 	bool isVisible()
 	{
 		return this->isGuiDrawing();
@@ -79,10 +84,20 @@ public:
 
 class ofxFloatSlider2 : public ofxFloatSlider {
 public:
+	ofxFloatSlider2()
+	{
+		this->value = 0;
+	}
+
 	ofColor ofxFloatSlider2::operator=(float value) {
 		this->value = value;
 
 		return value;
+	}
+
+	float getValue()
+	{
+		return this->value;
 	}
 
 	bool isVisible()
@@ -119,6 +134,7 @@ public:
 
 	ofxButton2 resetButton;
 	ofxButton2 histogramButton;
+
 	ofxGuiGroup2 groupDraw;
 	ofxGuiGroup2 groupDrawOptions;
 	ofxGuiGroup2 groupDrawBoundingBox;
@@ -129,6 +145,9 @@ public:
 	ofxGuiGroup2 groupTranslation;
 	ofxGuiGroup2 groupRotation;
 	ofxGuiGroup2 groupScale;
+	ofxGuiGroup2 groupHSBFillColor;
+	ofxGuiGroup2 groupHSBBoundingBoxColor;
+	ofxGuiGroup2 groupHSBBackgroundColor;
 
 	ofxToggle2 toggleDrawLine;
 	ofxToggle2 toggleDrawRectangle;
@@ -147,11 +166,20 @@ public:
 	ofxButton2 deleteButton;
 	std::unordered_map<std::string, std::shared_ptr<ofxToggle2>> assetsButtons;
 
-	ofxColorSlider2 fillColorSlider;
+	ofxFloatSlider2 HFillColorSlider;
+	ofxFloatSlider2 SFillColorSlider;
+	ofxFloatSlider2 BFillColorSlider;
+	ofxColorSlider2 RGBAFillColorSlider;
 
-	ofxColorSlider2 boundingBoxColorSlider;
+	ofxFloatSlider2 HBoundingBoxColorSlider;
+	ofxFloatSlider2 SBoundingBoxColorSlider;
+	ofxFloatSlider2 BBoundingBoxColorSlider;
+	ofxColorSlider2 RGBABoundingBoxColorSlider;
 
-	ofxColorSlider2 backgroundColorSlider;
+	ofxFloatSlider2 HBackgroundColorSlider;
+	ofxFloatSlider2 SBackgroundColorSlider;
+	ofxFloatSlider2 BBackgroundColorSlider;
+	ofxColorSlider2 RGBABackgroundColorSlider;
 
 	ofxIntSlider2 lineWidth;
 	ofxIntSlider2 boundingBoxLineWidth;
@@ -235,11 +263,17 @@ public:
 	void drawModel3ToggleChanged(bool& value);
 
 	void isFilledToggleChanged(bool& value);
-	void drawColorChanged(ofColor& value);
+	void RGBADrawColorChanged(ofColor& value);
 	void lineWidthChanged(int& value);
-
-	void boundingBoxColorChanged(ofColor& value);
+	
+	void RGBABoundingBoxColorChanged(ofColor& value);
 	void boundingBoxLineWidthChanged(int& value);
+
+	void RGBABackgroundColorChanged(ofColor& value);
+
+	void HSBDrawColorChanged(float& value);
+	void HSBBoundingBoxColorChanged(float& value);
+	void HSBBackgroundColorChanged(float& value);
 
 	//void geometryRotateXChanged(int& value);
 	//void geometryRotateYChanged(int& value);
@@ -280,6 +314,8 @@ public:
 
 	void updateBoundingBox();
 	std::vector<glm::vec3> getExtremePos(Asset* asset);
+
+	ofColor backgroundColor;
 
 	bool clickedInUi = false;
 	bool recording = false;
