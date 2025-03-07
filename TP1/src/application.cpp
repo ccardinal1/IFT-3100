@@ -568,7 +568,7 @@ void Application::mousePressed(int x, int y, int button)
 void Application::mouseReleased(int x, int y, int button)
 {
 	isMousePressed = false;
-	
+
 	if (button != 0 || ((mousePressX == x && mousePressY == y) && !isDrawing()) || cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		clickedInUi = false;
@@ -681,6 +681,7 @@ void Application::mouseReleased(int x, int y, int button)
 				translateXField = selectedAssets[0]->position.x;
 				translateYField = selectedAssets[0]->position.y;
 				translateZField = selectedAssets[0]->position.z;
+
 				if (!groupTranslation.isMinimized()) {
 					groupTranslation.minimize();
 					groupTranslation.maximize();
@@ -688,28 +689,29 @@ void Application::mouseReleased(int x, int y, int button)
 			}
 		}
 
-		if (asset != nullptr)
+			if (asset != nullptr)
+			{
+				auto button = std::make_shared<ofxToggle2>();
+				assetsPanel.add(button.get()->setup(buttonName, true));
+				button->addListener(this, &Application::selectedAssetChanged);
+				assetsButtons[asset->name] = button;
+
+				asset->isSelected = true;
+				bool tmp = true;
+				selectedAssets.push_back(asset);
+				selectedAssetChanged(tmp);
+
+				resetToggles();
+			}
+
+			updateBoundingBox();
+		}
+		else
 		{
-			auto button = std::make_shared<ofxToggle2>();
-			assetsPanel.add(button.get()->setup(buttonName, true));
-			button->addListener(this, &Application::selectedAssetChanged);
-			assetsButtons[asset->name] = button;
-
-			asset->isSelected = true;
-			bool tmp = true;
-			selectedAssets.push_back(asset);
-			selectedAssetChanged(tmp);
-
-			resetToggles();
+			clickedInUi = false;
 		}
 
-		updateBoundingBox();
 	}
-	else
-	{
-		clickedInUi = false;
-	}
-
 }
 
 bool Application::isDrawing()
@@ -1354,11 +1356,14 @@ void Application::dragEvent(ofDragInfo dragInfo)
 	for (int i = 0; i < dragInfo.files.size(); i++)
 	{
 		string imageName = "imported_image_" + std::to_string(importedImageCount + i);
-		assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
+		Asset* asset = assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
 
 		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Image", true));
 		assetsButtons[imageName] = button;
+
+		asset->isSelected = true;
+		selectedAssets.push_back(asset);
 	}
 }
 
