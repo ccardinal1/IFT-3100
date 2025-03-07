@@ -302,4 +302,9 @@ public:
 	const HCURSOR CAM = LoadCursorFromFile(L"../bin/data/cursors/grab.cur");
 
 	const glm::vec3 DEFAULT_CAM_POS = glm::vec3(0, 0, 779);
+
+	bool displayCameraSwitchMessage = false;
+	float cameraSwitchTime;
+
+	ofTrueTypeFont alertFont;
 };
