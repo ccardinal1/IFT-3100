@@ -195,7 +195,7 @@ Asset* AssetManager::addInstance(Asset& original) {
 	asset.rotation = glm::vec3(0, 0, 0);
 	asset.scale = glm::vec3(1, 1, 1);
 	asset.parent = &original;
-	asset.color = original.color;
+	if(original.type != AssetType::MODEL) asset.color = original.color;
 	asset.isFilled = asset.parent->isFilled;
 	original.instances[original.instances.size()] = &asset;
 
