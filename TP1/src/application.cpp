@@ -260,7 +260,7 @@ void Application::setup()
 
 	assetsPanel.add(deleteButton.setup("Supprimer"));
 
-	objectPanel.add(instanceButton.setup("Instancer"));
+	objectPanel.add(instanceButton.setup("Instancier"));
 	objectPanel.add(&groupTranslation);
 	objectPanel.add(&groupRotation);
 	objectPanel.add(&groupScale);
