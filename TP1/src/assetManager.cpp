@@ -108,6 +108,7 @@ Asset* AssetManager::addTriangle(const std::string& name, glm::vec3 p1, glm::vec
 	asset.p3 = p3;
 	asset.width = p2.x - p3.x;
 	asset.height = p1.y - p2.y;
+	asset.position.y -= asset.height;
 	asset.depth = 0;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
@@ -171,7 +172,10 @@ Asset* AssetManager::add3dModel(const std::string& name, glm::vec3 pos, string p
 	asset.name = name;
 	asset.type = AssetType::MODEL;
 	asset.position = pos;
-	asset.rotation = glm::vec3(0, 0, 0);
+	asset.rotation = glm::vec3(180, 0, 0);
+	asset.model.setRotation(0, 180, 1, 0, 0);
+	asset.model.setRotation(1, 0, 0, 1, 0);
+	asset.model.setRotation(2, 0, 0, 0, 1);
 	asset.scale = glm::vec3(1, 1, 1);
 	asset.model.loadModel(path);
 	asset.model.enableMaterials();
@@ -199,17 +203,45 @@ void AssetManager::draw()
 			asset.image.draw(asset.position.x, asset.position.y, asset.position.z);
 			break;
 		case AssetType::RECTANGLE:
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawRectangle(asset.position.x, asset.position.y, asset.position.z, asset.width, asset.height);
+			ofPopMatrix();
 			break;
 		case AssetType::CIRCLE:
 			ofSetCircleResolution(100);
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawCircle(asset.position.x, asset.position.y, asset.position.z, asset.radius);
+			ofPopMatrix();
 			break;
 		case AssetType::ELLIPSE:
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawEllipse(asset.position, asset.width, asset.height);
+			ofPopMatrix();
 			break;
 		case AssetType::LINE:
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawLine(asset.position, asset.endpoint);
+			ofPopMatrix();
 			break;
 		case AssetType::TRIANGLE:
 			ofDrawTriangle(asset.p1, asset.p2, asset.p3);
@@ -342,13 +374,9 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 	{
 		case AssetType::TRIANGLE:
 		{
-			int width = std::max(asset->p2.x, asset->p3.x) - std::min(asset->p2.x, asset->p3.x);
-			int height = std::max(asset->p1.y, asset->p2.y) - std::min(asset->p1.y, asset->p2.y);
-			int depth = 0;
-
-			asset->p1 = newPos;
-			asset->p2 = { newPos.x - width * 0.5f, newPos.y + height, depth };
-			asset->p3 = { newPos.x + width * 0.5f, newPos.y + height, depth };
+			asset->p1 = {asset->p1.x - asset->position.x + newPos.x, asset->p1.y - asset->position.y + newPos.y, asset->p1.z - asset->position.z + newPos.z};
+			asset->p2 = {asset->p2.x - asset->position.x + newPos.x, asset->p2.y - asset->position.y + newPos.y, asset->p2.z - asset->position.z + newPos.z};
+			asset->p3 = {asset->p3.x - asset->position.x + newPos.x, asset->p3.y - asset->position.y + newPos.y, asset->p3.z - asset->position.z + newPos.z};
 
 			asset->position = newPos;
 			break;
@@ -378,8 +406,54 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 }
 
 void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
-	asset->geometryPrimitive.setOrientation(newRot);
-	asset->rotation = newRot;
+	switch (asset->type) {
+	case AssetType::TRIANGLE:
+		asset->p3 = asset->position + glm::rotateZ(asset->p3 - asset->position, glm::radians(-asset->rotation.z));
+		asset->p3 = asset->position + glm::rotateY(asset->p3 - asset->position, glm::radians(-asset->rotation.y));
+		asset->p3 = asset->position + glm::rotateX(asset->p3 - asset->position, glm::radians(-asset->rotation.x));
+		asset->p2 = asset->position + glm::rotateZ(asset->p2 - asset->position, glm::radians(-asset->rotation.z));
+		asset->p2 = asset->position + glm::rotateY(asset->p2 - asset->position, glm::radians(-asset->rotation.y));
+		asset->p2 = asset->position + glm::rotateX(asset->p2 - asset->position, glm::radians(-asset->rotation.x));
+		asset->p1 = asset->position + glm::rotateZ(asset->p1 - asset->position, glm::radians(-asset->rotation.z));
+		asset->p1 = asset->position + glm::rotateY(asset->p1 - asset->position, glm::radians(-asset->rotation.y));
+		asset->p1 = asset->position + glm::rotateX(asset->p1 - asset->position, glm::radians(-asset->rotation.x));
+
+		asset->p1 = asset->position + glm::rotateX(asset->p1 - asset->position, glm::radians(newRot.x));
+		asset->p1 = asset->position + glm::rotateY(asset->p1 - asset->position, glm::radians(newRot.y));
+		asset->p1 = asset->position + glm::rotateZ(asset->p1 - asset->position, glm::radians(newRot.z));
+		asset->p2 = asset->position + glm::rotateX(asset->p2 - asset->position, glm::radians(newRot.x));
+		asset->p2 = asset->position + glm::rotateY(asset->p2 - asset->position, glm::radians(newRot.y));
+		asset->p2 = asset->position + glm::rotateZ(asset->p2 - asset->position, glm::radians(newRot.z));
+		asset->p3 = asset->position + glm::rotateX(asset->p3 - asset->position, glm::radians(newRot.x));
+		asset->p3 = asset->position + glm::rotateY(asset->p3 - asset->position, glm::radians(newRot.y));
+		asset->p3 = asset->position + glm::rotateZ(asset->p3 - asset->position, glm::radians(newRot.z));
+		asset->rotation = newRot;
+		break;
+	case AssetType::RECTANGLE:
+	case AssetType::CIRCLE:
+	case AssetType::ELLIPSE:
+	case AssetType::LINE:
+		asset->rotation = newRot;
+	case AssetType::MODEL:
+		if (newRot.x != asset->rotation.x) {
+			asset->model.setRotation(0, newRot.x, 1, 0, 0);
+			asset->rotation.x = newRot.x;
+		}
+		if (newRot.y != asset->rotation.y) {
+			asset->model.setRotation(1, newRot.y, 0, 1, 0);
+			asset->rotation.y = newRot.y;
+		}
+		if (newRot.z != asset->rotation.z) {
+			asset->model.setRotation(2, newRot.z, 0, 0, 1);
+			asset->rotation.z = newRot.z;
+		}
+		break;
+	case AssetType::CUBE:
+	case AssetType::SPHERE:
+		asset->geometryPrimitive.setOrientation(newRot);
+		asset->rotation = newRot;
+		break;
+	}
 }
 
 void AssetManager::setScale(Asset* asset, glm::vec3 newSca) {

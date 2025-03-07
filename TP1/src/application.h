@@ -323,6 +323,7 @@ public:
 	bool cameraMode = false;
 	int imageIndex = 0;
 	bool isMousePressed = false;
+	bool spacePressed = false;
 	glm::vec3 previousPosition;
 	glm::vec3 previousRotation;
 	glm::vec3 previousScale;
@@ -339,4 +340,9 @@ public:
 	const HCURSOR CAM = LoadCursorFromFile(L"../bin/data/cursors/grab.cur");
 
 	const glm::vec3 DEFAULT_CAM_POS = glm::vec3(0, 0, 779);
+
+	bool displayCameraSwitchMessage = false;
+	float cameraSwitchTime;
+
+	ofTrueTypeFont alertFont;
 };
