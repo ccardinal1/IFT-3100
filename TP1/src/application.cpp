@@ -1146,6 +1146,9 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 {
 	std::vector<glm::vec3> extremes;
 
+	glm::vec3 minPoint(FLT_MAX);
+	glm::vec3 maxPoint(-FLT_MAX);
+
 	int minX = asset->position.x, minY = asset->position.y, minZ = asset->position.z;
 	int maxX = asset->position.x, maxY = asset->position.y, maxZ = asset->position.z;
 
@@ -1153,7 +1156,7 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 	{
 	case AssetType::IMAGE:
 	case AssetType::RECTANGLE:
-	{
+		{
 		minX = std::min(asset->position.x, asset->position.x + asset->width);
 		minY = std::min(asset->position.y, asset->position.y + asset->height);
 		minZ = std::min(asset->position.z, asset->position.z + asset->depth);
@@ -1163,7 +1166,7 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 		maxZ = std::max(asset->position.z, asset->position.z + asset->depth);
 
 		break;
-	}
+    }
 	case AssetType::CIRCLE:
 	{
 		float radius = std::abs(asset->radius);
@@ -1219,17 +1222,41 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 	}
 	case AssetType::CUBE:
 	{
-		float halfSizeX = std::abs(asset->width) * 0.5f;
-		float halfSizeY = std::abs(asset->height) * 0.5f;
-		float halfSizeZ = std::abs(asset->depth) * 0.5f;
+		glm::vec3 halfSize = glm::vec3(asset->width * 0.5f, asset->height * 0.5f, asset->depth * 0.5f);
 
-		minX = asset->position.x - halfSizeX;
-		minY = asset->position.y - halfSizeY;
-		minZ = asset->position.z - halfSizeZ;
+		glm::vec3 corners[8] = {
+			glm::vec3(-halfSize.x, -halfSize.y, -halfSize.z),
+			glm::vec3(-halfSize.x, -halfSize.y,  halfSize.z),
+			glm::vec3(-halfSize.x,  halfSize.y, -halfSize.z),
+			glm::vec3(-halfSize.x,  halfSize.y,  halfSize.z),
+			glm::vec3(halfSize.x, -halfSize.y, -halfSize.z),
+			glm::vec3(halfSize.x, -halfSize.y,  halfSize.z),
+			glm::vec3(halfSize.x,  halfSize.y, -halfSize.z),
+			glm::vec3(halfSize.x,  halfSize.y,  halfSize.z)
+		};
 
-		maxX = asset->position.x + halfSizeX;
-		maxY = asset->position.y + halfSizeY;
-		maxZ = asset->position.z + halfSizeZ;
+		glm::mat4 transformationMatrix = glm::translate(glm::mat4(1.0f), asset->position)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.x), glm::vec3(1, 0, 0))
+			* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.y), glm::vec3(0, 1, 0))
+			* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.z), glm::vec3(0, 0, 1))
+			* glm::scale(glm::mat4(1.0f), asset->scale);
+
+		minPoint = glm::vec3(FLT_MAX);
+		maxPoint = glm::vec3(-FLT_MAX);
+
+		for (int i = 0; i < 8; i++) {
+			glm::vec3 transformedCorner = glm::vec3(transformationMatrix * glm::vec4(corners[i], 1.0f));
+			minPoint = glm::min(minPoint, transformedCorner);
+			maxPoint = glm::max(maxPoint, transformedCorner);
+		}
+
+		minX = minPoint.x;
+		minY = minPoint.y;
+		minZ = minPoint.z;
+
+		maxX = maxPoint.x;
+		maxY = maxPoint.y;
+		maxZ = maxPoint.z;
 
 		break;
 	}
@@ -1249,9 +1276,6 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 	}
 	case AssetType::MODEL:
 	{
-		glm::vec3 minPoint(FLT_MAX);
-		glm::vec3 maxPoint(-FLT_MAX);
-
 		for (int i = 0; i < asset->model.getNumMeshes(); i++) {
 			ofMesh mesh = asset->model.getMesh(i);
 
@@ -1387,17 +1411,23 @@ void Application::selectedAssetChanged(bool& value)
 void Application::positionXChanged(float& value) {
 	if (selectedAssets.size() == 1) assetManager.setPosition(selectedAssets[0], glm::vec3(value, selectedAssets[0]->position.y, selectedAssets[0]->position.z));
 
+	updateBoundingBox();
+
 	return;
 }
 
 void Application::positionYChanged(float& value) {
 	if (selectedAssets.size() == 1) assetManager.setPosition(selectedAssets[0], glm::vec3(selectedAssets[0]->position.x, value, selectedAssets[0]->position.z));
 
+	updateBoundingBox();
+
 	return;
 }
 
 void Application::positionZChanged(float& value) {
 	if (selectedAssets.size() == 1) assetManager.setPosition(selectedAssets[0], glm::vec3(selectedAssets[0]->position.x, selectedAssets[0]->position.y, value));
+
+	updateBoundingBox();
 
 	return;
 }
@@ -1409,6 +1439,8 @@ void Application::translateXChanged(float& value) {
 	}
 	if (!isMousePressed) translateXSlider = 0;
 
+	updateBoundingBox();
+
 	return;
 }
 
@@ -1418,6 +1450,8 @@ void Application::translateYChanged(float& value) {
 		translateYField = selectedAssets[0]->position.y;
 	}
 	if (!isMousePressed) translateYSlider = 0;
+
+	updateBoundingBox();
 
 	return;
 }
@@ -1429,11 +1463,15 @@ void Application::translateZChanged(float& value) {
 	}
 	if (!isMousePressed) translateZSlider = 0;
 
+	updateBoundingBox();
+
 	return;
 }
 
 void Application::angleXChanged(float& value) {
 	if (selectedAssets.size() == 1) assetManager.setRotation(selectedAssets[0], glm::vec3(value, selectedAssets[0]->rotation.y, selectedAssets[0]->rotation.z));
+
+	updateBoundingBox();
 
 	return;
 }
@@ -1441,11 +1479,15 @@ void Application::angleXChanged(float& value) {
 void Application::angleYChanged(float& value) {
 	if (selectedAssets.size() == 1) assetManager.setRotation(selectedAssets[0], glm::vec3(selectedAssets[0]->rotation.x, value, selectedAssets[0]->rotation.z));
 
+	updateBoundingBox();
+
 	return;
 }
 
 void Application::angleZChanged(float& value) {
 	if (selectedAssets.size() == 1) assetManager.setRotation(selectedAssets[0], glm::vec3(selectedAssets[0]->rotation.x, selectedAssets[0]->rotation.y, value));
+
+	updateBoundingBox();
 
 	return;
 }
@@ -1462,6 +1504,8 @@ void Application::rotateXChanged(float& value) {
 	}
 	if (!isMousePressed) rotateXSlider = 0;
 
+	updateBoundingBox();
+
 	return;
 }
 
@@ -1476,6 +1520,8 @@ void Application::rotateYChanged(float& value) {
 		rotateYField = selectedAssets[0]->rotation.y;
 	}
 	if (!isMousePressed) rotateYSlider = 0;
+
+	updateBoundingBox();
 
 	return;
 }
@@ -1492,31 +1538,39 @@ void Application::rotateZChanged(float& value) {
 	}
 	if (!isMousePressed) rotateZSlider = 0;
 
+	updateBoundingBox();
+
 	return;
 }
 
 void Application::scaleXChanged(float& value) {
 	//TODO
+	updateBoundingBox();
 }
 
 void Application::scaleYChanged(float& value) {
 	//TODO
+	updateBoundingBox();
 }
 
 void Application::scaleZChanged(float& value) {
 	//TODO
+	updateBoundingBox();
 }
 
 void Application::growthXChanged(float& value) {
 	//TODO
+	updateBoundingBox();
 }
 
 void Application::growthYChanged(float& value) {
 	//TODO
+	updateBoundingBox();
 }
 
 void Application::growthZChanged(float& value) {
 	//TODO
+	updateBoundingBox();
 }
 
 void Application::togglePerspectiveChanged(bool& value)
