@@ -162,6 +162,8 @@ void Application::setup()
 	groupHSBFillColor.add(SFillColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
 	groupHSBFillColor.add(BFillColorSlider.setup("Brightness", 100.0f, 0.0f, 100.0f));
 
+	groupHSBFillColor.minimize();
+
 	groupDrawOptions.add(&groupHSBFillColor);
 
 	groupDrawOptions.add(RGBAFillColorSlider.setup(colorParam));
@@ -176,6 +178,7 @@ void Application::setup()
 	boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
 
 	groupHSBBoundingBoxColor.setup("HSB color");
+	groupHSBBoundingBoxColor.minimize();
 
 	HBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
 	SBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
@@ -243,7 +246,7 @@ void Application::setup()
 	gui.add(&groupGeometry);
 
 	groupHSBBackgroundColor.setup("HSB color");
-
+	groupHSBBackgroundColor.minimize();
 	HBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 	SBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 	BBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
@@ -1544,32 +1547,58 @@ void Application::rotateZChanged(float& value) {
 }
 
 void Application::scaleXChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setScale(selectedAssets[0], glm::vec3(value, selectedAssets[0]->scale.y, selectedAssets[0]->scale.z));
+
 	updateBoundingBox();
+
+	return;
 }
 
 void Application::scaleYChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, value, selectedAssets[0]->scale.z));
+
 	updateBoundingBox();
+
+	return;
 }
 
 void Application::scaleZChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, selectedAssets[0]->scale.y, value));
+
 	updateBoundingBox();
 }
 
 void Application::growthXChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) {
+		assetManager.setScale(selectedAssets[0], glm::vec3(previousScale.x + value, selectedAssets[0]->scale.y, selectedAssets[0]->scale.z));
+		scaleXField = selectedAssets[0]->scale.x;
+	}
+	if (!isMousePressed) scaleXSlider = 0;
+
 	updateBoundingBox();
+
+	return;
 }
 
 void Application::growthYChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) {
+		assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, previousScale.y + value, selectedAssets[0]->scale.z));
+		scaleYField = selectedAssets[0]->scale.y;
+	}
+	if (!isMousePressed) scaleYSlider = 0;
+
 	updateBoundingBox();
+
+	return;
 }
 
 void Application::growthZChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) {
+		assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, selectedAssets[0]->scale.y, previousScale.z + value));
+		scaleZField = selectedAssets[0]->scale.z;
+	}
+	if (!isMousePressed) scaleZSlider = 0;
+
 	updateBoundingBox();
 }
 
@@ -1580,10 +1609,16 @@ void Application::togglePerspectiveChanged(bool& value)
 
 void Application::toggleOrthoChanged(bool& value)
 {
-	if (value) cameras[activeCamIndex]->enableOrtho();
-	else cameras[activeCamIndex]->disableOrtho();
-
-	togglePerspective = !value;
+	if (value)
+	{
+		cameras[activeCamIndex]->enableOrtho();
+		togglePerspective = false;
+	}
+	else
+	{
+		cameras[activeCamIndex]->disableOrtho();
+		togglePerspective = true;
+	}
 }
 
 void Application::toggleCenterOnSelectionChanged(bool& value)
