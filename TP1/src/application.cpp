@@ -162,6 +162,8 @@ void Application::setup()
 	groupHSBFillColor.add(SFillColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
 	groupHSBFillColor.add(BFillColorSlider.setup("Brightness", 100.0f, 0.0f, 100.0f));
 
+	groupHSBFillColor.minimize();
+
 	groupDrawOptions.add(&groupHSBFillColor);
 
 	groupDrawOptions.add(RGBAFillColorSlider.setup(colorParam));
@@ -176,6 +178,7 @@ void Application::setup()
 	boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
 
 	groupHSBBoundingBoxColor.setup("HSB color");
+	groupHSBBoundingBoxColor.minimize();
 
 	HBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
 	SBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
@@ -243,7 +246,7 @@ void Application::setup()
 	gui.add(&groupGeometry);
 
 	groupHSBBackgroundColor.setup("HSB color");
-
+	groupHSBBackgroundColor.minimize();
 	HBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 	SBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 	BBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
