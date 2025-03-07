@@ -321,7 +321,7 @@ void Application::keyReleased(int key)
 		{
 			activeCamIndex = key - 49;
 
-			lblCamActive = "Camera active: " + ofToString(activeCamIndex + 1) + "\r\nAppuyer sur 1, 2 ou 3 pour changer" ;
+			lblCamActive = "Camera active: " + ofToString(activeCamIndex + 1);
 			cameraSwitchTime = ofGetElapsedTimef();
 
 			togglePerspective = !cameras[activeCamIndex]->getOrtho();
