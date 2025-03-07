@@ -677,6 +677,17 @@ void Application::mouseReleased(int x, int y, int button)
 			{
 				assetManager.setPosition(asset, asset->position + moveVec);
 			}
+
+			if (selectedAssets.size() == 1) {
+				translateXField = selectedAssets[0]->position.x;
+				translateYField = selectedAssets[0]->position.y;
+				translateZField = selectedAssets[0]->position.z;
+				if (!groupTranslation.isMinimized()) {
+					groupTranslation.minimize();
+					groupTranslation.maximize();
+				}
+			}
+
 		}
 
 		updateBoundingBox();
@@ -695,6 +706,8 @@ void Application::mouseReleased(int x, int y, int button)
 
 			resetToggles();
 		}
+
+
 	}
 	else
 	{
@@ -1232,27 +1245,66 @@ void Application::translateZChanged(float& value) {
 }
 
 void Application::angleXChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setRotation(selectedAssets[0], glm::vec3(value, selectedAssets[0]->rotation.y, selectedAssets[0]->rotation.z));
+
+	return;
 }
 
 void Application::angleYChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setRotation(selectedAssets[0], glm::vec3(selectedAssets[0]->rotation.x, value, selectedAssets[0]->rotation.z));
+
+	return;
 }
 
 void Application::angleZChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setRotation(selectedAssets[0], glm::vec3(selectedAssets[0]->rotation.x, selectedAssets[0]->rotation.y, value));
+
+	return;
 }
 
 void Application::rotateXChanged(float& value) {
-	//TODO
+	float val = value;
+	while (previousRotation.x + val < 0.0f || 360.0f < previousRotation.x + val) { //contraindre la valeur de l'angle entre 0 et 360, comme pour les fields
+		if (previousRotation.x + val < 0.0f) val += 360.0f;
+		else if (360.0f < previousRotation.x + val) val -= 360.0f;
+	}
+	if (selectedAssets.size() == 1) {
+		assetManager.setRotation(selectedAssets[0], glm::vec3(previousRotation.x + val, selectedAssets[0]->rotation.y, selectedAssets[0]->rotation.z));
+		rotateXField = selectedAssets[0]->rotation.x;
+	}
+	if (!isMousePressed) rotateXSlider = 0;
+
+	return;
 }
 
 void Application::rotateYChanged(float& value) {
-	//TODO
+	float val = value;
+	while (previousRotation.y + val < 0.0f || 360.0f < previousRotation.y + val) { //contraindre la valeur de l'angle entre 0 et 360, comme pour les fields
+		if (previousRotation.y + val < 0.0f) val += 360.0f;
+		else if (360.0f < previousRotation.y + val) val -= 360.0f;
+	}
+	if (selectedAssets.size() == 1) {
+		assetManager.setRotation(selectedAssets[0], glm::vec3(selectedAssets[0]->rotation.x, previousRotation.y + val, selectedAssets[0]->rotation.z));
+		rotateYField = selectedAssets[0]->rotation.y;
+	}
+	if (!isMousePressed) rotateYSlider = 0;
+
+	return;
 }
 
 void Application::rotateZChanged(float& value) {
-	//TODO
+	float val = value;
+	while (previousRotation.z + val < 0.0f || 360.0f < previousRotation.z + val) { //contraindre la valeur de l'angle entre 0 et 360, comme pour les fields
+		if (previousRotation.z + val < 0.0f) val += 360.0f;
+		else if (360.0f < previousRotation.z + val) val -= 360.0f;
+	}
+	if (selectedAssets.size() == 1) {
+		assetManager.setRotation(selectedAssets[0], glm::vec3(selectedAssets[0]->rotation.x, selectedAssets[0]->rotation.y, previousRotation.z + val));
+		rotateZField = selectedAssets[0]->rotation.z;
+	}
+	if (!isMousePressed) rotateZSlider = 0;
+
+	return;
 }
 
 void Application::scaleXChanged(float& value) {
