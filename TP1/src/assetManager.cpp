@@ -380,9 +380,25 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 	switch (asset->type) {
 	case AssetType::TRIANGLE:
-		asset->p1 = asset->position + glm::rotateX(asset->p1 - asset->position, glm::radians(newRot.x - asset->rotation.x));
-		asset->p1 = asset->position + glm::rotateY(asset->p1 - asset->position, glm::radians(newRot.y - asset->rotation.y));
-		asset->p1 = asset->position + glm::rotateZ(asset->p1 - asset->position, glm::radians(newRot.z - asset->rotation.z));
+		asset->p3 = asset->position + glm::rotateZ(asset->p3 - asset->position, glm::radians(-asset->rotation.z));
+		asset->p3 = asset->position + glm::rotateY(asset->p3 - asset->position, glm::radians(-asset->rotation.y));
+		asset->p3 = asset->position + glm::rotateX(asset->p3 - asset->position, glm::radians(-asset->rotation.x));
+		asset->p2 = asset->position + glm::rotateZ(asset->p2 - asset->position, glm::radians(-asset->rotation.z));
+		asset->p2 = asset->position + glm::rotateY(asset->p2 - asset->position, glm::radians(-asset->rotation.y));
+		asset->p2 = asset->position + glm::rotateX(asset->p2 - asset->position, glm::radians(-asset->rotation.x));
+		asset->p1 = asset->position + glm::rotateZ(asset->p1 - asset->position, glm::radians(-asset->rotation.z));
+		asset->p1 = asset->position + glm::rotateY(asset->p1 - asset->position, glm::radians(-asset->rotation.y));
+		asset->p1 = asset->position + glm::rotateX(asset->p1 - asset->position, glm::radians(-asset->rotation.x));
+
+		asset->p1 = asset->position + glm::rotateX(asset->p1 - asset->position, glm::radians(newRot.x));
+		asset->p1 = asset->position + glm::rotateY(asset->p1 - asset->position, glm::radians(newRot.y));
+		asset->p1 = asset->position + glm::rotateZ(asset->p1 - asset->position, glm::radians(newRot.z));
+		asset->p2 = asset->position + glm::rotateX(asset->p2 - asset->position, glm::radians(newRot.x));
+		asset->p2 = asset->position + glm::rotateY(asset->p2 - asset->position, glm::radians(newRot.y));
+		asset->p2 = asset->position + glm::rotateZ(asset->p2 - asset->position, glm::radians(newRot.z));
+		asset->p3 = asset->position + glm::rotateX(asset->p3 - asset->position, glm::radians(newRot.x));
+		asset->p3 = asset->position + glm::rotateY(asset->p3 - asset->position, glm::radians(newRot.y));
+		asset->p3 = asset->position + glm::rotateZ(asset->p3 - asset->position, glm::radians(newRot.z));
 		asset->rotation = newRot;
 	case AssetType::MODEL:
 		if (newRot.x != asset->rotation.x) {
