@@ -956,9 +956,16 @@ void Application::RGBADrawColorChanged(ofColor& value)
 		S = (S / 255.0f) * 100.0f;
 		B = (B / 255.0f) * 100.0f;
 
+		bool maximize = !groupHSBFillColor.isMinimized();
+
 		HFillColorSlider.setup("Hue", H, 0.0f, 360.0f);
 		SFillColorSlider.setup("Saturation", S, 0.0f, 100.0f);
 		BFillColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+		if (maximize)
+		{
+			groupHSBFillColor.maximize();
+		}
 
 		changedColor = false;
 	}
@@ -980,9 +987,16 @@ void Application::HSBDrawColorChanged(float& value)
 
 	if (dynamicColor)
 	{
+		bool maximize = !RGBAFillColorSlider.isMinimized();
+		
 		ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", color, ofColor(0, 0), ofColor(255, 255));
 		colorParam.addListener(this, &Application::RGBADrawColorChanged);
 		RGBAFillColorSlider.setup(colorParam);
+
+		if (maximize)
+		{
+			RGBAFillColorSlider.maximize();
+		}
 	}
 
 	RGBADrawColorChanged(color);
@@ -1011,9 +1025,16 @@ void Application::RGBABoundingBoxColorChanged(ofColor& value)
 		S = (S / 255.0f) * 100.0f;
 		B = (B / 255.0f) * 100.0f;
 
+		bool maximize = !groupHSBBoundingBoxColor.isMinimized();
+
 		HBoundingBoxColorSlider.setup("Hue", H, 0.0f, 360.0f);
 		SBoundingBoxColorSlider.setup("Saturation", S, 0.0f, 100.0f);
 		BBoundingBoxColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+		if (maximize)
+		{
+			groupHSBBoundingBoxColor.maximize();
+		}
 
 		changedColor = false;
 	}
@@ -1034,9 +1055,16 @@ void Application::HSBBoundingBoxColorChanged(float& value)
 
 	if (dynamicColor)
 	{
+		bool maximize = !RGBABoundingBoxColorSlider.isMinimized();
+
 		ofParameter<ofColor> boundingBoxColorParam = ofParameter<ofColor>("Couleur", color, ofColor(0, 0), ofColor(255, 255));
 		boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
 		RGBABoundingBoxColorSlider.setup(boundingBoxColorParam);
+
+		if (maximize)
+		{
+			RGBABoundingBoxColorSlider.maximize();
+		}
 	}
 
 	RGBABoundingBoxColorChanged(color);
@@ -1065,9 +1093,16 @@ void Application::RGBABackgroundColorChanged(ofColor& value)
 		S = (S / 255.0f) * 100.0f;
 		B = (B / 255.0f) * 100.0f;
 
+		bool maximize = !groupHSBBackgroundColor.isMinimized();
+
 		HBackgroundColorSlider.setup("Hue", H, 0.0f, 360.0f);
 		SBackgroundColorSlider.setup("Saturation", S, 0.0f, 100.0f);
 		BBackgroundColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+		if (maximize)
+		{
+			groupHSBBackgroundColor.maximize();
+		}
 
 		changedColor = false;
 	}
@@ -1088,9 +1123,16 @@ void Application::HSBBackgroundColorChanged(float& value)
 
 	if (dynamicColor)
 	{
+		bool maximize = !RGBABackgroundColorSlider.isMinimized();
+
 		ofParameter<ofColor> backgroundColorParam = ofParameter<ofColor>("Arriere-Plan", color, ofColor(0, 0), ofColor(255, 255));
 		backgroundColorParam.addListener(this, &Application::RGBABackgroundColorChanged);
 		RGBABackgroundColorSlider.setup(backgroundColorParam);
+
+		if (maximize)
+		{
+			RGBABackgroundColorSlider.maximize();
+		}
 	}
 
 	RGBABackgroundColorChanged(color);
