@@ -203,16 +203,40 @@ void AssetManager::draw()
 			asset.image.draw(asset.position.x, asset.position.y, asset.position.z);
 			break;
 		case AssetType::RECTANGLE:
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawRectangle(asset.position.x, asset.position.y, asset.position.z, asset.width, asset.height);
+			ofPopMatrix();
 			break;
 		case AssetType::CIRCLE:
 			ofSetCircleResolution(100);
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawCircle(asset.position.x, asset.position.y, asset.position.z, asset.radius);
+			ofPopMatrix();
 			break;
 		case AssetType::ELLIPSE:
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawEllipse(asset.position, asset.width, asset.height);
 			break;
 		case AssetType::LINE:
+			ofTranslate(asset.position);
+			ofRotateXDeg(asset.rotation.x);
+			ofRotateYDeg(asset.rotation.y);
+			ofRotateZDeg(asset.rotation.z);
+			ofTranslate(-asset.position);
 			ofDrawLine(asset.position, asset.endpoint);
 			break;
 		case AssetType::TRIANGLE:
@@ -402,13 +426,10 @@ void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 		asset->rotation = newRot;
 		break;
 	case AssetType::RECTANGLE:
-		break;
 	case AssetType::CIRCLE:
-		break;
 	case AssetType::ELLIPSE:
-		break;
 	case AssetType::LINE:
-		break;
+		asset->rotation = newRot;
 	case AssetType::MODEL:
 		if (newRot.x != asset->rotation.x) {
 			asset->model.setRotation(0, newRot.x, 1, 0, 0);
