@@ -150,7 +150,6 @@ void Application::setup()
 	groupDrawOptions.add(lineWidth.setup("Epaisseur", 1, 1, 10));
 
 	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255));
-
 	colorParam.addListener(this, &Application::RGBADrawColorChanged);
 
 	groupHSBFillColor.setup("HSB color");
@@ -926,10 +925,36 @@ void Application::RGBADrawColorChanged(ofColor& value)
 	{
 		asset->color = value;
 	}
+
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	float H;
+	float S;
+	float B;
+
+	value.getHsb(H, S, B);
+
+	H = (H / 255.0f) * 360.0f;
+	S = (S / 255.0f) * 100.0f;
+	B = (B / 255.0f) * 100.0f;
+
+	HFillColorSlider.setup("Hue", H, 0.0f, 360.0f);
+	SFillColorSlider.setup("Saturation", S, 0.0f, 100.0f);
+	BFillColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+	changedColor = false;
 }
 
 void Application::HSBDrawColorChanged(float& value)
 {
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
 	ofColor color = ofColor::fromHsb(
 		ofMap(HFillColorSlider, 0, 360, 0, 255),
 		ofMap(SFillColorSlider, 0, 100, 0, 255),
@@ -937,44 +962,111 @@ void Application::HSBDrawColorChanged(float& value)
 		255
 	);
 
+	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", color, ofColor(0, 0), ofColor(255, 255));
+	colorParam.addListener(this, &Application::RGBADrawColorChanged);
+
+	RGBAFillColorSlider.setup(colorParam);
+
 	RGBADrawColorChanged(color);
+
+	changedColor = false;
 }
 
 void Application::RGBABoundingBoxColorChanged(ofColor& value)
 {
 	assetManager.boundingBox.color = value;
+
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	float H;
+	float S;
+	float B;
+
+	value.getHsb(H, S, B);
+
+	H = (H / 255.0f) * 360.0f;
+	S = (S / 255.0f) * 100.0f;
+	B = (B / 255.0f) * 100.0f;
+
+	HBoundingBoxColorSlider.setup("Hue", H, 0.0f, 360.0f);
+	SBoundingBoxColorSlider.setup("Saturation", S, 0.0f, 100.0f);
+	BBoundingBoxColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+	changedColor = false;
 }
 
 void Application::HSBBoundingBoxColorChanged(float& value)
 {
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
 	ofColor color = ofColor::fromHsb(
 		ofMap(HBoundingBoxColorSlider, 0, 360, 0, 255),
 		ofMap(SBoundingBoxColorSlider, 0, 100, 0, 255),
 		ofMap(BBoundingBoxColorSlider, 0, 100, 0, 255)
 	);
 
+	ofParameter<ofColor> boundingBoxColorParam = ofParameter<ofColor>("Couleur", color, ofColor(0, 0), ofColor(255, 255));
+	boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
+
+	RGBABoundingBoxColorSlider.setup(boundingBoxColorParam);
+
 	RGBABoundingBoxColorChanged(color);
+
+	changedColor = false;
 }
 
 void Application::RGBABackgroundColorChanged(ofColor& value)
 {
 	backgroundColor = value;
+
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	float H;
+	float S;
+	float B;
+
+	value.getHsb(H, S, B);
+
+	H = (H / 255.0f) * 360.0f;
+	S = (S / 255.0f) * 100.0f;
+	B = (B / 255.0f) * 100.0f;
+
+	HBackgroundColorSlider.setup("Hue", H, 0.0f, 360.0f);
+	SBackgroundColorSlider.setup("Saturation", S, 0.0f, 100.0f);
+	BBackgroundColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+	changedColor = false;
 }
 
 void Application::HSBBackgroundColorChanged(float& value)
 {
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
 	ofColor color = ofColor::fromHsb(
 		ofMap(HBackgroundColorSlider, 0, 360, 0, 255),
 		ofMap(SBackgroundColorSlider, 0, 100, 0, 255),
 		ofMap(BBackgroundColorSlider, 0, 100, 0, 255)
 	);
 
-	RGBABackgroundColorChanged(color);
-}
+	ofParameter<ofColor> backgroundColorParam = ofParameter<ofColor>("Arriere-Plan", color, ofColor(0, 0), ofColor(255, 255));
+	backgroundColorParam.addListener(this, &Application::RGBABackgroundColorChanged);
+	RGBABackgroundColorSlider.setup(backgroundColorParam);
 
-void Application::boundingBoxLineWidthChanged(int& value)
-{
-	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
+	RGBABackgroundColorChanged(color);
+
+	changedColor = false;
 }
 
 //--------------------------------------------------------------
@@ -984,6 +1076,11 @@ void Application::lineWidthChanged(int& value)
 	{
 		asset->lineWidth = lineWidth;
 	}
+}
+
+void Application::boundingBoxLineWidthChanged(int& value)
+{
+	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
 }
 
 //--------------------------------------------------------------

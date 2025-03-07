@@ -327,6 +327,8 @@ public:
 	glm::vec3 previousRotation;
 	glm::vec3 previousScale;
 
+	bool changedColor;
+
 	void setCameraTargetOnSelectedAssets(bool value);
 	bool isDrawing();
 	bool isInGui(int x, int y);
