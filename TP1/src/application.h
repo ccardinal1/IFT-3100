@@ -286,6 +286,10 @@ public:
 	bool screenshot = false;
 	bool cameraMode = false;
 	int imageIndex = 0;
+	bool isMousePressed = false;
+	glm::vec3 previousPosition;
+	glm::vec3 previousRotation;
+	glm::vec3 previousScale;
 
 	void setCameraTargetOnSelectedAssets(bool value);
 	bool isDrawing();
