@@ -670,13 +670,15 @@ void Application::mouseReleased(int x, int y, int button)
 		}
 		else if (!selectedAssets.empty())
 		{
+			std::cout << x << std::endl;
+
 			glm::vec3 moveVec = cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }) - assetPosition;
 
 			for (Asset* asset : selectedAssets)
 			{
 				assetManager.setPosition(asset, asset->position + moveVec);
 			}
-		}
+		}//
 
 		if (asset != nullptr)
 		{
@@ -1305,11 +1307,14 @@ void Application::dragEvent(ofDragInfo dragInfo)
 	for (int i = 0; i < dragInfo.files.size(); i++)
 	{
 		string imageName = "imported_image_" + std::to_string(importedImageCount + i);
-		assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
+		Asset* asset = assetManager.addImage(imageName, dragInfo.files[i], { dragInfo.position.x, dragInfo.position.y, 0 });
 
 		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup("Image", true));
 		assetsButtons[imageName] = button;
+
+		asset->isSelected = true;
+		selectedAssets.push_back(asset);
 	}
 }
 

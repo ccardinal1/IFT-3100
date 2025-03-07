@@ -15,8 +15,6 @@ Asset* AssetManager::addImage(const std::string& name, const std::string& path, 
 	asset.position = pos;
 	asset.rotation = glm::vec3(0, 0, 0);
 	asset.scale = glm::vec3(1, 1, 1);
-
-	asset.position = pos;
 	asset.width = asset.image.getWidth();
 	asset.height = asset.image.getHeight();
 	asset.depth = 0;
@@ -228,7 +226,6 @@ void AssetManager::draw()
 			}
 			break;
 		case AssetType::MODEL:
-			//ofLog(OF_LOG_NOTICE, "draw model pos: " + ofToString(asset.model.getPosition()));
 			asset.model.setPosition(asset.position.x, asset.position.y, asset.position.z);
 			asset.model.drawFaces();
 		}
@@ -256,6 +253,7 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 				{
 					return &asset;
 				}
+
 				break;
 			}
 			case AssetType::RECTANGLE:
@@ -265,15 +263,18 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 				{
 					return &asset;
 				}
+
 				break;
 			}
 			case AssetType::CIRCLE:
 			{
 				float dist = glm::distance(point, asset.position);
+
 				if (dist <= asset.radius)
 				{
 					return &asset;
 				}
+
 				break;
 			}
 			case AssetType::ELLIPSE:
@@ -283,15 +284,18 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 				{
 					return &asset;
 				}
+
 				break;
 			}
 			case AssetType::LINE:
 			{
 				float d = glm::distance(point, glm::mix(asset.position, asset.endpoint, glm::clamp(glm::dot(point - asset.position, asset.endpoint - asset.position) / glm::dot(asset.endpoint - asset.position, asset.endpoint - asset.position), 0.0f, 1.0f)));
+				
 				if (d < 5.0f)
 				{
 					return &asset;
 				}
+
 				break;				
 			}
 			case AssetType::TRIANGLE:
@@ -301,6 +305,7 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 				{
 					return &asset;
 				}
+
 				break;
 			}
 			case AssetType::CUBE:
@@ -324,7 +329,6 @@ Asset* AssetManager::getAsset(glm::vec3 point)
 				}
 
 				break;
-
 			}
 		}
 	}
@@ -363,11 +367,6 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 		{
 			asset->position = newPos;
 			asset->geometryPrimitive.setPosition(newPos);
-			break;
-		}
-		case AssetType::MODEL:
-		{
-			asset->position = newPos;
 			break;
 		}
 		default:

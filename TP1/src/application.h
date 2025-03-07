@@ -297,8 +297,8 @@ public:
 
 	void exportImage();
 
-	const HCURSOR PEN = LoadCursorFromFile(L"../assets/aero_pen.cur");
-	const HCURSOR CAM = LoadCursorFromFile(L"../assets/grab.cur");
+	const HCURSOR PEN = LoadCursorFromFile(L"../bin/data/cursors/aero_pen.cur");
+	const HCURSOR CAM = LoadCursorFromFile(L"../bin/data/cursors/grab.cur");
 
 	const glm::vec3 DEFAULT_CAM_POS = glm::vec3(0, 0, 779);
 };
