@@ -82,7 +82,7 @@ void Application::setup()
 	cameraPanel.setWidthElements(220);
 	cameraPanel.setPosition(ofGetWindowWidth() - cameraPanel.getWidth() - 10, assetsPanel.getPosition().y + assetsPanel.getHeight() + 500);
 
-	objectPanel.setup("Item(s) selectionne(s)");
+	objectPanel.setup("Item Selectionne");
 	objectPanel.setPosition(assetsPanel.getPosition().x - assetsPanel.getWidth() - 10, assetsPanel.getPosition().y);
 	
 	cameraPanel.add(lblCamActive.setup("", "Camera active: 1"));
@@ -147,15 +147,15 @@ void Application::setup()
 	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255));
 	colorParam.addListener(this, &Application::RGBADrawColorChanged);
 
-	groupHSBFillColor.setup("HSB color");
+	groupHSBFillColor.setup("Couleur HSB");
 
 	HFillColorSlider.addListener(this, &Application::HSBDrawColorChanged);
 	SFillColorSlider.addListener(this, &Application::HSBDrawColorChanged);
 	BFillColorSlider.addListener(this, &Application::HSBDrawColorChanged);
 
-	groupHSBFillColor.add(HFillColorSlider.setup("Hue", 0.0f, 0.0f, 360.0f));
+	groupHSBFillColor.add(HFillColorSlider.setup("Teinte", 0.0f, 0.0f, 360.0f));
 	groupHSBFillColor.add(SFillColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
-	groupHSBFillColor.add(BFillColorSlider.setup("Brightness", 100.0f, 0.0f, 100.0f));
+	groupHSBFillColor.add(BFillColorSlider.setup("Luminosite", 100.0f, 0.0f, 100.0f));
 
 	groupHSBFillColor.minimize();
 
@@ -172,16 +172,16 @@ void Application::setup()
 	ofParameter<ofColor> boundingBoxColorParam = ofParameter<ofColor>("Couleur", ofColor(255, 0, 0), ofColor(0, 0), ofColor(255, 255));
 	boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
 
-	groupHSBBoundingBoxColor.setup("HSB color");
+	groupHSBBoundingBoxColor.setup("Couleur HSB");
 	groupHSBBoundingBoxColor.minimize();
 
 	HBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
 	SBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
 	BBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
 
-	groupHSBBoundingBoxColor.add(HBoundingBoxColorSlider.setup("Hue", 0.0f, 0.0f, 360.0f));
+	groupHSBBoundingBoxColor.add(HBoundingBoxColorSlider.setup("Teinte", 0.0f, 0.0f, 360.0f));
 	groupHSBBoundingBoxColor.add(SBoundingBoxColorSlider.setup("Saturation", 100.0f, 0.0f, 100.0f));
-	groupHSBBoundingBoxColor.add(BBoundingBoxColorSlider.setup("Brightness", 100.0f, 0.0f, 100.0f));
+	groupHSBBoundingBoxColor.add(BBoundingBoxColorSlider.setup("Luminosite", 100.0f, 0.0f, 100.0f));
 
 	groupDrawBoundingBox.add(&groupHSBBoundingBoxColor);
 	groupDrawBoundingBox.add(RGBABoundingBoxColorSlider.setup(boundingBoxColorParam));
@@ -235,15 +235,15 @@ void Application::setup()
 	gui.add(&groupDraw);
 	gui.add(&groupGeometry);
 
-	groupHSBBackgroundColor.setup("HSB color");
+	groupHSBBackgroundColor.setup("Couleur HSB");
 	groupHSBBackgroundColor.minimize();
 	HBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 	SBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 	BBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
 
-	groupHSBBackgroundColor.add(HBackgroundColorSlider.setup("Hue", 0.0f, 0.0f, 360.0f));
+	groupHSBBackgroundColor.add(HBackgroundColorSlider.setup("Teinte", 0.0f, 0.0f, 360.0f));
 	groupHSBBackgroundColor.add(SBackgroundColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
-	groupHSBBackgroundColor.add(BBackgroundColorSlider.setup("Brightness", 39.0f, 0.0f, 100.0f));
+	groupHSBBackgroundColor.add(BBackgroundColorSlider.setup("Luminosite", 39.0f, 0.0f, 100.0f));
 
 	gui.add(&groupHSBBackgroundColor);
 
