@@ -1405,7 +1405,7 @@ void Application::histogramButtonPressed()
 	if (!histogramWindowApplication || histogramWindowApplication->isClosed)
 	{
 		ofGLWindowSettings settings;
-		settings.setSize(1000, 300);
+		settings.setSize(500, 300);
 		settings.title = "Histogramme";
 
 		histogramWindow = ofCreateWindow(settings);
