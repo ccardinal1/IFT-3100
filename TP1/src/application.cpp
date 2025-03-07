@@ -1549,10 +1549,15 @@ void Application::togglePerspectiveChanged(bool& value)
 
 void Application::toggleOrthoChanged(bool& value)
 {
-	if (value) cameras[activeCamIndex]->enableOrtho();
-	else cameras[activeCamIndex]->disableOrtho();
-
-	togglePerspective = !value;
+	if (value)
+	{
+		cameras[activeCamIndex]->enableOrtho();
+	}
+	else
+	{
+		cameras[activeCamIndex]->disableOrtho();
+		togglePerspective = !value;
+	}
 }
 
 void Application::toggleCenterOnSelectionChanged(bool& value)
