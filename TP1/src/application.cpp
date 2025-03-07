@@ -704,12 +704,11 @@ void Application::mouseReleased(int x, int y, int button)
 			resetToggles();
 		}
 
-		else{
-			clickedInUi = false;
-		}
-
 		updateBoundingBox();
+	}
 
+	else {
+		clickedInUi = false;
 	}
 }
 
