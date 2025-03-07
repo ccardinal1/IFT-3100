@@ -378,7 +378,8 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 }
 
 void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
-	//TODO
+	asset->geometryPrimitive.setOrientation(newRot);
+	asset->rotation = newRot;
 }
 
 void AssetManager::setScale(Asset* asset, glm::vec3 newSca) {
