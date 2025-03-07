@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Item_s__selectionne_s_>
+	<Translation>
+		<Position_X>-155.663</Position_X>
+		<Position_Y>227.711</Position_Y>
+		<Position_Z>-0.00297168</Position_Z>
+		<Translation_X>0</Translation_X>
+		<Translation_Y>0</Translation_Y>
+		<Translation_Z>0</Translation_Z>
+	</Translation>
+	<Rotation>
+		<Angle_X>0</Angle_X>
+		<Angle_Y>0</Angle_Y>
+		<Angle_Z>0</Angle_Z>
+		<Rotation_X>0</Rotation_X>
+		<Rotation_Y>0</Rotation_Y>
+		<Rotation_Z>0</Rotation_Z>
+	</Rotation>
+	<Echelle>
+		<Echelle_X>1</Echelle_X>
+		<Echelle_Y>1</Echelle_Y>
+		<Echelle_Z>1</Echelle_Z>
+		<Agrand__X>0</Agrand__X>
+		<Agrand__Y>0</Agrand__Y>
+		<Agrand__Z>0</Agrand__Z>
+	</Echelle>
+</Item_s__selectionne_s_>

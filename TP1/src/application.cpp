@@ -1309,6 +1309,25 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 
 			break;
 		}
+		case AssetType::INSTANCE:
+		{
+			Asset inst;
+			inst.type = asset->parent->type;
+			inst.image = asset->image;
+			inst.position = asset->position;
+			inst.rotation = asset->rotation;
+			inst.scale = asset->scale;
+			inst.width = asset->width;
+			inst.height = asset->height;
+			inst.depth = asset->depth;
+			inst.radius = asset->radius;
+			inst.endpoint = asset->endpoint;
+			inst.p1 = asset->p1;
+			inst.p2 = asset->p2;
+			inst.p3 = asset->p3;
+
+			return getExtremePos(&inst);
+		}
 	}
 
 	extremes.push_back({ minX, minY, minZ });
@@ -1762,6 +1781,8 @@ void Application::instanceButtonPressed() {
 
 		resetToggles();
 	}
+
+	updateBoundingBox();
 }
 
 //--------------------------------------------------------------

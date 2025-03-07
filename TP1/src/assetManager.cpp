@@ -189,6 +189,9 @@ Asset* AssetManager::addInstance(Asset& original) {
 	asset.name = original.name + "-" + std::to_string(original.instances.size());
 	asset.type = AssetType::INSTANCE;
 	asset.position = glm::vec3(0, 0, 0);
+	asset.width = original.width;
+	asset.height = original.height;
+	asset.depth = original.depth;
 	asset.rotation = glm::vec3(0, 0, 0);
 	asset.scale = glm::vec3(1, 1, 1);
 	asset.parent = &original;
