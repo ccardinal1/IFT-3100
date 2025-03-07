@@ -1552,11 +1552,12 @@ void Application::toggleOrthoChanged(bool& value)
 	if (value)
 	{
 		cameras[activeCamIndex]->enableOrtho();
+		togglePerspective = false;
 	}
 	else
 	{
 		cameras[activeCamIndex]->disableOrtho();
-		togglePerspective = !value;
+		togglePerspective = true;
 	}
 }
 
