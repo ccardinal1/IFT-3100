@@ -5,13 +5,14 @@ Asset* AssetManager::addImage(const std::string& name, const std::string& path, 
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::IMAGE;
+
 	if (!asset.image.load(path))
 	{
 		ofLogError() << "Impossible de charger l'image: " << path;
 		return nullptr;
 	}
-	asset.position = pos;
 
+	asset.position = pos;
 	asset.width = asset.image.getWidth();
 	asset.height = asset.image.getHeight();
 	asset.depth = 0;
@@ -68,7 +69,7 @@ Asset* AssetManager::addEllipse(const std::string& name, glm::vec3 pos, float wi
 	return &asset;
 }
 
-Asset* AssetManager::addLine(const std::string& name, glm::vec3 start, glm::vec3 end, int lineWidth, ofColor color, bool isFilled)
+Asset* AssetManager::addLine(const std::string& name, glm::vec3 start, glm::vec3 end, int lineWidth, ofColor color)
 {
 	Asset& asset = assets[name];
 	asset.name = name;
@@ -80,7 +81,6 @@ Asset* AssetManager::addLine(const std::string& name, glm::vec3 start, glm::vec3
 	asset.depth = asset.endpoint.z - asset.position.z;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
-	asset.isFilled = isFilled;
 
 	return &asset;
 }
@@ -154,10 +154,11 @@ Asset* AssetManager::add3dModel(const std::string& name, glm::vec3 pos, string p
 	Asset& asset = assets[name];
 	asset.name = name;
 	asset.type = AssetType::MODEL;
-	asset.position = pos;
+
 	asset.model.loadModel(path);
 	asset.model.enableMaterials();
 
+	asset.position = pos;
 	asset.model.setPosition(pos.x, pos.y, pos.z);
 
 	return &asset;
@@ -178,14 +179,14 @@ void AssetManager::draw()
 		switch (asset.type)
 		{
 		case AssetType::IMAGE:
-			asset.image.draw(asset.position.x, asset.position.y);
+			asset.image.draw(asset.position.x, asset.position.y, asset.position.z);
 			break;
 		case AssetType::RECTANGLE:
-			ofDrawRectangle(asset.position.x, asset.position.y, asset.width, asset.height);
+			ofDrawRectangle(asset.position.x, asset.position.y, asset.position.z, asset.width, asset.height);
 			break;
 		case AssetType::CIRCLE:
 			ofSetCircleResolution(100);
-			ofDrawCircle(asset.position.x, asset.position.y, asset.radius);
+			ofDrawCircle(asset.position.x, asset.position.y, asset.position.z, asset.radius);
 			break;
 		case AssetType::ELLIPSE:
 			ofDrawEllipse(asset.position, asset.width, asset.height);
