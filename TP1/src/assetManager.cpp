@@ -184,6 +184,20 @@ Asset* AssetManager::add3dModel(const std::string& name, glm::vec3 pos, string p
 	return &asset;
 }
 
+Asset* AssetManager::addInstance(Asset& original) {
+	Asset& asset = assets[original.name + "-" + std::to_string(original.instances.size())];
+	asset.name = original.name + "-" + std::to_string(original.instances.size());
+	asset.type = AssetType::INSTANCE;
+	asset.position = glm::vec3(0, 0, 0);
+	asset.rotation = glm::vec3(0, 0, 0);
+	asset.scale = glm::vec3(1, 1, 1);
+	asset.parent = &original;
+	asset.isFilled = asset.parent->isFilled;
+	original.instances[original.instances.size()] = &asset;
+
+	return &asset;
+}
+
 void AssetManager::draw()
 {
 	for (auto& [name, asset] : assets)
@@ -279,6 +293,91 @@ void AssetManager::draw()
 			ofTranslate(-asset.position);
 			asset.model.drawFaces();
 			ofPopMatrix();
+			break;
+		case AssetType::INSTANCE:
+			switch (asset.parent->type) {
+			case AssetType::IMAGE:
+				asset.parent->image.draw(asset.position.x, asset.position.y, asset.position.z);
+				break;
+			case AssetType::RECTANGLE:
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofDrawRectangle(asset.position.x, asset.position.y, asset.position.z, asset.parent->width, asset.parent->height);
+				ofPopMatrix();
+				break;
+			case AssetType::CIRCLE:
+				ofSetCircleResolution(100);
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofDrawCircle(asset.position.x, asset.position.y, asset.position.z, asset.parent->radius);
+				ofPopMatrix();
+				break;
+			case AssetType::ELLIPSE:
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofDrawEllipse(asset.position, asset.parent->width, asset.parent->height);
+				ofPopMatrix();
+				break;
+			case AssetType::LINE:
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofTranslate(-asset.parent->position);
+				ofDrawLine(asset.parent->position, asset.parent->endpoint);
+				ofPopMatrix();
+				break;
+			case AssetType::TRIANGLE:
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofTranslate(-asset.parent->position);
+				ofDrawTriangle(asset.parent->p1, asset.parent->p2, asset.parent->p3);
+				ofPopMatrix();
+				break;
+			case AssetType::CUBE:
+			case AssetType::SPHERE:
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofTranslate(-asset.parent->position);
+				if (asset.isFilled) asset.parent->geometryPrimitive.drawFaces();
+				else asset.parent->geometryPrimitive.drawWireframe();
+				ofPopMatrix();
+				break;
+			case AssetType::MODEL:
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				ofTranslate(-asset.parent->position);
+				asset.parent->model.drawFaces();
+				ofPopMatrix();
+				break;
+			}
+			break;
 		}
 	}
 
@@ -431,6 +530,7 @@ void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 	case AssetType::CIRCLE:
 	case AssetType::ELLIPSE:
 	case AssetType::LINE:
+	case AssetType::INSTANCE:
 		asset->rotation = newRot;
 		break;
 	case AssetType::MODEL:
