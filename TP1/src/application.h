@@ -165,6 +165,7 @@ public:
 
 	ofxButton2 deleteButton;
 	std::unordered_map<std::string, std::shared_ptr<ofxToggle2>> assetsButtons;
+	ofxButton2 instanceButton;
 
 	ofxFloatSlider2 HFillColorSlider;
 	ofxFloatSlider2 SFillColorSlider;
@@ -306,6 +307,7 @@ public:
 	void resetButtonPressed();
 	void histogramButtonPressed();
 	void deleteButtonPressed();
+	void instanceButtonPressed();
 
 	void resetToggles();
 	void clearSelectedAssets();

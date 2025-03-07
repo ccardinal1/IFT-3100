@@ -11,7 +11,8 @@ enum class AssetType {
     TRIANGLE,
     CUBE,
     SPHERE,
-    MODEL
+    MODEL,
+    INSTANCE
 };
 
 struct Asset {
@@ -23,6 +24,8 @@ struct Asset {
     glm::vec3 rotation;
     glm::vec3 scale;
     ofxAssimpModelLoader model;
+    std::map<int, Asset*> instances;
+    Asset* parent;
 
     float width, height, radius, depth;
     int lineWidth;
@@ -46,6 +49,8 @@ public:
     Asset* addSphere(const std::string& name, glm::vec3 pos, float size, int lineWidth, ofColor color, bool isFilled);
 
     Asset* add3dModel(const std::string& name, glm::vec3 pos, string path);
+
+    Asset* addInstance(Asset& original);
 
 	void draw();
 

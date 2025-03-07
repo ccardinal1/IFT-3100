@@ -26,6 +26,7 @@ void Application::setup()
 	pointerGuiButtonElements.push_back(&resetButton);
 	pointerGuiButtonElements.push_back(&histogramButton);
 	pointerGuiButtonElements.push_back(&deleteButton);
+	pointerGuiButtonElements.push_back(&instanceButton);
 
 	pointerGuiToggleElements.push_back(&toggleDrawLine);
 	pointerGuiToggleElements.push_back(&toggleDrawRectangle);
@@ -92,6 +93,7 @@ void Application::setup()
 	resetButton.addListener(this, &Application::resetButtonPressed);
 	histogramButton.addListener(this, &Application::histogramButtonPressed);
 	deleteButton.addListener(this, &Application::deleteButtonPressed);
+	instanceButton.addListener(this, &Application::instanceButtonPressed);
 	toggleDrawFill.addListener(this, &Application::isFilledToggleChanged);
 	lineWidth.addListener(this, &Application::lineWidthChanged);
 	boundingBoxLineWidth.addListener(this, &Application::boundingBoxLineWidthChanged);
@@ -267,6 +269,7 @@ void Application::setup()
 
 	assetsPanel.add(deleteButton.setup("Supprimer"));
 
+	objectPanel.add(instanceButton.setup("Instancer"));
 	objectPanel.add(&groupTranslation);
 	objectPanel.add(&groupRotation);
 	objectPanel.add(&groupScale);
@@ -1641,6 +1644,16 @@ void Application::deleteButtonPressed()
 
 		if (button && *button)
 		{
+			if(assetManager.assets[key].type == AssetType::INSTANCE)
+				assetManager.assets[key].parent->instances.erase(assetManager.assets[key].name[assetManager.assets[key].name.length()]); //vérifié sans problème de erase 2 fois
+			else if (assetManager.assets[key].type != AssetType::INSTANCE && assetManager.assets[key].instances.size() > 0) {
+				int numInstances = assetManager.assets[key].instances.size();
+				for (int i = 0; i < numInstances; i++) {
+					assetManager.assets.erase(assetManager.assets[key].name + "-" + std::to_string(i));
+					buttonsToRemove.push_back(assetManager.assets[key].name + "-" + std::to_string(i));
+				}
+				assetManager.assets[key].instances.clear();
+			}
 			assetManager.deleteAsset(key);
 			buttonsToRemove.push_back(key);
 		}
@@ -1658,6 +1671,25 @@ void Application::deleteButtonPressed()
 	bool tmp = true;
 	selectedAssetChanged(tmp);
 	updateBoundingBox();
+}
+
+void Application::instanceButtonPressed() {
+	if (selectedAssets[0]->type == AssetType::INSTANCE) return;
+	else {
+		Asset* asset = assetManager.addInstance(*selectedAssets[0]);
+		string buttonName = asset->name;
+		auto button = std::make_shared<ofxToggle2>();
+		assetsPanel.add(button.get()->setup(buttonName, true));
+		button->addListener(this, &Application::selectedAssetChanged);
+		assetsButtons[asset->name] = button;
+		
+		asset->isSelected = true;
+		bool tmp = true;
+		selectedAssets.push_back(asset);
+		selectedAssetChanged(tmp);
+
+		resetToggles();
+	}
 }
 
 //--------------------------------------------------------------
