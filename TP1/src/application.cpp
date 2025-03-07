@@ -1515,15 +1515,31 @@ void Application::scaleZChanged(float& value) {
 }
 
 void Application::growthXChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) {
+		assetManager.setScale(selectedAssets[0], glm::vec3(previousScale.x + value, selectedAssets[0]->scale.y, selectedAssets[0]->scale.z));
+		scaleXField = selectedAssets[0]->scale.x;
+	}
+	if (!isMousePressed) scaleXSlider = 0;
+
+	return;
 }
 
 void Application::growthYChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) {
+		assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, previousScale.y + value, selectedAssets[0]->scale.z));
+		scaleYField = selectedAssets[0]->scale.y;
+	}
+	if (!isMousePressed) scaleYSlider = 0;
+
+	return;
 }
 
 void Application::growthZChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) {
+		assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, selectedAssets[0]->scale.y, previousScale.z + value));
+		scaleZField = selectedAssets[0]->scale.z;
+	}
+	if (!isMousePressed) scaleZSlider = 0;
 }
 
 void Application::togglePerspectiveChanged(bool& value)
