@@ -108,6 +108,7 @@ Asset* AssetManager::addTriangle(const std::string& name, glm::vec3 p1, glm::vec
 	asset.p3 = p3;
 	asset.width = p2.x - p3.x;
 	asset.height = p1.y - p2.y;
+	asset.position.y -= asset.height;
 	asset.depth = 0;
 	asset.color = color;
 	asset.lineWidth = lineWidth;
@@ -345,13 +346,9 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 	{
 		case AssetType::TRIANGLE:
 		{
-			int width = std::max(asset->p2.x, asset->p3.x) - std::min(asset->p2.x, asset->p3.x);
-			int height = std::max(asset->p1.y, asset->p2.y) - std::min(asset->p1.y, asset->p2.y);
-			int depth = 0;
-
-			asset->p1 = newPos;
-			asset->p2 = { newPos.x - width * 0.5f, newPos.y + height, depth };
-			asset->p3 = { newPos.x + width * 0.5f, newPos.y + height, depth };
+			asset->p1 = {asset->p1.x - asset->position.x + newPos.x, asset->p1.y - asset->position.y + newPos.y, asset->p1.z - asset->position.z + newPos.z};
+			asset->p2 = {asset->p2.x - asset->position.x + newPos.x, asset->p2.y - asset->position.y + newPos.y, asset->p2.z - asset->position.z + newPos.z};
+			asset->p3 = {asset->p3.x - asset->position.x + newPos.x, asset->p3.y - asset->position.y + newPos.y, asset->p3.z - asset->position.z + newPos.z};
 
 			asset->position = newPos;
 			break;
@@ -382,6 +379,11 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 
 void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 	switch (asset->type) {
+	case AssetType::TRIANGLE:
+		asset->p1 = asset->position + glm::rotateX(asset->p1 - asset->position, glm::radians(newRot.x - asset->rotation.x));
+		asset->p1 = asset->position + glm::rotateY(asset->p1 - asset->position, glm::radians(newRot.y - asset->rotation.y));
+		asset->p1 = asset->position + glm::rotateZ(asset->p1 - asset->position, glm::radians(newRot.z - asset->rotation.z));
+		asset->rotation = newRot;
 	case AssetType::MODEL:
 		if (newRot.x != asset->rotation.x) {
 			asset->model.setRotation(0, newRot.x, 1, 0, 0);

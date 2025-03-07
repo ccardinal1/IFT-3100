@@ -286,6 +286,7 @@ void Application::keyPressed(int key)
 {
 	if (key == 32) // espace
 	{
+		spacePressed = true;
 		cameras[activeCamIndex]->enableMouseInput();
 		cameraMode = true;
 		resetToggles();
@@ -299,13 +300,14 @@ void Application::keyReleased(int key)
 	switch (key)
 	{
 	case 32: // espace
+		spacePressed = false;
 		cameras[activeCamIndex]->disableMouseInput();
 		cameraMode = false;
 		break;
 	case 49: // 1
 	case 50: // 2
 	case 51: // 3
-		if (key - 49 != activeCamIndex)
+		if (key - 49 != activeCamIndex && spacePressed)
 		{
 			activeCamIndex = key - 49;
 

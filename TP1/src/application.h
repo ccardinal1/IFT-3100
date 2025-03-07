@@ -287,6 +287,7 @@ public:
 	bool cameraMode = false;
 	int imageIndex = 0;
 	bool isMousePressed = false;
+	bool spacePressed = false;
 	glm::vec3 previousPosition;
 	glm::vec3 previousRotation;
 	glm::vec3 previousScale;
