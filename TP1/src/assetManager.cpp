@@ -400,6 +400,15 @@ void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 		asset->p3 = asset->position + glm::rotateY(asset->p3 - asset->position, glm::radians(newRot.y));
 		asset->p3 = asset->position + glm::rotateZ(asset->p3 - asset->position, glm::radians(newRot.z));
 		asset->rotation = newRot;
+		break;
+	case AssetType::RECTANGLE:
+		break;
+	case AssetType::CIRCLE:
+		break;
+	case AssetType::ELLIPSE:
+		break;
+	case AssetType::LINE:
+		break;
 	case AssetType::MODEL:
 		if (newRot.x != asset->rotation.x) {
 			asset->model.setRotation(0, newRot.x, 1, 0, 0);
