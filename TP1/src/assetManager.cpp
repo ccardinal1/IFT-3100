@@ -224,20 +224,24 @@ void AssetManager::draw()
 			ofPopMatrix();
 			break;
 		case AssetType::ELLIPSE:
+			ofPushMatrix();
 			ofTranslate(asset.position);
 			ofRotateXDeg(asset.rotation.x);
 			ofRotateYDeg(asset.rotation.y);
 			ofRotateZDeg(asset.rotation.z);
 			ofTranslate(-asset.position);
 			ofDrawEllipse(asset.position, asset.width, asset.height);
+			ofPopMatrix();
 			break;
 		case AssetType::LINE:
+			ofPushMatrix();
 			ofTranslate(asset.position);
 			ofRotateXDeg(asset.rotation.x);
 			ofRotateYDeg(asset.rotation.y);
 			ofRotateZDeg(asset.rotation.z);
 			ofTranslate(-asset.position);
 			ofDrawLine(asset.position, asset.endpoint);
+			ofPopMatrix();
 			break;
 		case AssetType::TRIANGLE:
 			ofDrawTriangle(asset.p1, asset.p2, asset.p3);
