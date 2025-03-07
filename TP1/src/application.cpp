@@ -1811,7 +1811,7 @@ void Application::instanceButtonPressed() {
 	if (selectedAssets[0]->type == AssetType::INSTANCE) return;
 	else {
 		Asset* asset = assetManager.addInstance(*selectedAssets[0]);
-		string buttonName = assetsButtons[selectedAssets[0]->name]->getName();
+		string buttonName = "Instance de " + assetsButtons[selectedAssets[0]->name]->getName();
 		auto button = std::make_shared<ofxToggle2>();
 		assetsPanel.add(button.get()->setup(buttonName, true));
 		button->addListener(this, &Application::selectedAssetChanged);
