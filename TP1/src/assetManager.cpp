@@ -297,7 +297,14 @@ void AssetManager::draw()
 		case AssetType::INSTANCE:
 			switch (asset.parent->type) {
 			case AssetType::IMAGE:
-				asset.parent->image.draw(asset.position.x, asset.position.y, asset.position.z);
+				ofPushMatrix();
+				ofTranslate(asset.position);
+				ofRotateXDeg(asset.rotation.x);
+				ofRotateYDeg(asset.rotation.y);
+				ofRotateZDeg(asset.rotation.z);
+				ofScale(asset.scale);
+				asset.parent->image.draw(0, 0, 0);
+				ofPopMatrix();
 				break;
 			case AssetType::RECTANGLE:
 				ofPushMatrix();
@@ -306,7 +313,7 @@ void AssetManager::draw()
 				ofRotateYDeg(asset.rotation.y);
 				ofRotateZDeg(asset.rotation.z);
 				ofScale(asset.scale);
-				ofDrawRectangle(asset.position.x, asset.position.y, asset.position.z, asset.parent->width, asset.parent->height);
+				ofDrawRectangle(0, 0, 0, asset.parent->width, asset.parent->height);
 				ofPopMatrix();
 				break;
 			case AssetType::CIRCLE:
@@ -317,7 +324,7 @@ void AssetManager::draw()
 				ofRotateYDeg(asset.rotation.y);
 				ofRotateZDeg(asset.rotation.z);
 				ofScale(asset.scale);
-				ofDrawCircle(asset.position.x, asset.position.y, asset.position.z, asset.parent->radius);
+				ofDrawCircle(0, 0, 0, asset.parent->radius);
 				ofPopMatrix();
 				break;
 			case AssetType::ELLIPSE:
@@ -327,7 +334,7 @@ void AssetManager::draw()
 				ofRotateYDeg(asset.rotation.y);
 				ofRotateZDeg(asset.rotation.z);
 				ofScale(asset.scale);
-				ofDrawEllipse(asset.position, asset.parent->width, asset.parent->height);
+				ofDrawEllipse(0, 0, 0, asset.parent->width, asset.parent->height);
 				ofPopMatrix();
 				break;
 			case AssetType::LINE:
@@ -525,20 +532,12 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 
 void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 	switch (asset->type) {
-	case AssetType::TRIANGLE:
-	case AssetType::RECTANGLE:
-	case AssetType::CIRCLE:
-	case AssetType::ELLIPSE:
-	case AssetType::LINE:
-	case AssetType::INSTANCE:
-		asset->rotation = newRot;
-		break;
-	case AssetType::MODEL:
-		asset->rotation = newRot;
-		break;
 	case AssetType::CUBE:
 	case AssetType::SPHERE:
 		asset->geometryPrimitive.setOrientation(newRot);
+		asset->rotation = newRot;
+		break;
+	default:
 		asset->rotation = newRot;
 		break;
 	}
