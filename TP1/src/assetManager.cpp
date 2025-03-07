@@ -236,6 +236,7 @@ void AssetManager::draw()
 
 	if (drawBoundingBox)
 	{
+		ofNoFill();
 		ofSetColor(boundingBox.color);
 		ofSetLineWidth(boundingBox.lineWidth);
 		ofDrawBox(boundingBox.position.x, boundingBox.position.y, boundingBox.position.z, boundingBox.width, boundingBox.height, boundingBox.depth);

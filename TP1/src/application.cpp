@@ -258,6 +258,7 @@ void Application::draw()
 	}
 
 	assetManager.draw();
+
 	if (recording || screenshot) {
 		exportImage();
 		if (screenshot) screenshot = false;
@@ -270,7 +271,9 @@ void Application::draw()
 	gui.draw();
 	assetsPanel.draw();
 	cameraPanel.draw();
+
 	if (selectedAssets.size() == 1) objectPanel.draw();
+
 	if (recording) {
 		ofSetColor(255, 0, 0);
 		ofFill();
@@ -566,7 +569,7 @@ void Application::mouseReleased(int x, int y, int button)
 {
 	isMousePressed = false;
 	
-	if (button != 0 || ((mousePressX == x && mousePressY == y) && !(toggleAddModel1 || toggleAddModel2 || toggleAddModel3)) || cameras[activeCamIndex]->getMouseInputEnabled())
+	if (button != 0 || ((mousePressX == x && mousePressY == y) && !isDrawing()) || cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		clickedInUi = false;
 		return;
@@ -701,7 +704,7 @@ void Application::mouseReleased(int x, int y, int button)
 
 bool Application::isDrawing()
 {
-	return toggleDrawLine || toggleDrawRectangle || toggleDrawCircle || toggleDrawEllipse || toggleDrawTriangle || toggleDrawCube || toggleDrawSphere;
+	return toggleDrawLine || toggleDrawRectangle || toggleDrawCircle || toggleDrawEllipse || toggleDrawTriangle || toggleDrawCube || toggleDrawSphere || toggleAddModel1 || toggleAddModel2 || toggleAddModel3;
 }
 
 bool Application::isInGui(int x, int y)
