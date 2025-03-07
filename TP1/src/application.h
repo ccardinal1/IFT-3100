@@ -279,8 +279,7 @@ public:
 	void checkForCursor(int x, int y);
 
 	void updateBoundingBox();
-	glm::vec3 getMaxPos(Asset* asset);
-	glm::vec3 getMinPos(Asset* asset);
+	std::vector<glm::vec3> getExtremePos(Asset* asset);
 
 	bool clickedInUi = false;
 	bool recording = false;
@@ -300,4 +299,6 @@ public:
 
 	const HCURSOR PEN = LoadCursorFromFile(L"../assets/aero_pen.cur");
 	const HCURSOR CAM = LoadCursorFromFile(L"../assets/grab.cur");
+
+	const glm::vec3 DEFAULT_CAM_POS = glm::vec3(0, 0, 779);
 };

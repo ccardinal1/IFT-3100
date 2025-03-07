@@ -258,6 +258,7 @@ void Application::draw()
 	}
 
 	assetManager.draw();
+
 	if (recording || screenshot) {
 		exportImage();
 		if (screenshot) screenshot = false;
@@ -270,7 +271,9 @@ void Application::draw()
 	gui.draw();
 	assetsPanel.draw();
 	cameraPanel.draw();
+
 	if (selectedAssets.size() == 1) objectPanel.draw();
+
 	if (recording) {
 		ofSetColor(255, 0, 0);
 		ofFill();
@@ -504,8 +507,6 @@ void Application::mousePressed(int x, int y, int button)
 		if (button != 0 || cameras[activeCamIndex]->getMouseInputEnabled())
 			return;
 
-		checkForCursor(x, y);
-
 		mousePressX = x;
 		mousePressY = y;
 
@@ -568,7 +569,7 @@ void Application::mouseReleased(int x, int y, int button)
 {
 	isMousePressed = false;
 	
-	if (button != 0 || ((mousePressX == x && mousePressY == y) && !(toggleAddModel1 || toggleAddModel2 || toggleAddModel3)) || cameras[activeCamIndex]->getMouseInputEnabled())
+	if (button != 0 || ((mousePressX == x && mousePressY == y) && !isDrawing()) || cameras[activeCamIndex]->getMouseInputEnabled())
 	{
 		clickedInUi = false;
 		return;
@@ -576,8 +577,6 @@ void Application::mouseReleased(int x, int y, int button)
 
 	if (!clickedInUi)
 	{
-		checkForCursor(x, y);
-
 		Asset* asset = nullptr;
 		string buttonName = "";
 		glm::vec3 screenZero = cameras[activeCamIndex]->worldToScreen(glm::vec3(0, 0, 0));
@@ -586,7 +585,7 @@ void Application::mouseReleased(int x, int y, int button)
 		if (toggleDrawLine)
 		{
 			string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addLine(shapeName, assetPosition, cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }), lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addLine(shapeName, assetPosition, cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }), lineWidth, fillColorSlider);
 
 			buttonName = "Ligne";
 		}
@@ -616,8 +615,8 @@ void Application::mouseReleased(int x, int y, int button)
 			string shapeName = "triangle_" + std::to_string(x) + "_" + std::to_string(y);
 
 			glm::vec3 p1 = cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY, screenZero.z });
-			glm::vec3 p2 = cameras[activeCamIndex]->screenToWorld({ mousePressX + (x - mousePressX) / 2, y, screenZero.z });
-			glm::vec3 p3 = cameras[activeCamIndex]->screenToWorld({ mousePressX - (x - mousePressX) / 2, y, screenZero.z });
+			glm::vec3 p2 = cameras[activeCamIndex]->screenToWorld({ mousePressX + (x - mousePressX) * 0.5f, y, screenZero.z });
+			glm::vec3 p3 = cameras[activeCamIndex]->screenToWorld({ mousePressX - (x - mousePressX) * 0.5f, y, screenZero.z });
 
 			asset = assetManager.addTriangle(shapeName, p1, p2, p3, lineWidth, fillColorSlider, toggleDrawFill);
 
@@ -633,7 +632,7 @@ void Application::mouseReleased(int x, int y, int button)
 		else if (toggleDrawSphere)
 		{
 			string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addSphere(shapeName, assetPosition, (x - mousePressX) / 2, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addSphere(shapeName, assetPosition, (x - mousePressX) * 0.5f, lineWidth, fillColorSlider, toggleDrawFill);
 
 			buttonName = "Sphere";
 		}
@@ -688,10 +687,6 @@ void Application::mouseReleased(int x, int y, int button)
 				}
 			}
 
-		}
-
-		updateBoundingBox();
-
 		if (asset != nullptr)
 		{
 			auto button = std::make_shared<ofxToggle2>();
@@ -707,7 +702,7 @@ void Application::mouseReleased(int x, int y, int button)
 			resetToggles();
 		}
 
-
+		updateBoundingBox();
 	}
 	else
 	{
@@ -718,7 +713,7 @@ void Application::mouseReleased(int x, int y, int button)
 
 bool Application::isDrawing()
 {
-	return toggleDrawLine || toggleDrawRectangle || toggleDrawCircle || toggleDrawEllipse || toggleDrawTriangle || toggleDrawCube || toggleDrawSphere;
+	return toggleDrawLine || toggleDrawRectangle || toggleDrawCircle || toggleDrawEllipse || toggleDrawTriangle || toggleDrawCube || toggleDrawSphere || toggleAddModel1 || toggleAddModel2 || toggleAddModel3;
 }
 
 bool Application::isInGui(int x, int y)
@@ -904,7 +899,8 @@ void Application::lineWidthChanged(int& value)
 //--------------------------------------------------------------
 void Application::drawBoundingBoxToggleChanged(bool& value)
 {
-	if (toggleDrawBoundingBox) {
+	if (toggleDrawBoundingBox)
+	{
 		updateBoundingBox();
 	}
 
@@ -913,188 +909,174 @@ void Application::drawBoundingBoxToggleChanged(bool& value)
 
 void Application::updateBoundingBox()
 {
-	int maxX = INT_MIN, maxY = INT_MIN, maxZ = INT_MIN;
-	int minX = INT_MAX, minY = INT_MAX, minZ = INT_MAX;
+    float maxX = -FLT_MAX, maxY = -FLT_MAX, maxZ = -FLT_MAX;
+    float minX = FLT_MAX, minY = FLT_MAX, minZ = FLT_MAX;
 
-	for (auto& [_, asset] : assetManager.assets)
-	{
-		glm::vec3 maxPos = getMaxPos(&asset);
-		glm::vec3 minPos = getMinPos(&asset);
+    for (auto& [_, asset] : assetManager.assets)
+    {
+        std::vector<glm::vec3> extremes = getExtremePos(&asset);
 
-		maxX = std::max(maxX, static_cast<int>(maxPos.x));
-		maxY = std::max(maxY, static_cast<int>(maxPos.y));
-		maxZ = std::max(maxZ, static_cast<int>(maxPos.z));
+        minX = std::min(minX, extremes.at(0).x);
+        minY = std::min(minY, extremes.at(0).y);
+        minZ = std::min(minZ, extremes.at(0).z);
 
-		minX = std::min(minX, static_cast<int>(minPos.x));
-		minY = std::min(minY, static_cast<int>(minPos.y));
-		minZ = std::min(minZ, static_cast<int>(minPos.z));
-	}
+        maxX = std::max(maxX, extremes.at(1).x);
+        maxY = std::max(maxY, extremes.at(1).y);
+        maxZ = std::max(maxZ, extremes.at(1).z);
+    }
 
-	assetManager.boundingBox.width = maxX - minX;
-	assetManager.boundingBox.height = maxY - minY;
-	assetManager.boundingBox.depth = maxZ - minZ;
-	assetManager.boundingBox.position = { minX + assetManager.boundingBox.width * 0.5f, minY + assetManager.boundingBox.width * 0.5f, minZ + assetManager.boundingBox.width * 0.5f };
-	assetManager.boundingBox.color = boundingBoxColorSlider;
-	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
+    assetManager.boundingBox.width = maxX - minX;
+    assetManager.boundingBox.height = maxY - minY;
+    assetManager.boundingBox.depth = maxZ - minZ;
 
+    assetManager.boundingBox.position = { 
+        minX + assetManager.boundingBox.width * 0.5f, 
+        minY + assetManager.boundingBox.height * 0.5f, 
+        minZ + assetManager.boundingBox.depth * 0.5f 
+    };
+
+    assetManager.boundingBox.color = boundingBoxColorSlider;
+    assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
 }
 
-glm::vec3 Application::getMaxPos(Asset* asset)
+std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 {
+	std::vector<glm::vec3> extremes;
+
+	int minX = asset->position.x, minY = asset->position.y, minZ = asset->position.z;
 	int maxX = asset->position.x, maxY = asset->position.y, maxZ = asset->position.z;
 
 	switch (asset->type)
 	{
-	case AssetType::IMAGE:
-	case AssetType::RECTANGLE:
-	{
-		maxX = std::max(asset->position.x, asset->position.x + asset->width);
-		maxY = std::max(asset->position.y, asset->position.y + asset->height);
-		maxZ = std::max(asset->position.z, asset->position.z + asset->depth);
+		case AssetType::IMAGE:
+		case AssetType::RECTANGLE:
+		{
+			minX = std::min(asset->position.x, asset->position.x + asset->width);
+			minY = std::min(asset->position.y, asset->position.y + asset->height);
+			minZ = std::min(asset->position.z, asset->position.z + asset->depth);
 
-		break;
-	}
-	case AssetType::ELLIPSE:
-	{
-		float halfWidth = std::abs(asset->width) * 0.5f;
-		float halfHeight = std::abs(asset->height) * 0.5f;
+			maxX = std::max(asset->position.x, asset->position.x + asset->width);
+			maxY = std::max(asset->position.y, asset->position.y + asset->height);
+			maxZ = std::max(asset->position.z, asset->position.z + asset->depth);
 
-		maxX = asset->position.x + halfWidth;
-		maxY = asset->position.y + halfHeight;
-		maxZ = asset->position.z;
+			break;
+		}
+		case AssetType::CIRCLE:
+		{
+			float radius = std::abs(asset->radius);
 
-		break;
-	}
-	case AssetType::CIRCLE:
-	{
-		float radius = std::abs(asset->radius);
+			minX = asset->position.x - radius;
+			minY = asset->position.y - radius;
+			minZ = asset->position.z;
 
-		maxX = asset->position.x + radius;
-		maxY = asset->position.y + radius;
-		maxZ = asset->position.z;
+			maxX = asset->position.x + radius;
+			maxY = asset->position.y + radius;
+			maxZ = asset->position.z;
 
-		break;
-	}
-	case AssetType::LINE:
-	{
-		maxX = std::max(asset->position.x, asset->endpoint.x);
-		maxY = std::max(asset->position.y, asset->endpoint.y);
-		maxZ = std::max(asset->position.z, asset->endpoint.z);
+			break;
+		}
+		case AssetType::ELLIPSE:
+		{
+			float halfWidth = std::abs(asset->width) * 0.5f;
+			float halfHeight = std::abs(asset->height) * 0.5f;
 
-		break;
-	}
-	case AssetType::TRIANGLE:
-	{
-		maxX = std::max({ asset->p1.x, asset->p2.x, asset->p3.x });
-		maxY = std::max({ asset->p1.y, asset->p2.y, asset->p3.y });
-		maxZ = std::max({ asset->p1.z, asset->p2.z, asset->p3.z });
+			minX = asset->position.x - halfWidth;
+			minY = asset->position.y - halfHeight;
+			minZ = asset->position.z;
 
-		break;
-	}
-	case AssetType::CUBE:
-	{
-		float halfSizeX = std::abs(asset->width) * 0.5f;
-		float halfSizeY = std::abs(asset->height) * 0.5f;
-		float halfSizeZ = std::abs(asset->depth) * 0.5f;
+			maxX = asset->position.x + halfWidth;
+			maxY = asset->position.y + halfHeight;
+			maxZ = asset->position.z;
 
-		maxX = asset->position.x + halfSizeX;
-		maxY = asset->position.y + halfSizeY;
-		maxZ = asset->position.z + halfSizeZ;
+			break;
+		}
+		case AssetType::LINE:
+		{
+			minX = std::min(asset->position.x, asset->endpoint.x);
+			minY = std::min(asset->position.y, asset->endpoint.y);
+			minZ = std::min(asset->position.z, asset->endpoint.z);
 
-		break;
-	}
-	case AssetType::SPHERE:
-	{
-		float radius = std::abs(asset->width);
+			maxX = std::max(asset->position.x, asset->endpoint.x);
+			maxY = std::max(asset->position.y, asset->endpoint.y);
+			maxZ = std::max(asset->position.z, asset->endpoint.z);
 
-		maxX = asset->position.x + radius;
-		maxY = asset->position.y + radius;
-		maxZ = asset->position.z + radius;
+			break;
+		}
+		case AssetType::TRIANGLE:
+		{
+			minX = std::min({ asset->p1.x, asset->p2.x, asset->p3.x });
+			minY = std::min({ asset->p1.y, asset->p2.y, asset->p3.y });
+			minZ = std::min({ asset->p1.z, asset->p2.z, asset->p3.z });
 
-		break;
-	}
-	}
+			maxX = std::max({ asset->p1.x, asset->p2.x, asset->p3.x });
+			maxY = std::max({ asset->p1.y, asset->p2.y, asset->p3.y });
+			maxZ = std::max({ asset->p1.z, asset->p2.z, asset->p3.z });
 
-	return { maxX, maxY, maxZ };
-}
+			break;
+		}
+		case AssetType::CUBE:
+		{
+			float halfSizeX = std::abs(asset->width) * 0.5f;
+			float halfSizeY = std::abs(asset->height) * 0.5f;
+			float halfSizeZ = std::abs(asset->depth) * 0.5f;
 
-glm::vec3 Application::getMinPos(Asset* asset)
-{
-	int minX = asset->position.x, minY = asset->position.y, minZ = asset->position.z;
+			minX = asset->position.x - halfSizeX;
+			minY = asset->position.y - halfSizeY;
+			minZ = asset->position.z - halfSizeZ;
 
-	switch (asset->type)
-	{
-	case AssetType::IMAGE:
-	case AssetType::RECTANGLE:
-	{
-		minX = std::min(asset->position.x, asset->position.x + asset->width);
-		minY = std::min(asset->position.y, asset->position.y + asset->height);
-		minZ = std::min(asset->position.z, asset->position.z + asset->depth);
+			maxX = asset->position.x + halfSizeX;
+			maxY = asset->position.y + halfSizeY;
+			maxZ = asset->position.z + halfSizeZ;
 
-		break;
-	}
-	case AssetType::ELLIPSE:
-	{
-		float halfWidth = std::abs(asset->width) * 0.5f;
-		float halfHeight = std::abs(asset->height) * 0.5f;
+			break;
+		}
+		case AssetType::SPHERE:
+		{
+			float radius = std::abs(asset->width);
 
-		minX = asset->position.x - halfWidth;
-		minY = asset->position.y - halfHeight;
-		minZ = asset->position.z;
+			minX = asset->position.x - radius;
+			minY = asset->position.y - radius;
+			minZ = asset->position.z - radius;
 
-		break;
-	}
-	case AssetType::CIRCLE:
-	{
-		float radius = std::abs(asset->radius);
+			maxX = asset->position.x + radius;
+			maxY = asset->position.y + radius;
+			maxZ = asset->position.z + radius;
 
-		minX = asset->position.x - radius;
-		minY = asset->position.y - radius;
-		minZ = asset->position.z;
+			break;
+		}
+		case AssetType::MODEL:
+		{
+			glm::vec3 minPoint(FLT_MAX);
+			glm::vec3 maxPoint(-FLT_MAX);
 
-		break;
-	}
-	case AssetType::LINE:
-	{
-		minX = std::min(asset->position.x, asset->endpoint.x);
-		minY = std::min(asset->position.y, asset->endpoint.y);
-		minZ = std::min(asset->position.z, asset->endpoint.z);
+			for (int i = 0; i < asset->model.getNumMeshes(); i++) {
+				ofMesh mesh = asset->model.getMesh(i);
 
-		break;
-	}
-	case AssetType::TRIANGLE:
-	{
-		minX = std::min({ asset->p1.x, asset->p2.x, asset->p3.x });
-		minY = std::min({ asset->p1.y, asset->p2.y, asset->p3.y });
-		minZ = std::min({ asset->p1.z, asset->p2.z, asset->p3.z });
+				for (auto& vertex : mesh.getVertices()) {
+					glm::vec3 worldVertex = asset->model.getModelMatrix() * glm::vec4(vertex, 1.0);
 
-		break;
-	}
-	case AssetType::CUBE:
-	{
-		float halfSizeX = std::abs(asset->width) * 0.5f;
-		float halfSizeY = std::abs(asset->height) * 0.5f;
-		float halfSizeZ = std::abs(asset->depth) * 0.5f;
+					minPoint = glm::min(minPoint, worldVertex);
+					maxPoint = glm::max(maxPoint, worldVertex);
+				}
+			}
 
-		minX = asset->position.x - halfSizeX;
-		minY = asset->position.y - halfSizeY;
-		minZ = asset->position.z - halfSizeZ;
+			minX = minPoint.x;
+			minY = minPoint.y;
+			minZ = minPoint.z;
 
-		break;
-	}
-	case AssetType::SPHERE:
-	{
-		float radius = std::abs(asset->width);
+			maxX = maxPoint.x;
+			maxY = maxPoint.y;
+			maxZ = maxPoint.z;
 
-		minX = asset->position.x - radius;
-		minY = asset->position.y - radius;
-		minZ = asset->position.z - radius;
-
-		break;
-	}
+			break;
+		}
 	}
 
-	return { minX, minY, minZ };
+	extremes.push_back({ minX, minY, minZ });
+
+	extremes.push_back({ maxX, maxY, maxZ });
+
+	return extremes;
 }
 
 void Application::setCameraTargetOnSelectedAssets(bool value)
@@ -1107,7 +1089,7 @@ void Application::setCameraTargetOnSelectedAssets(bool value)
 
 	if (selectedAssets.size() == 0 || !toggleCenterOnSelection)
 	{
-		cameras[activeCamIndex]->setPosition(0, 0, 779);
+		cameras[activeCamIndex]->setPosition(DEFAULT_CAM_POS);
 	}
 	else
 	{
@@ -1126,10 +1108,11 @@ void Application::setCameraTargetOnSelectedAssets(bool value)
 		float radius = (maxBounds - minBounds).length() * 0.5;
 
 		float fov = ofDegToRad(cameras[activeCamIndex]->getFov());
-		float distance = radius / std::tan(fov / 2.0);
+		float distance = radius / std::tan(fov * 0.5f);
 
 
 		ofVec3f camPos = center + ofVec3f(0, 0, distance);
+
 		cameras[activeCamIndex]->setPosition(camPos);
 		cameras[activeCamIndex]->lookAt(center);
 	}
@@ -1139,6 +1122,7 @@ void Application::setCameraTargetOnSelectedAssets(bool value)
 void Application::selectedAssetChanged(bool& value)
 {
 	selectedAssets.clear();
+
 	for (auto& [key, button] : assetsButtons)
 	{
 		if (button && *button)
@@ -1171,6 +1155,7 @@ void Application::selectedAssetChanged(bool& value)
 	{
 		setCameraTargetOnSelectedAssets(true);
 	}
+
 	if (selectedAssets.size() == 1) {
 		translateXField = selectedAssets[0]->position.x;
 		translateYField = selectedAssets[0]->position.y;
@@ -1338,16 +1323,10 @@ void Application::togglePerspectiveChanged(bool& value)
 
 void Application::toggleOrthoChanged(bool& value)
 {
-	if (value)
-	{
-		cameras[activeCamIndex]->enableOrtho();
-		togglePerspective = false;
-	}
-	else
-	{
-		cameras[activeCamIndex]->disableOrtho();
-		togglePerspective = true;
-	}
+	if (value) cameras[activeCamIndex]->enableOrtho();
+	else cameras[activeCamIndex]->disableOrtho();
+
+	togglePerspective = !value;
 }
 
 void Application::toggleCenterOnSelectionChanged(bool& value)
@@ -1361,7 +1340,7 @@ void Application::toggleCenterOnSelectionChanged(bool& value)
 	}
 	else
 	{
-		cameras[activeCamIndex]->setPosition(0, 0, 779);
+		cameras[activeCamIndex]->setPosition(DEFAULT_CAM_POS);
 	}
 }
 
@@ -1446,6 +1425,7 @@ void Application::deleteButtonPressed()
 
 	bool tmp = true;
 	selectedAssetChanged(tmp);
+	updateBoundingBox();
 }
 
 //--------------------------------------------------------------

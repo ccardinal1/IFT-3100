@@ -39,7 +39,7 @@ public:
     Asset* addRectangle(const std::string& name, glm::vec3 pos, float width, float height, int lineWidth, ofColor color, bool isFilled);
     Asset* addCircle(const std::string& name, glm::vec3 pos, float radius, int lineWidth, ofColor color, bool isFilled);
     Asset* addEllipse(const std::string& name, glm::vec3 pos, float width, float height, int lineWidth, ofColor color, bool isFilled);
-    Asset* addLine(const std::string& name, glm::vec3 start, glm::vec3 end, int lineWidth, ofColor color, bool isFilled);
+    Asset* addLine(const std::string& name, glm::vec3 start, glm::vec3 end, int lineWidth, ofColor color);
     Asset* addTriangle(const std::string& name, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, int lineWidth, ofColor color, bool isFilled);
 
     Asset* addCube(const std::string& name, glm::vec3 pos, float size, int lineWidth, ofColor color, bool isFilled);
