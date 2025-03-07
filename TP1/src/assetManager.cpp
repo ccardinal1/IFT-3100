@@ -171,7 +171,10 @@ Asset* AssetManager::add3dModel(const std::string& name, glm::vec3 pos, string p
 	asset.name = name;
 	asset.type = AssetType::MODEL;
 	asset.position = pos;
-	asset.rotation = glm::vec3(0, 0, 0);
+	asset.rotation = glm::vec3(180, 0, 0);
+	asset.model.setRotation(0, 180, 1, 0, 0);
+	asset.model.setRotation(1, 0, 0, 1, 0);
+	asset.model.setRotation(2, 0, 0, 0, 1);
 	asset.scale = glm::vec3(1, 1, 1);
 	asset.model.loadModel(path);
 	asset.model.enableMaterials();
@@ -378,8 +381,27 @@ void AssetManager::setPosition(Asset* asset, glm::vec3 newPos)
 }
 
 void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
-	asset->geometryPrimitive.setOrientation(newRot);
-	asset->rotation = newRot;
+	switch (asset->type) {
+	case AssetType::MODEL:
+		if (newRot.x != asset->rotation.x) {
+			asset->model.setRotation(0, newRot.x, 1, 0, 0);
+			asset->rotation.x = newRot.x;
+		}
+		if (newRot.y != asset->rotation.y) {
+			asset->model.setRotation(1, newRot.y, 0, 1, 0);
+			asset->rotation.y = newRot.y;
+		}
+		if (newRot.z != asset->rotation.z) {
+			asset->model.setRotation(2, newRot.z, 0, 0, 1);
+			asset->rotation.z = newRot.z;
+		}
+		break;
+	case AssetType::CUBE:
+	case AssetType::SPHERE:
+		asset->geometryPrimitive.setOrientation(newRot);
+		asset->rotation = newRot;
+		break;
+	}
 }
 
 void AssetManager::setScale(Asset* asset, glm::vec3 newSca) {
