@@ -664,7 +664,8 @@ void Application::mouseReleased(int x, int y, int button)
 		{
 			string shapeName = "model2_" + std::to_string(x) + "_" + std::to_string(y);
 
-			asset = assetManager.add3dModel(shapeName, assetPosition, "set-of-plants-3d-model\\Yucca\\yuccaPlant.obj");
+			glm::vec3 position = cameras[activeCamIndex]->screenToWorld({ mousePressX, mousePressY + 150, screenZero.z });
+			asset = assetManager.add3dModel(shapeName, position, "set-of-plants-3d-model\\Yucca\\yuccaPlant.obj");
 
 			asset->model.setRotation(0, 180, 1, 0, 0);
 

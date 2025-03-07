@@ -7,6 +7,7 @@ int main() {
 	ofGLWindowSettings settings;
 	settings.setSize(1440, 900);
 	settings.windowMode = OF_WINDOW;
+	settings.setGLVersion(3, 3);
 
 	auto window = ofCreateWindow(settings);
 	auto mainApp = make_shared<Application>();
