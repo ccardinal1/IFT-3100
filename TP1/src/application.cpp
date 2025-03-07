@@ -19,6 +19,9 @@ void Application::setup()
 	//pointerGuiGroupElements.push_back(&groupGeometryOptions);
 	pointerGuiGroupElements.push_back(&groupCamera);
 	pointerGuiGroupElements.push_back(&groupCameraProjection);
+	pointerGuiGroupElements.push_back(&groupHSBFillColor);
+	pointerGuiGroupElements.push_back(&groupHSBBoundingBoxColor);
+	pointerGuiGroupElements.push_back(&groupHSBBackgroundColor);
 
 	pointerGuiButtonElements.push_back(&resetButton);
 	pointerGuiButtonElements.push_back(&histogramButton);
@@ -41,9 +44,9 @@ void Application::setup()
 	//pointerGuiIntSliderElements.push_back(&geometryRotateX);
 	//pointerGuiIntSliderElements.push_back(&geometryRotateY);
 
-	pointerGuiColorSliderElements.push_back(&fillColorSlider);
-	pointerGuiColorSliderElements.push_back(&boundingBoxColorSlider);
-	pointerGuiColorSliderElements.push_back(&backgroundColorSlider);
+	pointerGuiColorSliderElements.push_back(&RGBAFillColorSlider);
+	pointerGuiColorSliderElements.push_back(&RGBABoundingBoxColorSlider);
+	pointerGuiColorSliderElements.push_back(&RGBABackgroundColorSlider);
 
 	pointerGuiFloatFieldElements.push_back(&translateXField);
 	pointerGuiFloatFieldElements.push_back(&translateYField);
@@ -64,12 +67,20 @@ void Application::setup()
 	pointerGuiFloatSliderElements.push_back(&scaleXSlider);
 	pointerGuiFloatSliderElements.push_back(&scaleYSlider);
 	pointerGuiFloatSliderElements.push_back(&scaleZSlider);
+	pointerGuiFloatSliderElements.push_back(&HFillColorSlider);
+	pointerGuiFloatSliderElements.push_back(&SFillColorSlider);
+	pointerGuiFloatSliderElements.push_back(&BFillColorSlider);
+	pointerGuiFloatSliderElements.push_back(&HBoundingBoxColorSlider);
+	pointerGuiFloatSliderElements.push_back(&SBoundingBoxColorSlider);
+	pointerGuiFloatSliderElements.push_back(&BBoundingBoxColorSlider);
+	pointerGuiFloatSliderElements.push_back(&HBackgroundColorSlider);
+	pointerGuiFloatSliderElements.push_back(&SBackgroundColorSlider);
+	pointerGuiFloatSliderElements.push_back(&BBackgroundColorSlider);
 
 	assetsPanel.setup("Graphe de scene");
 	assetsPanel.setPosition(ofGetWindowWidth() - assetsPanel.getWidth() - 10, 10);
 
-	cameraPanel.setup();
-	cameraPanel.setName("Camera");
+	cameraPanel.setup("Camera");
 	cameraPanel.setWidthElements(220);
 	cameraPanel.setPosition(ofGetWindowWidth() - cameraPanel.getWidth() - 10, assetsPanel.getPosition().y + assetsPanel.getHeight() + 500);
 
@@ -139,10 +150,21 @@ void Application::setup()
 	groupDrawOptions.add(lineWidth.setup("Epaisseur", 1, 1, 10));
 
 	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255));
+	colorParam.addListener(this, &Application::RGBADrawColorChanged);
 
-	colorParam.addListener(this, &Application::drawColorChanged);
+	groupHSBFillColor.setup("HSB color");
 
-	groupDrawOptions.add(fillColorSlider.setup(colorParam));
+	HFillColorSlider.addListener(this, &Application::HSBDrawColorChanged);
+	SFillColorSlider.addListener(this, &Application::HSBDrawColorChanged);
+	BFillColorSlider.addListener(this, &Application::HSBDrawColorChanged);
+
+	groupHSBFillColor.add(HFillColorSlider.setup("Hue", 0.0f, 0.0f, 360.0f));
+	groupHSBFillColor.add(SFillColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
+	groupHSBFillColor.add(BFillColorSlider.setup("Brightness", 100.0f, 0.0f, 100.0f));
+
+	groupDrawOptions.add(&groupHSBFillColor);
+
+	groupDrawOptions.add(RGBAFillColorSlider.setup(colorParam));
 
 	toggleDrawBoundingBox.addListener(this, &Application::drawBoundingBoxToggleChanged);
 
@@ -151,8 +173,20 @@ void Application::setup()
 	groupDrawBoundingBox.add(boundingBoxLineWidth.setup("Epaisseur", 2, 1, 10));
 
 	ofParameter<ofColor> boundingBoxColorParam = ofParameter<ofColor>("Couleur", ofColor(255, 0, 0), ofColor(0, 0), ofColor(255, 255));
-	boundingBoxColorParam.addListener(this, &Application::boundingBoxColorChanged);
-	groupDrawBoundingBox.add(boundingBoxColorSlider.setup(boundingBoxColorParam));
+	boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
+
+	groupHSBBoundingBoxColor.setup("HSB color");
+
+	HBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
+	SBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
+	BBoundingBoxColorSlider.addListener(this, &Application::HSBBoundingBoxColorChanged);
+
+	groupHSBBoundingBoxColor.add(HBoundingBoxColorSlider.setup("Hue", 0.0f, 0.0f, 360.0f));
+	groupHSBBoundingBoxColor.add(SBoundingBoxColorSlider.setup("Saturation", 100.0f, 0.0f, 100.0f));
+	groupHSBBoundingBoxColor.add(BBoundingBoxColorSlider.setup("Brightness", 100.0f, 0.0f, 100.0f));
+
+	groupDrawBoundingBox.add(&groupHSBBoundingBoxColor);
+	groupDrawBoundingBox.add(RGBABoundingBoxColorSlider.setup(boundingBoxColorParam));
 	groupDrawBoundingBox.minimize();
 
 	groupDrawOptions.add(&groupDrawBoundingBox);
@@ -207,7 +241,23 @@ void Application::setup()
 
 	gui.add(&groupDraw);
 	gui.add(&groupGeometry);
-	gui.add(backgroundColorSlider.setup("Arriere-Plan", ofColor(100, 100, 100), ofColor(0, 0), ofColor(255, 255)));
+
+	groupHSBBackgroundColor.setup("HSB color");
+
+	HBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
+	SBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
+	BBackgroundColorSlider.addListener(this, &Application::HSBBackgroundColorChanged);
+
+	groupHSBBackgroundColor.add(HBackgroundColorSlider.setup("Hue", 0.0f, 0.0f, 360.0f));
+	groupHSBBackgroundColor.add(SBackgroundColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
+	groupHSBBackgroundColor.add(BBackgroundColorSlider.setup("Brightness", 39.0f, 0.0f, 100.0f));
+
+	gui.add(&groupHSBBackgroundColor);
+
+	ofParameter<ofColor> backgroundColorParam = ofParameter<ofColor>("Arriere-Plan", ofColor(100, 100, 100), ofColor(0, 0), ofColor(255, 255));
+	backgroundColorParam.addListener(this, &Application::RGBABackgroundColorChanged);
+
+	gui.add(RGBABackgroundColorSlider.setup(backgroundColorParam));
 
 	cameraPanel.add(toggleCenterOnSelection.setup("Centrer sur la selection", false));
 	cameraPanel.add(&groupCameraProjection);
@@ -251,7 +301,7 @@ void Application::update()
 //--------------------------------------------------------------
 void Application::draw()
 {
-	ofBackground(backgroundColorSlider);
+	ofBackground(backgroundColor);
 	cameras[activeCamIndex]->begin();
 	ofEnableDepthTest();
 
@@ -600,28 +650,28 @@ void Application::mouseReleased(int x, int y, int button)
 		if (toggleDrawLine)
 		{
 			string shapeName = "line_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addLine(shapeName, assetPosition, cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }), lineWidth, fillColorSlider);
+			asset = assetManager.addLine(shapeName, assetPosition, cameras[activeCamIndex]->screenToWorld({ x, y, screenZero.z }), lineWidth, RGBAFillColorSlider);
 
 			buttonName = "Ligne";
 		}
 		else if (toggleDrawRectangle)
 		{
 			string shapeName = "rectangle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addRectangle(shapeName, assetPosition, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addRectangle(shapeName, assetPosition, x - mousePressX, y - mousePressY, lineWidth, RGBAFillColorSlider, toggleDrawFill);
 
 			buttonName = "Rectangle";
 		}
 		else if (toggleDrawCircle)
 		{
 			string shapeName = "circle_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addCircle(shapeName, assetPosition, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addCircle(shapeName, assetPosition, x - mousePressX, lineWidth, RGBAFillColorSlider, toggleDrawFill);
 
 			buttonName = "Cercle";
 		}
 		else if (toggleDrawEllipse)
 		{
 			string shapeName = "ellipse_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addEllipse(shapeName, assetPosition, x - mousePressX, y - mousePressY, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addEllipse(shapeName, assetPosition, x - mousePressX, y - mousePressY, lineWidth, RGBAFillColorSlider, toggleDrawFill);
 
 			buttonName = "Ellipse";
 		}
@@ -633,21 +683,21 @@ void Application::mouseReleased(int x, int y, int button)
 			glm::vec3 p2 = cameras[activeCamIndex]->screenToWorld({ mousePressX + (x - mousePressX) * 0.5f, y, screenZero.z });
 			glm::vec3 p3 = cameras[activeCamIndex]->screenToWorld({ mousePressX - (x - mousePressX) * 0.5f, y, screenZero.z });
 
-			asset = assetManager.addTriangle(shapeName, p1, p2, p3, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addTriangle(shapeName, p1, p2, p3, lineWidth, RGBAFillColorSlider, toggleDrawFill);
 
 			buttonName = "Triangle";
 		}
 		else if (toggleDrawCube)
 		{
 			string shapeName = "cube_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addCube(shapeName, assetPosition, x - mousePressX, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addCube(shapeName, assetPosition, x - mousePressX, lineWidth, RGBAFillColorSlider, toggleDrawFill);
 
 			buttonName = "Cube";
 		}
 		else if (toggleDrawSphere)
 		{
 			string shapeName = "sphere_" + std::to_string(x) + "_" + std::to_string(y);
-			asset = assetManager.addSphere(shapeName, assetPosition, (x - mousePressX) * 0.5f, lineWidth, fillColorSlider, toggleDrawFill);
+			asset = assetManager.addSphere(shapeName, assetPosition, (x - mousePressX) * 0.5f, lineWidth, RGBAFillColorSlider, toggleDrawFill);
 
 			buttonName = "Sphere";
 		}
@@ -722,8 +772,8 @@ void Application::mouseReleased(int x, int y, int button)
 
 		updateBoundingBox();
 	}
-
-	else {
+	else
+	{
 		clickedInUi = false;
 	}
 }
@@ -885,23 +935,154 @@ void Application::isFilledToggleChanged(bool& value)
 	}
 }
 
-void Application::drawColorChanged(ofColor& value)
+void Application::RGBADrawColorChanged(ofColor& value)
 {
 	for (Asset* asset : selectedAssets)
 	{
-		asset->color = fillColorSlider;
+		asset->color = value;
 	}
+
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	float H;
+	float S;
+	float B;
+
+	value.getHsb(H, S, B);
+
+	H = (H / 255.0f) * 360.0f;
+	S = (S / 255.0f) * 100.0f;
+	B = (B / 255.0f) * 100.0f;
+
+	HFillColorSlider.setup("Hue", H, 0.0f, 360.0f);
+	SFillColorSlider.setup("Saturation", S, 0.0f, 100.0f);
+	BFillColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+	changedColor = false;
 }
 
-//--------------------------------------------------------------
-void Application::boundingBoxColorChanged(ofColor& value)
+void Application::HSBDrawColorChanged(float& value)
 {
-	assetManager.boundingBox.color = boundingBoxColorSlider;
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	ofColor color = ofColor::fromHsb(
+		ofMap(HFillColorSlider, 0, 360, 0, 255),
+		ofMap(SFillColorSlider, 0, 100, 0, 255),
+		ofMap(BFillColorSlider, 0, 100, 0, 255),
+		255
+	);
+
+	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", color, ofColor(0, 0), ofColor(255, 255));
+	colorParam.addListener(this, &Application::RGBADrawColorChanged);
+
+	RGBAFillColorSlider.setup(colorParam);
+
+	RGBADrawColorChanged(color);
+
+	changedColor = false;
 }
 
-void Application::boundingBoxLineWidthChanged(int& value)
+void Application::RGBABoundingBoxColorChanged(ofColor& value)
 {
-	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
+	assetManager.boundingBox.color = value;
+
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	float H;
+	float S;
+	float B;
+
+	value.getHsb(H, S, B);
+
+	H = (H / 255.0f) * 360.0f;
+	S = (S / 255.0f) * 100.0f;
+	B = (B / 255.0f) * 100.0f;
+
+	HBoundingBoxColorSlider.setup("Hue", H, 0.0f, 360.0f);
+	SBoundingBoxColorSlider.setup("Saturation", S, 0.0f, 100.0f);
+	BBoundingBoxColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+	changedColor = false;
+}
+
+void Application::HSBBoundingBoxColorChanged(float& value)
+{
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	ofColor color = ofColor::fromHsb(
+		ofMap(HBoundingBoxColorSlider, 0, 360, 0, 255),
+		ofMap(SBoundingBoxColorSlider, 0, 100, 0, 255),
+		ofMap(BBoundingBoxColorSlider, 0, 100, 0, 255)
+	);
+
+	ofParameter<ofColor> boundingBoxColorParam = ofParameter<ofColor>("Couleur", color, ofColor(0, 0), ofColor(255, 255));
+	boundingBoxColorParam.addListener(this, &Application::RGBABoundingBoxColorChanged);
+
+	RGBABoundingBoxColorSlider.setup(boundingBoxColorParam);
+
+	RGBABoundingBoxColorChanged(color);
+
+	changedColor = false;
+}
+
+void Application::RGBABackgroundColorChanged(ofColor& value)
+{
+	backgroundColor = value;
+
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	float H;
+	float S;
+	float B;
+
+	value.getHsb(H, S, B);
+
+	H = (H / 255.0f) * 360.0f;
+	S = (S / 255.0f) * 100.0f;
+	B = (B / 255.0f) * 100.0f;
+
+	HBackgroundColorSlider.setup("Hue", H, 0.0f, 360.0f);
+	SBackgroundColorSlider.setup("Saturation", S, 0.0f, 100.0f);
+	BBackgroundColorSlider.setup("Brightness", B, 0.0f, 100.0f);
+
+	changedColor = false;
+}
+
+void Application::HSBBackgroundColorChanged(float& value)
+{
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	ofColor color = ofColor::fromHsb(
+		ofMap(HBackgroundColorSlider, 0, 360, 0, 255),
+		ofMap(SBackgroundColorSlider, 0, 100, 0, 255),
+		ofMap(BBackgroundColorSlider, 0, 100, 0, 255)
+	);
+
+	ofParameter<ofColor> backgroundColorParam = ofParameter<ofColor>("Arriere-Plan", color, ofColor(0, 0), ofColor(255, 255));
+	backgroundColorParam.addListener(this, &Application::RGBABackgroundColorChanged);
+	RGBABackgroundColorSlider.setup(backgroundColorParam);
+
+	RGBABackgroundColorChanged(color);
+
+	changedColor = false;
 }
 
 //--------------------------------------------------------------
@@ -911,6 +1092,11 @@ void Application::lineWidthChanged(int& value)
 	{
 		asset->lineWidth = lineWidth;
 	}
+}
+
+void Application::boundingBoxLineWidthChanged(int& value)
+{
+	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
 }
 
 //--------------------------------------------------------------
@@ -952,8 +1138,8 @@ void Application::updateBoundingBox()
 		minZ + assetManager.boundingBox.depth * 0.5f
 	};
 
-	assetManager.boundingBox.color = boundingBoxColorSlider;
-	assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
+    assetManager.boundingBox.color = RGBABoundingBoxColorSlider;
+    assetManager.boundingBox.lineWidth = boundingBoxLineWidth;
 }
 
 std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
@@ -1149,7 +1335,7 @@ void Application::selectedAssetChanged(bool& value)
 			if (selectedAssets.size() == 0)
 			{
 				toggleDrawFill = asset->isFilled;
-				fillColorSlider = asset->color;
+				RGBAFillColorSlider = asset->color;
 				lineWidth = asset->lineWidth;
 
 				if (asset->geometryPrimitive.getMesh().getNumVertices() > 0)
