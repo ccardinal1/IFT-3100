@@ -689,27 +689,26 @@ void Application::mouseReleased(int x, int y, int button)
 			}
 		}
 
-			if (asset != nullptr)
-			{
-				auto button = std::make_shared<ofxToggle2>();
-				assetsPanel.add(button.get()->setup(buttonName, true));
-				button->addListener(this, &Application::selectedAssetChanged);
-				assetsButtons[asset->name] = button;
-
-				asset->isSelected = true;
-				bool tmp = true;
-				selectedAssets.push_back(asset);
-				selectedAssetChanged(tmp);
-
-				resetToggles();
-			}
-
-			updateBoundingBox();
-		}
-		else
+		if (asset != nullptr)
 		{
+			auto button = std::make_shared<ofxToggle2>();
+			assetsPanel.add(button.get()->setup(buttonName, true));
+			button->addListener(this, &Application::selectedAssetChanged);
+			assetsButtons[asset->name] = button;
+
+			asset->isSelected = true;
+			bool tmp = true;
+			selectedAssets.push_back(asset);
+			selectedAssetChanged(tmp);
+
+			resetToggles();
+		}
+
+		else{
 			clickedInUi = false;
 		}
+
+		updateBoundingBox();
 
 	}
 }
