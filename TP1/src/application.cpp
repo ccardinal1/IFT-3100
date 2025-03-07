@@ -1160,149 +1160,155 @@ std::vector<glm::vec3> Application::getExtremePos(Asset* asset)
 
 	switch (asset->type)
 	{
-	case AssetType::IMAGE:
-	case AssetType::RECTANGLE:
+		case AssetType::IMAGE:
+		case AssetType::RECTANGLE:
 		{
-		minX = std::min(asset->position.x, asset->position.x + asset->width);
-		minY = std::min(asset->position.y, asset->position.y + asset->height);
-		minZ = std::min(asset->position.z, asset->position.z + asset->depth);
+			float scaledWidth = asset->width * asset->scale.x;
+			float scaledHeight = asset->height * asset->scale.y;
+			float scaledDepth = asset->depth * asset->scale.z;
 
-		maxX = std::max(asset->position.x, asset->position.x + asset->width);
-		maxY = std::max(asset->position.y, asset->position.y + asset->height);
-		maxZ = std::max(asset->position.z, asset->position.z + asset->depth);
+			minX = std::min(asset->position.x, asset->position.x + scaledWidth);
+			minY = std::min(asset->position.y, asset->position.y + scaledHeight);
+			minZ = std::min(asset->position.z, asset->position.z + scaledDepth);
 
-		break;
-    }
-	case AssetType::CIRCLE:
-	{
-		float radius = std::abs(asset->radius);
+			maxX = std::max(asset->position.x, asset->position.x + scaledWidth);
+			maxY = std::max(asset->position.y, asset->position.y + scaledHeight);
+			maxZ = std::max(asset->position.z, asset->position.z + scaledDepth);
 
-		minX = asset->position.x - radius;
-		minY = asset->position.y - radius;
-		minZ = asset->position.z;
-
-		maxX = asset->position.x + radius;
-		maxY = asset->position.y + radius;
-		maxZ = asset->position.z;
-
-		break;
-	}
-	case AssetType::ELLIPSE:
-	{
-		float halfWidth = std::abs(asset->width) * 0.5f;
-		float halfHeight = std::abs(asset->height) * 0.5f;
-
-		minX = asset->position.x - halfWidth;
-		minY = asset->position.y - halfHeight;
-		minZ = asset->position.z;
-
-		maxX = asset->position.x + halfWidth;
-		maxY = asset->position.y + halfHeight;
-		maxZ = asset->position.z;
-
-		break;
-	}
-	case AssetType::LINE:
-	{
-		minX = std::min(asset->position.x, asset->endpoint.x);
-		minY = std::min(asset->position.y, asset->endpoint.y);
-		minZ = std::min(asset->position.z, asset->endpoint.z);
-
-		maxX = std::max(asset->position.x, asset->endpoint.x);
-		maxY = std::max(asset->position.y, asset->endpoint.y);
-		maxZ = std::max(asset->position.z, asset->endpoint.z);
-
-		break;
-	}
-	case AssetType::TRIANGLE:
-	{
-		minX = std::min({ asset->p1.x, asset->p2.x, asset->p3.x });
-		minY = std::min({ asset->p1.y, asset->p2.y, asset->p3.y });
-		minZ = std::min({ asset->p1.z, asset->p2.z, asset->p3.z });
-
-		maxX = std::max({ asset->p1.x, asset->p2.x, asset->p3.x });
-		maxY = std::max({ asset->p1.y, asset->p2.y, asset->p3.y });
-		maxZ = std::max({ asset->p1.z, asset->p2.z, asset->p3.z });
-
-		break;
-	}
-	case AssetType::CUBE:
-	{
-		glm::vec3 halfSize = glm::vec3(asset->width * 0.5f, asset->height * 0.5f, asset->depth * 0.5f);
-
-		glm::vec3 corners[8] = {
-			glm::vec3(-halfSize.x, -halfSize.y, -halfSize.z),
-			glm::vec3(-halfSize.x, -halfSize.y,  halfSize.z),
-			glm::vec3(-halfSize.x,  halfSize.y, -halfSize.z),
-			glm::vec3(-halfSize.x,  halfSize.y,  halfSize.z),
-			glm::vec3(halfSize.x, -halfSize.y, -halfSize.z),
-			glm::vec3(halfSize.x, -halfSize.y,  halfSize.z),
-			glm::vec3(halfSize.x,  halfSize.y, -halfSize.z),
-			glm::vec3(halfSize.x,  halfSize.y,  halfSize.z)
-		};
-
-		glm::mat4 transformationMatrix = glm::translate(glm::mat4(1.0f), asset->position)
-			* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.x), glm::vec3(1, 0, 0))
-			* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.y), glm::vec3(0, 1, 0))
-			* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.z), glm::vec3(0, 0, 1))
-			* glm::scale(glm::mat4(1.0f), asset->scale);
-
-		minPoint = glm::vec3(FLT_MAX);
-		maxPoint = glm::vec3(-FLT_MAX);
-
-		for (int i = 0; i < 8; i++) {
-			glm::vec3 transformedCorner = glm::vec3(transformationMatrix * glm::vec4(corners[i], 1.0f));
-			minPoint = glm::min(minPoint, transformedCorner);
-			maxPoint = glm::max(maxPoint, transformedCorner);
+			break;
 		}
+		case AssetType::CIRCLE:
+		{
+			float scaledRadiusX = asset->radius * asset->scale.x;
+			float scaledRadiusY = asset->radius * asset->scale.y;
 
-		minX = minPoint.x;
-		minY = minPoint.y;
-		minZ = minPoint.z;
+			minX = asset->position.x - scaledRadiusX;
+			maxX = asset->position.x + scaledRadiusX;
+			minY = asset->position.y - scaledRadiusY;
+			maxY = asset->position.y + scaledRadiusY;
+			minZ = asset->position.z;
+			maxZ = asset->position.z;
 
-		maxX = maxPoint.x;
-		maxY = maxPoint.y;
-		maxZ = maxPoint.z;
+			break;
+		}
+		case AssetType::ELLIPSE:
+		{
+			float scaledWidth = asset->width * asset->scale.x;
+			float scaledHeight = asset->height * asset->scale.y;
 
-		break;
-	}
-	case AssetType::SPHERE:
-	{
-		float radius = std::abs(asset->width);
+			minX = asset->position.x - scaledWidth / 2;
+			maxX = asset->position.x + scaledWidth / 2;
+			minY = asset->position.y - scaledHeight / 2;
+			maxY = asset->position.y + scaledHeight / 2;
+			minZ = asset->position.z;
+			maxZ = asset->position.z;
 
-		minX = asset->position.x - radius;
-		minY = asset->position.y - radius;
-		minZ = asset->position.z - radius;
+			break;
+		}
+		case AssetType::LINE:
+		{
+			minX = std::min(asset->position.x, asset->endpoint.x);
+			minY = std::min(asset->position.y, asset->endpoint.y);
+			minZ = std::min(asset->position.z, asset->endpoint.z);
 
-		maxX = asset->position.x + radius;
-		maxY = asset->position.y + radius;
-		maxZ = asset->position.z + radius;
+			maxX = std::max(asset->position.x, asset->endpoint.x);
+			maxY = std::max(asset->position.y, asset->endpoint.y);
+			maxZ = std::max(asset->position.z, asset->endpoint.z);
 
-		break;
-	}
-	case AssetType::MODEL:
-	{
-		for (int i = 0; i < asset->model.getNumMeshes(); i++) {
-			ofMesh mesh = asset->model.getMesh(i);
+			break;
+		}
+		case AssetType::TRIANGLE:
+		{
+			minX = std::min({ asset->p1.x, asset->p2.x, asset->p3.x });
+			minY = std::min({ asset->p1.y, asset->p2.y, asset->p3.y });
+			minZ = std::min({ asset->p1.z, asset->p2.z, asset->p3.z });
 
-			for (auto& vertex : mesh.getVertices()) {
-				glm::vec3 worldVertex = asset->model.getModelMatrix() * glm::vec4(vertex, 1.0);
+			maxX = std::max({ asset->p1.x, asset->p2.x, asset->p3.x });
+			maxY = std::max({ asset->p1.y, asset->p2.y, asset->p3.y });
+			maxZ = std::max({ asset->p1.z, asset->p2.z, asset->p3.z });
 
-				minPoint = glm::min(minPoint, worldVertex);
-				maxPoint = glm::max(maxPoint, worldVertex);
+			break;
+		}
+		case AssetType::CUBE:
+		{
+			glm::vec3 halfSize = glm::vec3(asset->width * 0.5f, asset->height * 0.5f, asset->depth * 0.5f);
+
+			glm::vec3 corners[8] = {
+				glm::vec3(-halfSize.x, -halfSize.y, -halfSize.z),
+				glm::vec3(-halfSize.x, -halfSize.y,  halfSize.z),
+				glm::vec3(-halfSize.x,  halfSize.y, -halfSize.z),
+				glm::vec3(-halfSize.x,  halfSize.y,  halfSize.z),
+				glm::vec3(halfSize.x, -halfSize.y, -halfSize.z),
+				glm::vec3(halfSize.x, -halfSize.y,  halfSize.z),
+				glm::vec3(halfSize.x,  halfSize.y, -halfSize.z),
+				glm::vec3(halfSize.x,  halfSize.y,  halfSize.z)
+			};
+
+			glm::mat4 transformationMatrix = glm::translate(glm::mat4(1.0f), asset->position)
+				* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.x), glm::vec3(1, 0, 0))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.y), glm::vec3(0, 1, 0))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(asset->rotation.z), glm::vec3(0, 0, 1))
+				* glm::scale(glm::mat4(1.0f), asset->scale);
+
+			minPoint = glm::vec3(FLT_MAX);
+			maxPoint = glm::vec3(-FLT_MAX);
+
+			for (int i = 0; i < 8; i++) {
+				glm::vec3 transformedCorner = glm::vec3(transformationMatrix * glm::vec4(corners[i], 1.0f));
+				minPoint = glm::min(minPoint, transformedCorner);
+				maxPoint = glm::max(maxPoint, transformedCorner);
 			}
+
+			minX = minPoint.x;
+			minY = minPoint.y;
+			minZ = minPoint.z;
+
+			maxX = maxPoint.x;
+			maxY = maxPoint.y;
+			maxZ = maxPoint.z;
+
+			break;
 		}
+		case AssetType::SPHERE:
+		{
+			float scaledRadiusX = std::abs(asset->width * asset->scale.x);
+			float scaledRadiusY = std::abs(asset->width * asset->scale.y);
+			float scaledRadiusZ = std::abs(asset->width * asset->scale.z);
 
-		minX = minPoint.x;
-		minY = minPoint.y;
-		minZ = minPoint.z;
+			minX = asset->position.x - scaledRadiusX;
+			maxX = asset->position.x + scaledRadiusX;
 
-		maxX = maxPoint.x;
-		maxY = maxPoint.y;
-		maxZ = maxPoint.z;
+			minY = asset->position.y - scaledRadiusY;
+			maxY = asset->position.y + scaledRadiusY;
 
-		break;
-	}
+			minZ = asset->position.z - scaledRadiusZ;
+			maxZ = asset->position.z + scaledRadiusZ;
+
+			break;
+		}
+		case AssetType::MODEL:
+		{
+			for (int i = 0; i < asset->model.getNumMeshes(); i++) {
+				ofMesh mesh = asset->model.getMesh(i);
+
+				for (auto& vertex : mesh.getVertices()) {
+					glm::vec3 worldVertex = asset->model.getModelMatrix() * glm::vec4(vertex, 1.0);
+
+					minPoint = glm::min(minPoint, worldVertex);
+					maxPoint = glm::max(maxPoint, worldVertex);
+				}
+			}
+
+			minX = minPoint.x;
+			minY = minPoint.y;
+			minZ = minPoint.z;
+
+			maxX = maxPoint.x;
+			maxY = maxPoint.y;
+			maxZ = maxPoint.z;
+
+			break;
+		}
 	}
 
 	extremes.push_back({ minX, minY, minZ });
