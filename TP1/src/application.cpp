@@ -1310,15 +1310,19 @@ void Application::rotateZChanged(float& value) {
 }
 
 void Application::scaleXChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setScale(selectedAssets[0], glm::vec3(value, selectedAssets[0]->scale.y, selectedAssets[0]->scale.z));
+
+	return;
 }
 
 void Application::scaleYChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, value, selectedAssets[0]->scale.z));
+
+	return;
 }
 
 void Application::scaleZChanged(float& value) {
-	//TODO
+	if (selectedAssets.size() == 1) assetManager.setScale(selectedAssets[0], glm::vec3(selectedAssets[0]->scale.x, selectedAssets[0]->scale.y, value));
 }
 
 void Application::growthXChanged(float& value) {

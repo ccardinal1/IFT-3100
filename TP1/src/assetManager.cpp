@@ -105,7 +105,9 @@ Asset* AssetManager::addTriangle(const std::string& name, glm::vec3 p1, glm::vec
 	asset.scale = glm::vec3(1, 1, 1);
 	asset.p1 = p1;
 	asset.p2 = p2;
+	asset.p2.z = p1.z;
 	asset.p3 = p3;
+	asset.p3.z = p1.z;
 	asset.width = p2.x - p3.x;
 	asset.height = p1.y - p2.y;
 	asset.position.y -= asset.height;
@@ -205,6 +207,7 @@ void AssetManager::draw()
 		case AssetType::RECTANGLE:
 			ofPushMatrix();
 			ofTranslate(asset.position);
+			ofScale(asset.scale);
 			ofRotateXDeg(asset.rotation.x);
 			ofRotateYDeg(asset.rotation.y);
 			ofRotateZDeg(asset.rotation.z);
@@ -216,6 +219,7 @@ void AssetManager::draw()
 			ofSetCircleResolution(100);
 			ofPushMatrix();
 			ofTranslate(asset.position);
+			ofScale(asset.scale);
 			ofRotateXDeg(asset.rotation.x);
 			ofRotateYDeg(asset.rotation.y);
 			ofRotateZDeg(asset.rotation.z);
@@ -226,6 +230,7 @@ void AssetManager::draw()
 		case AssetType::ELLIPSE:
 			ofPushMatrix();
 			ofTranslate(asset.position);
+			ofScale(asset.scale);
 			ofRotateXDeg(asset.rotation.x);
 			ofRotateYDeg(asset.rotation.y);
 			ofRotateZDeg(asset.rotation.z);
@@ -236,6 +241,7 @@ void AssetManager::draw()
 		case AssetType::LINE:
 			ofPushMatrix();
 			ofTranslate(asset.position);
+			ofScale(asset.scale);
 			ofRotateXDeg(asset.rotation.x);
 			ofRotateYDeg(asset.rotation.y);
 			ofRotateZDeg(asset.rotation.z);
@@ -244,7 +250,12 @@ void AssetManager::draw()
 			ofPopMatrix();
 			break;
 		case AssetType::TRIANGLE:
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofScale(asset.scale);
+			ofTranslate(-asset.position);
 			ofDrawTriangle(asset.p1, asset.p2, asset.p3);
+			ofPopMatrix();
 			break;
 		case AssetType::CUBE:
 		case AssetType::SPHERE:
@@ -259,7 +270,12 @@ void AssetManager::draw()
 			break;
 		case AssetType::MODEL:
 			asset.model.setPosition(asset.position.x, asset.position.y, asset.position.z);
+			ofPushMatrix();
+			ofTranslate(asset.position);
+			ofScale(asset.scale);
+			ofTranslate(-asset.position);
 			asset.model.drawFaces();
+			ofPopMatrix();
 		}
 	}
 
@@ -457,7 +473,13 @@ void AssetManager::setRotation(Asset* asset, glm::vec3 newRot) {
 }
 
 void AssetManager::setScale(Asset* asset, glm::vec3 newSca) {
-	//TODO
+	switch (asset->type) {
+	case AssetType::SPHERE:
+	case AssetType::CUBE:
+		asset->geometryPrimitive.setScale(newSca);
+	default:
+		asset->scale = newSca;
+	}
 }
 
 void AssetManager::rotateX(Asset* asset, float deg)
