@@ -100,6 +100,11 @@ public:
 		return this->value;
 	}
 
+	void setValue(float value)
+	{
+		this->value = value;
+	}
+
 	bool isVisible()
 	{
 		return this->isGuiDrawing();
@@ -341,6 +346,7 @@ public:
 
 	bool displayCameraSwitchMessage = false;
 	float cameraSwitchTime;
+	float waitTime;
 
 	ofTrueTypeFont alertFont;
 };
