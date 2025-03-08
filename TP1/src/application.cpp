@@ -144,7 +144,7 @@ void Application::setup()
 	groupDrawOptions.add(toggleDrawFill.setup("Remplir", false));
 	groupDrawOptions.add(lineWidth.setup("Epaisseur", 1, 1, 10));
 
-	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", ofColor(0, 0, 0), ofColor(0, 0), ofColor(255, 255));
+	ofParameter<ofColor> colorParam = ofParameter<ofColor>("Couleur", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255));
 	colorParam.addListener(this, &Application::RGBADrawColorChanged);
 
 	groupHSBFillColor.setup("Couleur HSB");
@@ -155,7 +155,7 @@ void Application::setup()
 
 	groupHSBFillColor.add(HFillColorSlider.setup("Teinte", 0.0f, 0.0f, 360.0f));
 	groupHSBFillColor.add(SFillColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
-	groupHSBFillColor.add(BFillColorSlider.setup("Luminosite", 0.0f, 0.0f, 100.0f));
+	groupHSBFillColor.add(BFillColorSlider.setup("Luminosite", 100.0f, 0.0f, 100.0f));
 
 	groupHSBFillColor.minimize();
 
@@ -243,11 +243,11 @@ void Application::setup()
 
 	groupHSBBackgroundColor.add(HBackgroundColorSlider.setup("Teinte", 0.0f, 0.0f, 360.0f));
 	groupHSBBackgroundColor.add(SBackgroundColorSlider.setup("Saturation", 0.0f, 0.0f, 100.0f));
-	groupHSBBackgroundColor.add(BBackgroundColorSlider.setup("Luminosite", 100.0f, 0.0f, 100.0f));
+	groupHSBBackgroundColor.add(BBackgroundColorSlider.setup("Luminosite", 39.0f, 0.0f, 100.0f));
 
 	gui.add(&groupHSBBackgroundColor);
 
-	ofParameter<ofColor> backgroundColorParam = ofParameter<ofColor>("Arriere-Plan", ofColor(255, 255, 255), ofColor(0, 0), ofColor(255, 255));
+	ofParameter<ofColor> backgroundColorParam = ofParameter<ofColor>("Arriere-Plan", ofColor(100, 100, 100), ofColor(0, 0), ofColor(255, 255));
 	backgroundColorParam.addListener(this, &Application::RGBABackgroundColorChanged);
 
 	gui.add(RGBABackgroundColorSlider.setup(backgroundColorParam));
@@ -934,6 +934,11 @@ void Application::isFilledToggleChanged(bool& value)
 
 void Application::RGBADrawColorChanged(ofColor& value)
 {
+	for (Asset* asset : selectedAssets)
+	{
+		asset->color = value;
+	}
+
 	if (dynamicColor)
 	{
 		if (changedColor)
@@ -955,41 +960,38 @@ void Application::RGBADrawColorChanged(ofColor& value)
 		SFillColorSlider.setValue(S);
 		BFillColorSlider.setValue(B);
 
-		for (Asset* asset : selectedAssets)
-		{
-			asset->color = value;
-		}
-
 		changedColor = false;
 	}
 }
 
 void Application::HSBDrawColorChanged(float& value)
 {
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	ofColor color = ofColor::fromHsb(
+		ofMap(HFillColorSlider, 0, 360, 0, 255),
+		ofMap(SFillColorSlider, 0, 100, 0, 255),
+		ofMap(BFillColorSlider, 0, 100, 0, 255),
+		255
+	);
+
 	if (dynamicColor)
 	{
-		if (changedColor)
-			return;
-
-		changedColor = true;
-
-		ofColor color = ofColor::fromHsb(
-			ofMap(HFillColorSlider, 0, 360, 0, 255),
-			ofMap(SFillColorSlider, 0, 100, 0, 255),
-			ofMap(BFillColorSlider, 0, 100, 0, 255),
-			255
-		);
-
 		RGBAFillColorSlider.setColor(color);
-
-		RGBADrawColorChanged(color);
-
-		changedColor = false;
 	}
+
+	RGBADrawColorChanged(color);
+
+	changedColor = false;
 }
 
 void Application::RGBABoundingBoxColorChanged(ofColor& value)
 {
+	assetManager.boundingBox.color = value;
+
 	if (dynamicColor)
 	{
 		if (changedColor)
@@ -1011,37 +1013,37 @@ void Application::RGBABoundingBoxColorChanged(ofColor& value)
 		SBoundingBoxColorSlider.setValue(S);
 		BBoundingBoxColorSlider.setValue(B);
 
-		assetManager.boundingBox.color = value;
-
 		changedColor = false;
 	}
 }
 
 void Application::HSBBoundingBoxColorChanged(float& value)
 {
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	ofColor color = ofColor::fromHsb(
+		ofMap(HBoundingBoxColorSlider, 0, 360, 0, 255),
+		ofMap(SBoundingBoxColorSlider, 0, 100, 0, 255),
+		ofMap(BBoundingBoxColorSlider, 0, 100, 0, 255)
+	);
+
 	if (dynamicColor)
 	{
-		if (changedColor)
-			return;
-
-		changedColor = true;
-
-		ofColor color = ofColor::fromHsb(
-			ofMap(HBoundingBoxColorSlider, 0, 360, 0, 255),
-			ofMap(SBoundingBoxColorSlider, 0, 100, 0, 255),
-			ofMap(BBoundingBoxColorSlider, 0, 100, 0, 255)
-		);
-
 		RGBABoundingBoxColorSlider.setColor(color);
-
-		RGBABoundingBoxColorChanged(color);
-
-		changedColor = false;
 	}
+
+	RGBABoundingBoxColorChanged(color);
+
+	changedColor = false;
 }
 
 void Application::RGBABackgroundColorChanged(ofColor& value)
 {
+	backgroundColor = value;
+
 	if (dynamicColor)
 	{
 		if (changedColor)
@@ -1063,33 +1065,31 @@ void Application::RGBABackgroundColorChanged(ofColor& value)
 		SBackgroundColorSlider.setValue(S);
 		BBackgroundColorSlider.setValue(B);
 
-		backgroundColor = value;
-
 		changedColor = false;
 	}
 }
 
 void Application::HSBBackgroundColorChanged(float& value)
 {
+	if (changedColor)
+		return;
+
+	changedColor = true;
+
+	ofColor color = ofColor::fromHsb(
+		ofMap(HBackgroundColorSlider, 0, 360, 0, 255),
+		ofMap(SBackgroundColorSlider, 0, 100, 0, 255),
+		ofMap(BBackgroundColorSlider, 0, 100, 0, 255)
+	);
+
 	if (dynamicColor)
 	{
-		if (changedColor)
-			return;
-
-		changedColor = true;
-
-		ofColor color = ofColor::fromHsb(
-			ofMap(HBackgroundColorSlider, 0, 360, 0, 255),
-			ofMap(SBackgroundColorSlider, 0, 100, 0, 255),
-			ofMap(BBackgroundColorSlider, 0, 100, 0, 255)
-		);
-
 		RGBABackgroundColorSlider.setColor(color);
-
-		RGBABackgroundColorChanged(color);
-
-		changedColor = false;
 	}
+
+	RGBABackgroundColorChanged(color);
+
+	changedColor = false;
 }
 
 //--------------------------------------------------------------
