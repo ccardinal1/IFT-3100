@@ -346,7 +346,6 @@ public:
 
 	bool displayCameraSwitchMessage = false;
 	float cameraSwitchTime;
-	float waitTime;
 
 	ofTrueTypeFont alertFont;
 };

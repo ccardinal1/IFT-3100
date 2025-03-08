@@ -1009,9 +1009,7 @@ void Application::RGBABoundingBoxColorChanged(ofColor& value)
 		S = (S / 255.0f) * 100.0f;
 		B = (B / 255.0f) * 100.0f;
 
-		HBoundingBoxColorSlider.setValue(H);
-		SBoundingBoxColorSlider.setValue(S);
-		BBoundingBoxColorSlider.setValue(B);
+		bool maximize = !groupHSBBoundingBoxColor.isMinimized();
 
 		changedColor = false;
 	}
